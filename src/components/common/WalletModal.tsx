@@ -11,7 +11,9 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
-  const { connected, connecting, publicKeyStr, balanceSol, walletName, availableWallets, connect, disconnect, error } = useWallet();
+  const { connected, connecting, publicKeyStr, balanceSol, walletName, availableWallets, connect, disconnect, requestDevnetAirdrop, error } = useWallet();
+  const [airdropping, setAirdropping] = React.useState(false);
+  const [airdropMsg, setAirdropMsg] = React.useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -60,6 +62,27 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </span>
               </div>
             </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={airdropping}
+                onClick={async () => {
+                  setAirdropping(true);
+                  setAirdropMsg(null);
+                  const ok = await requestDevnetAirdrop();
+                  setAirdropping(false);
+                  setAirdropMsg(ok ? 'Airdrop requested successfully!' : 'Airdrop rate limit reached. Please use a devnet faucet.');
+                }}
+                className="w-full py-2 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition-colors"
+              >
+                {airdropping ? 'Requesting 1 SOL...' : 'Request 1 Devnet SOL'}
+              </button>
+            </div>
+
+            {airdropMsg && (
+              <p className="text-[11px] text-zinc-400 text-center">{airdropMsg}</p>
+            )}
 
             <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-lg p-3 text-xs text-emerald-300 flex items-start gap-2">
               <Shield className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />

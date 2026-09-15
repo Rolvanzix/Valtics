@@ -4,6 +4,7 @@ import { useWallet } from '../../context/WalletContext';
 import { NetworkStatus } from '../common/NetworkStatus';
 import { AddressBadge } from '../common/AddressBadge';
 import { formatCurrency } from '../../utils/format';
+import { ValticsMark } from '../brand/ValticsLogo';
 
 export type NavigationTab = 'overview' | 'markets' | 'create' | 'studio' | 'my-markets' | 'activity';
 
@@ -38,17 +39,15 @@ export const Header: React.FC<HeaderProps> = ({
           <div
             id="brand-logo"
             onClick={() => onSelectTab('overview')}
-            className="cursor-pointer flex items-center gap-2.5 group select-none"
+            className="cursor-pointer flex items-center gap-3 group select-none"
           >
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-sm tracking-tighter">
-              V
-            </div>
+            <ValticsMark size={32} glow className="transition-transform group-hover:scale-105" />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base tracking-tight text-zinc-100 font-sans">
+                <span className="font-extrabold text-base tracking-tight text-zinc-100 font-sans group-hover:text-white transition-colors">
                   VALTICS
                 </span>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-zinc-800/80 text-zinc-400 border border-zinc-700/50">
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-zinc-800/80 text-amber-400 border border-amber-500/20">
                   DBC Core
                 </span>
               </div>

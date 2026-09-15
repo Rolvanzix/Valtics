@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
+import { PublicKey, Transaction, VersionedTransaction, Keypair } from '@solana/web3.js';
 import { useNetwork } from './NetworkContext';
 import { fetchSolBalance } from '../services/solana';
 
@@ -7,7 +7,7 @@ export interface WalletProviderInfo {
   name: string;
   icon: string;
   installed: boolean;
-  adapterKey: 'phantom' | 'solflare' | 'standard';
+  adapterKey: 'phantom' | 'solflare' | 'standard' | 'sandbox';
 }
 
 interface WalletContextType {
@@ -19,9 +19,10 @@ interface WalletContextType {
   walletName: string | null;
   error: string | null;
   availableWallets: WalletProviderInfo[];
-  connect: (walletType?: 'phantom' | 'solflare' | 'standard') => Promise<boolean>;
+  connect: (walletType?: 'phantom' | 'solflare' | 'standard' | 'sandbox') => Promise<boolean>;
   disconnect: () => Promise<void>;
   refreshBalance: () => Promise<void>;
+  requestDevnetAirdrop: () => Promise<boolean>;
   signTransaction: (tx: Transaction | VersionedTransaction) => Promise<Transaction | VersionedTransaction>;
 }
 
@@ -47,6 +48,8 @@ declare global {
   }
 }
 
+const SANDBOX_KEYPAIR_STORAGE = 'valtics_devnet_sandbox_kp';
+
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { connection } = useNetwork();
   const [connected, setConnected] = useState(false);
@@ -56,8 +59,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [walletName, setWalletName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeProvider, setActiveProvider] = useState<SolanaProvider | null>(null);
+  const [sandboxKeypair, setSandboxKeypair] = useState<Keypair | null>(null);
 
-  const getProvider = useCallback((preferred?: 'phantom' | 'solflare' | 'standard'): { provider: SolanaProvider | null; name: string } => {
+  const getProvider = useCallback((preferred?: 'phantom' | 'solflare' | 'standard' | 'sandbox'): { provider: SolanaProvider | null; name: string } => {
     if (typeof window === 'undefined') return { provider: null, name: '' };
 
     if (preferred === 'solflare' && window.solflare) {
@@ -95,8 +99,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         installed: !!window.solana,
         adapterKey: 'standard',
       },
+      {
+        name: 'Devnet Sandbox Wallet (No extension required)',
+        icon: '🧪',
+        installed: true,
+        adapterKey: 'sandbox',
+      },
     ];
-  }, [connected]);
+  }, []);
 
   const refreshBalance = useCallback(async () => {
     if (!publicKey || !connection) {
@@ -135,14 +145,37 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [getProvider]);
 
-  const connect = async (walletType?: 'phantom' | 'solflare' | 'standard'): Promise<boolean> => {
+  const connect = async (walletType?: 'phantom' | 'solflare' | 'standard' | 'sandbox'): Promise<boolean> => {
     setError(null);
     setConnecting(true);
     try {
+      if (walletType === 'sandbox') {
+        let kp: Keypair;
+        try {
+          const stored = localStorage.getItem(SANDBOX_KEYPAIR_STORAGE);
+          if (stored) {
+            const secretKey = Uint8Array.from(JSON.parse(stored));
+            kp = Keypair.fromSecretKey(secretKey);
+          } else {
+            kp = Keypair.generate();
+            localStorage.setItem(SANDBOX_KEYPAIR_STORAGE, JSON.stringify(Array.from(kp.secretKey)));
+          }
+        } catch {
+          kp = Keypair.generate();
+        }
+
+        setSandboxKeypair(kp);
+        setPublicKey(kp.publicKey);
+        setConnected(true);
+        setWalletName('Devnet Sandbox Keypair');
+        setActiveProvider(null);
+        return true;
+      }
+
       const { provider, name } = getProvider(walletType);
       if (!provider) {
         throw new Error(
-          'No compatible Solana wallet extension detected. Please install Phantom or Solflare browser extension.'
+          'No compatible Solana wallet extension detected. Please install Phantom or Solflare browser extension, or use Devnet Sandbox Wallet.'
         );
       }
 
@@ -156,6 +189,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setConnected(true);
       setWalletName(name);
       setActiveProvider(provider);
+      setSandboxKeypair(null);
 
       // Listen for account change / disconnect if supported
       if (provider.on) {
@@ -194,11 +228,33 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setBalanceSol(null);
       setWalletName(null);
       setActiveProvider(null);
+      setSandboxKeypair(null);
       setError(null);
     }
   };
 
+  const requestDevnetAirdrop = async (): Promise<boolean> => {
+    if (!publicKey || !connection) return false;
+    try {
+      const sig = await connection.requestAirdrop(publicKey, 1_000_000_000); // 1 SOL
+      await connection.confirmTransaction(sig, 'confirmed');
+      await refreshBalance();
+      return true;
+    } catch (err) {
+      console.warn('Devnet airdrop failed:', err);
+      return false;
+    }
+  };
+
   const signTransaction = async (tx: Transaction | VersionedTransaction) => {
+    if (sandboxKeypair) {
+      if ('partialSign' in tx) {
+        (tx as Transaction).partialSign(sandboxKeypair);
+        return tx;
+      }
+      throw new Error('VersionedTransaction signing is not implemented for sandbox keypair.');
+    }
+
     if (!activeProvider) {
       throw new Error('Wallet is not connected. Please connect your wallet first.');
     }
@@ -219,6 +275,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         connect,
         disconnect,
         refreshBalance,
+        requestDevnetAirdrop,
         signTransaction,
       }}
     >

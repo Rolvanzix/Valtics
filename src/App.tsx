@@ -203,6 +203,10 @@ function MainAppContent() {
               <CurveStudioView
                 onSelectTab={handleSelectTab}
                 onApplyToCreation={handleApplyCurveToCreation}
+                onOpenWalletModal={() => setWalletModalOpen(true)}
+                onSelectMarketDetail={(poolAddress) => {
+                  setSelectedMarketAddress(poolAddress);
+                }}
               />
             )}
 
