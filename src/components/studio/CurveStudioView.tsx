@@ -29,6 +29,7 @@ import {
 import { CurveModelParams } from '../../types';
 import { useNetwork } from '../../context/NetworkContext';
 import { QUOTE_MINTS } from '../../config/constants';
+import { ValticsMark } from '../brand/ValticsLogo';
 
 interface CurveStudioViewProps {
   onSelectTab: (tab: NavigationTab) => void;
@@ -141,20 +142,23 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
       {/* Header Banner */}
       <div className="bg-radial from-amber-500/10 via-[#0c101a] to-[#080b12] border border-zinc-800/80 rounded-2xl p-5 sm:p-7 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                Primary Product Feature
-              </span>
-              <span className="text-zinc-400 text-xs">•</span>
-              <span className="text-zinc-400 text-xs font-mono">Meteora Dynamic Bonding Curve v1</span>
+          <div className="flex items-start sm:items-center gap-4 max-w-2xl">
+            <ValticsMark size={52} glow className="shrink-0 hidden sm:inline-flex" />
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  Primary Product Feature
+                </span>
+                <span className="text-zinc-400 text-xs">•</span>
+                <span className="text-zinc-400 text-xs font-mono">Meteora Dynamic Bonding Curve v1</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                VALTICS Curve Studio
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                Design, simulate, and configure production-grade Dynamic Bonding Curve markets for tokenized Real World Assets on Solana.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              VALTICS Curve Studio
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              Design, simulate, and configure production-grade Dynamic Bonding Curve markets for tokenized Real World Assets on Solana.
-            </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

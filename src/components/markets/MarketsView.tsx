@@ -31,6 +31,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ProvenanceBadge, ProvenanceLegend } from '../common/DataProvenance';
+import { BlockchainContextBar } from '../common/BlockchainContextBar';
 
 interface MarketsViewProps {
   onSelectTab: (tab: NavigationTab) => void;
@@ -277,6 +278,9 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* Explicit Network, Connected Wallet, and DBC Program State */}
+      <BlockchainContextBar screenTitle="Markets Directory" />
 
       {/* SEARCH, FILTER & QUERY BAR */}
       <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-4 space-y-3">

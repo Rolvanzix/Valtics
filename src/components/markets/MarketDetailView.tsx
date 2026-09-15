@@ -29,6 +29,7 @@ import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Table, Column } from '../ui/Table';
+import { Dialog } from '../ui/Dialog';
 import { ProvenanceBadge, ProvenanceLegend } from '../common/DataProvenance';
 import { MarketPriceChart } from '../charts/MarketPriceChart';
 import { BondingCurveChart } from '../charts/BondingCurveChart';
@@ -36,6 +37,9 @@ import { GraduationGauge } from '../charts/GraduationGauge';
 import { PriceProjectionChart } from '../charts/PriceProjectionChart';
 import { generateCurvePoints, RWA_PRESETS } from '../../services/curveCalculator';
 import { NavigationTab } from '../layout/Header';
+import { ValticsMark } from '../brand/ValticsLogo';
+import { BlockchainContextBar } from '../common/BlockchainContextBar';
+import { MeteoraSwapModal } from './MeteoraSwapModal';
 
 interface MarketDetailViewProps {
   pool: DBCPoolState;
@@ -50,6 +54,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
 }) => {
   const { network } = useNetwork();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -122,6 +127,19 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
         </div>
       </div>
 
+      {/* Explicit Network, Wallet, and On-Chain Coordinate Indicators */}
+      <BlockchainContextBar
+        screenTitle="Market Terminal"
+        addresses={[
+          { label: 'Pool PDA', address: pool.poolAddress },
+          { label: 'Base Mint', address: pool.baseMint },
+          { label: 'Quote Mint', address: pool.quoteMint },
+          { label: 'Base Vault', address: pool.baseVault },
+          { label: 'Quote Vault', address: pool.quoteVault },
+          { label: 'Config PDA', address: pool.configAddress },
+        ]}
+      />
+
       {/* SECTION 1: ASSET HEADER */}
       <div className="rounded-2xl border border-zinc-800 bg-[#090d16] p-6 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -173,9 +191,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
               variant="brand"
               size="sm"
               leftIcon={<Coins className="w-3.5 h-3.5" />}
-              onClick={() => {
-                alert(`Direct buy/sell swap interface for ${pool.tokenSymbol || 'asset'} connects directly to Meteora DBC Program ID on ${network}.`);
-              }}
+              onClick={() => setIsSwapModalOpen(true)}
             >
               Trade via Curve
             </Button>
@@ -710,6 +726,13 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
 
       {/* Global Data Provenance Legend */}
       <ProvenanceLegend />
+
+      {/* Real Meteora DBC Curve Swap Modal */}
+      <MeteoraSwapModal
+        isOpen={isSwapModalOpen}
+        pool={pool}
+        onClose={() => setIsSwapModalOpen(false)}
+      />
     </div>
   );
 };

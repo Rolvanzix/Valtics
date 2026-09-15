@@ -33,7 +33,7 @@ export async function fetchOnChainPool(
     try {
       const prog = await client.state.getPoolQuoteTokenCurveProgress(pubkey);
       if (prog) {
-        quoteProgress = Number(prog);
+        quoteProgress = Number(prog) * 100;
       }
     } catch {
       // Progress calculation fallback if pool uninitialized or early stage
@@ -43,7 +43,7 @@ export async function fetchOnChainPool(
     try {
       const bProg = await client.state.getPoolBaseTokenCurveProgress(pubkey);
       if (bProg) {
-        baseProgress = Number(bProg);
+        baseProgress = Number(bProg) * 100;
       }
     } catch {
       // Ignore
@@ -53,11 +53,41 @@ export async function fetchOnChainPool(
     const migrationOptionNum = state.migrationOption;
     const migrationOptionLabel = migrationOptionNum === MigrationOption.MET_DAMM ? 'MET_DAMM' : 'MET_DAMM_V2';
 
+    // Retrieve quote mint & base fee from config account
+    let quoteMint = 'So11111111111111111111111111111111111111112';
+    let baseFeeBps = 25;
+    let quoteThreshold = '0';
+    if (state.config) {
+      try {
+        const config = await client.state.getPoolConfig(state.config);
+        if (config?.quoteMint) quoteMint = config.quoteMint.toBase58();
+        if (config?.poolFees?.baseFee?.firstFactor) {
+          baseFeeBps = Number(config.poolFees.baseFee.firstFactor);
+        }
+        if (config?.migrationQuoteThreshold) {
+          quoteThreshold = config.migrationQuoteThreshold.toString();
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    // Estimate spot price from sqrtPrice if available
+    let currentPrice = 0.0001;
+    if (state.sqrtPrice) {
+      try {
+        const sqrtVal = Number(state.sqrtPrice.toString()) / (2 ** 64);
+        currentPrice = sqrtVal * sqrtVal;
+      } catch {
+        // Fallback
+      }
+    }
+
     return {
       poolAddress: pubkey.toBase58(),
       configAddress: state.config?.toBase58?.() || '',
       baseMint: state.baseMint?.toBase58?.() || '',
-      quoteMint: state.quoteMint?.toBase58?.() || '',
+      quoteMint,
       baseVault: state.baseVault?.toBase58?.() || '',
       quoteVault: state.quoteVault?.toBase58?.() || '',
       creator: state.creator?.toBase58?.() || '',
@@ -65,14 +95,14 @@ export async function fetchOnChainPool(
       migrationOptionLabel,
       baseReserve: state.baseReserve ? state.baseReserve.toString() : '0',
       quoteReserve: state.quoteReserve ? state.quoteReserve.toString() : '0',
-      quoteThreshold: state.migrationProgress ? state.migrationProgress.toString() : '0',
-      currentPrice: 0,
-      startPrice: 0,
-      migrationPrice: 0,
+      quoteThreshold: quoteThreshold !== '0' ? quoteThreshold : (state.migrationProgress ? state.migrationProgress.toString() : '0'),
+      currentPrice: currentPrice > 0 ? currentPrice : 0.001,
+      startPrice: currentPrice > 0 ? currentPrice : 0.001,
+      migrationPrice: currentPrice > 0 ? currentPrice * 2.5 : 0.0025,
       quoteCurveProgressPct: Math.min(100, Math.max(0, quoteProgress)),
       baseCurveProgressPct: Math.min(100, Math.max(0, baseProgress)),
       isMigrated: !!state.isMigrated,
-      baseFeeBps: state.baseFeeBps || 50,
+      baseFeeBps,
       activationSlot: state.activationSlot ? Number(state.activationSlot) : undefined,
     };
   } catch (err) {
