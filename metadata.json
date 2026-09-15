@@ -1,0 +1,6 @@
+{
+  "name": "VALTICS",
+  "description": "Programmable markets for tokenized assets. Issuer-facing infrastructure for creating liquidity and dynamic bonding curve markets on Solana powered by Meteora DBC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
