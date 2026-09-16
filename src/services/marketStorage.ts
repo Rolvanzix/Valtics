@@ -19,10 +19,18 @@ export function getCreatedMarkets(): DBCPoolState[] {
 export function saveCreatedMarket(pool: DBCPoolState): void {
   if (typeof window === 'undefined') return;
   try {
+    const now = new Date();
+    const enriched: DBCPoolState = {
+      ...pool,
+      createdAt: pool.createdAt || now.toISOString(),
+      creationDate:
+        pool.creationDate ||
+        now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    };
     const existing = getCreatedMarkets();
-    const updated = [pool, ...existing.filter((p) => p.poolAddress !== pool.poolAddress)];
+    const updated = [enriched, ...existing.filter((p) => p.poolAddress !== pool.poolAddress)];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent(LISTEN_EVENT, { detail: pool }));
+    window.dispatchEvent(new CustomEvent(LISTEN_EVENT, { detail: enriched }));
   } catch (err) {
     console.warn('Failed to persist created market to localStorage:', err);
   }

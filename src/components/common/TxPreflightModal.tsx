@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   X, 
   ShieldAlert, 
@@ -6,11 +6,13 @@ import {
   AlertTriangle, 
   ExternalLink, 
   Loader2, 
-  ArrowRight,
-  Info,
-  Layers,
-  Coins,
-  FileCheck
+  ArrowRight, 
+  Info, 
+  Layers, 
+  Coins, 
+  FileCheck,
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
 import { TransactionIntent, ClusterNetwork } from '../../types';
 import { AddressBadge } from './AddressBadge';
@@ -20,6 +22,10 @@ import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Dialog } from '../ui/Dialog';
 import { ValticsMark } from '../brand/ValticsLogo';
+import { useNetwork } from '../../context/NetworkContext';
+import { useWallet } from '../../context/WalletContext';
+import { auditTransactionSafety } from '../../utils/txSafety';
+import { sanitizeErrorMessage } from '../../utils/security';
 
 interface TxPreflightModalProps {
   isOpen: boolean;
@@ -40,9 +46,27 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
   error,
   txSignature,
 }) => {
+  const { network } = useNetwork();
+  const { publicKeyStr, balanceSol } = useWallet();
   const [confirmedRisk, setConfirmedRisk] = useState(false);
 
+  // Run deterministic transaction safety audit
+  const safetyReport = useMemo(() => {
+    if (!intent) return null;
+    return auditTransactionSafety({
+      network: intent.network,
+      expectedNetwork: network,
+      destinationProgramId: intent.programId,
+      signerAddress: publicKeyStr,
+      userSolBalance: balanceSol,
+      estimatedFeeSol: intent.estimatedFeeSol,
+      rentExemptSol: intent.rentExemptReserveSol,
+    });
+  }, [intent, network, publicKeyStr, balanceSol]);
+
   if (!isOpen || !intent) return null;
+
+  const sanitizedError = error ? sanitizeErrorMessage(error) : null;
 
   return (
     <Dialog
@@ -68,7 +92,7 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
                   Transaction Confirmed on Solana Ledger
                 </h4>
                 <p className="text-xs text-zinc-300">
-                  Your instruction has been signed, committed, and finalized on-chain.
+                  Your instruction has been cryptographically signed, committed, and finalized on-chain.
                 </p>
                 <div className="mt-3 pt-2 border-t border-emerald-900/40 flex items-center justify-between">
                   <span className="text-xs text-zinc-400 font-mono">Signature:</span>
@@ -83,6 +107,57 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
           </div>
         ) : (
           <>
+            {/* Safety Invariant Audit Report */}
+            {safetyReport && (
+              <div className="p-3 rounded-xl bg-[#090d16] border border-zinc-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-semibold tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    Transaction Safety Verification Checklist
+                  </span>
+                  <Badge variant={safetyReport.isSafeToProceed ? 'live' : 'danger'} size="xs">
+                    {safetyReport.isSafeToProceed ? 'Safety Checks Passed' : 'Action Required'}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  {safetyReport.checks.map((chk) => (
+                    <div
+                      key={chk.id}
+                      className={`p-2 rounded-lg border flex items-start gap-2 ${
+                        chk.status === 'verified'
+                          ? 'border-emerald-900/30 bg-emerald-950/10 text-zinc-300'
+                          : chk.status === 'warning'
+                          ? 'border-amber-900/50 bg-amber-950/20 text-amber-200'
+                          : 'border-rose-900/50 bg-rose-950/20 text-rose-200'
+                      }`}
+                    >
+                      {chk.status === 'verified' ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      ) : (
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <span className="font-semibold block text-zinc-200">{chk.label}</span>
+                        <span className="text-[10px] text-zinc-400 leading-tight block mt-0.5">
+                          {chk.detail}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {!safetyReport.isSafeToProceed && safetyReport.blockReason && (
+                  <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-900/60 text-xs text-rose-300 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>
+                      <strong>Execution Blocked:</strong> {safetyReport.blockReason}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Pillar 1: What am I doing? */}
             <div className="p-3.5 rounded-xl bg-[#090d14] border border-zinc-800 space-y-1.5">
               <div className="flex items-center justify-between">
@@ -151,7 +226,7 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
             <div className="rounded-xl border border-zinc-800 bg-[#090d14] p-3.5 space-y-2 text-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 font-sans">
-                  Target Program
+                  Target Program (Verified Meteora DBC)
                 </span>
                 <AddressBadge address={intent.programId} label="Meteora DBC" />
               </div>
@@ -210,13 +285,13 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
               </div>
             </div>
 
-            {/* Error display */}
-            {error && (
+            {/* Sanitized Error display */}
+            {sanitizedError && (
               <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-900/60 text-xs text-rose-300 flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold block">Execution Failed</span>
-                  <span>{error}</span>
+                  <span>{sanitizedError}</span>
                 </div>
               </div>
             )}
@@ -224,17 +299,17 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
             {/* Pillar 5: What do I need to confirm? */}
             <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-2">
               <span className="text-[10px] font-mono uppercase text-amber-400 font-semibold tracking-wider">
-                Pillar 5 · What do I need to confirm?
+                Pillar 5 · Explicit Approval Required (No Auto-Signing)
               </span>
               <label className="flex items-start gap-2.5 text-xs text-zinc-300 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={confirmedRisk}
                   onChange={(e) => setConfirmedRisk(e.target.checked)}
-                  className="mt-0.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0"
+                  className="mt-0.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0 cursor-pointer"
                 />
                 <span className="leading-snug">
-                  I have verified the target accounts, network fees, bonding curve formulas, and authoritatively instruct this transaction on Solana <strong>{intent.network}</strong>.
+                  I have independently verified the target accounts, network fees, bonding curve formulas, and authoritatively instruct this transaction on Solana <strong>{intent.network}</strong>.
                 </span>
               </label>
             </div>
@@ -246,7 +321,7 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
                 size="md"
                 disabled={isSigning}
                 onClick={onClose}
-                className="flex-1"
+                className="flex-1 cursor-pointer"
               >
                 Cancel
               </Button>
@@ -254,10 +329,10 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
               <Button
                 variant="brand"
                 size="md"
-                disabled={!confirmedRisk || isSigning}
+                disabled={!confirmedRisk || isSigning || !safetyReport?.isSafeToProceed}
                 isLoading={isSigning}
                 onClick={onConfirm}
-                className="flex-1"
+                className="flex-1 cursor-pointer"
                 rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
               >
                 Sign & Deploy on Solana

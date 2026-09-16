@@ -18,7 +18,8 @@ import {
   Share2,
   Coins,
   Copy,
-  Check
+  Check,
+  FileCheck2,
 } from 'lucide-react';
 import { DBCPoolState } from '../../types';
 import { useNetwork } from '../../context/NetworkContext';
@@ -40,21 +41,30 @@ import { NavigationTab } from '../layout/Header';
 import { ValticsMark } from '../brand/ValticsLogo';
 import { BlockchainContextBar } from '../common/BlockchainContextBar';
 import { MeteoraSwapModal } from './MeteoraSwapModal';
+import { AssetPassportModal } from '../passport/AssetPassportModal';
+import { getAssetProfile, createAssetProfileFromPool } from '../../data/assetProfiles';
 
 interface MarketDetailViewProps {
   pool: DBCPoolState;
   onBack: () => void;
   onSelectTab: (tab: NavigationTab) => void;
+  onOpenWalletModal?: () => void;
 }
 
 export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
   pool,
   onBack,
   onSelectTab,
+  onOpenWalletModal,
 }) => {
   const { network } = useNetwork();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
+  const [passportOpen, setPassportOpen] = useState(false);
+
+  const assetProfile = useMemo(() => {
+    return getAssetProfile(pool.baseMint) || getAssetProfile(pool.poolAddress) || createAssetProfileFromPool(pool);
+  }, [pool]);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -179,6 +189,14 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 lg:self-start">
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<FileCheck2 className="w-3.5 h-3.5 text-amber-400" />}
+              onClick={() => setPassportOpen(true)}
+            >
+              Asset Passport
+            </Button>
             <Button
               variant="secondary"
               size="sm"
@@ -732,6 +750,18 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
         isOpen={isSwapModalOpen}
         pool={pool}
         onClose={() => setIsSwapModalOpen(false)}
+        onOpenWalletModal={onOpenWalletModal}
+      />
+
+      {/* Structured Asset Passport Modal */}
+      <AssetPassportModal
+        asset={assetProfile}
+        isOpen={passportOpen}
+        onClose={() => setPassportOpen(false)}
+        onSelectMarket={() => {
+          setPassportOpen(false);
+          setIsSwapModalOpen(true);
+        }}
       />
     </div>
   );

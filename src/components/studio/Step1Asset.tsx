@@ -383,9 +383,16 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
             Quote Currency Pair <span className="text-rose-400">*</span>
           </label>
           <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => handleQuoteChange('USDC')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleQuoteChange('USDC');
+                }
+              }}
               className={`p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition-all ${
                 data.quoteSymbol === 'USDC'
                   ? 'bg-amber-500/10 border-amber-500/50 text-white'
@@ -402,11 +409,18 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
               <div className="text-xs font-mono text-zinc-400">
                 <AddressBadge address={activeQuoteMints.USDC.mint} head={4} tail={4} />
               </div>
-            </button>
+            </div>
 
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => handleQuoteChange('SOL')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleQuoteChange('SOL');
+                }
+              }}
               className={`p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition-all ${
                 data.quoteSymbol === 'SOL'
                   ? 'bg-amber-500/10 border-amber-500/50 text-white'
@@ -423,7 +437,7 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
               <div className="text-xs font-mono text-zinc-400">
                 <AddressBadge address={activeQuoteMints.SOL.mint} head={4} tail={4} />
               </div>
-            </button>
+            </div>
           </div>
         </div>
       </div>

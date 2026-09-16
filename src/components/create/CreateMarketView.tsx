@@ -24,14 +24,20 @@ import {
 import { useNetwork } from '../../context/NetworkContext';
 import { useWallet } from '../../context/WalletContext';
 import { METEORA_DBC_PROGRAM_ID, QUOTE_MINTS } from '../../config/constants';
-import { validateMarketCreationForm, isValidSolanaAddress } from '../../utils/security';
+import { validateMarketCreationForm, isValidSolanaAddress, sanitizeErrorMessage } from '../../utils/security';
 import { inspectSplTokenMint } from '../../services/solana';
 import { AddressBadge } from '../common/AddressBadge';
 import { TxPreflightModal } from '../common/TxPreflightModal';
 import { formatCurrency, formatNumber, formatBps } from '../../utils/format';
 import { NavigationTab } from '../layout/Header';
 import { BlockchainContextBar } from '../common/BlockchainContextBar';
-import { prepareMeteoraPoolTransaction, executeAndConfirmPoolTransaction } from '../../services/meteoraCreation';
+import { 
+  prepareMeteoraPoolTransaction, 
+  executeAndConfirmPoolTransaction, 
+  createPoolStateFromDeployment, 
+  CurveStudioConfigInput 
+} from '../../services/meteoraCreation';
+import { saveCreatedMarket } from '../../services/marketStorage';
 
 interface CreateMarketViewProps {
   initialParams?: CurveModelParams | null;
@@ -45,7 +51,7 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
   onOpenWalletModal,
 }) => {
   const { network, connection } = useNetwork();
-  const { connected, publicKeyStr, signTransaction } = useWallet();
+  const { connected, publicKey, publicKeyStr, signTransaction } = useWallet();
 
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<CreateMarketFormData>({
@@ -168,24 +174,72 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
     setIsSigning(true);
     setSigningError(null);
     try {
-      if (!connected || !publicKeyStr) {
+      if (!connected || !publicKeyStr || !publicKey || !signTransaction) {
         throw new Error('Wallet must be connected to sign the on-chain instruction.');
       }
 
-      // Check balance for rent
-      const rentRequired = transactionIntent.rentExemptReserveSol + transactionIntent.estimatedFeeSol;
-      
-      // In accordance with instructions:
-      // "Do NOT create fake blockchain transactions. Do NOT create fake wallet addresses. Do NOT create fake transaction hashes. Do NOT simulate successful blockchain operations. Do NOT show 'transaction successful' unless an actual on-chain transaction has been confirmed."
-      // Let's attempt real signature request with connected wallet if available
-      // If devnet wallet has no funds or fails, provide real diagnostic error.
-      
-      // Let's prompt the wallet signature for a real instruction or transaction:
-      throw new Error(
-        `On-chain pool initialization requires ${rentRequired.toFixed(4)} SOL on ${network.toUpperCase()} for rent-exempt account storage and bonding curve initialization instruction. Please ensure your connected wallet (${publicKeyStr.slice(0, 4)}...${publicKeyStr.slice(-4)}) has sufficient funds or request devnet airdrop.`
-      );
+      if (!isValidSolanaAddress(formData.baseMint)) {
+        throw new Error('Please specify a valid Solana SPL token mint address in Step 1 before deploying.');
+      }
+
+      const cleanTotalSupply = Number(formData.totalSupply.replace(/,/g, '')) || 10_000_000;
+      const cleanAllocation = Number(formData.curveAllocationTokens.replace(/,/g, '')) || 8_000_000;
+      const allocPct = Math.min(100, Math.max(1, (cleanAllocation / cleanTotalSupply) * 100));
+
+      const input: CurveStudioConfigInput = {
+        assetName: formData.tokenName,
+        ticker: formData.tokenSymbol,
+        baseMint: formData.baseMint,
+        assetCategory: 'Private Credit',
+        quoteSymbol: formData.quoteSymbol,
+        quoteMint: formData.quoteMint,
+        tokenDecimals: formData.decimals || 6,
+        totalSupply: cleanTotalSupply,
+        profileKey: formData.curveType === 'linear' ? 'conservative' : formData.curveType === 'exponential' ? 'growth' : 'balanced',
+        startingPriceQuote: parseFloat(formData.startingPriceQuote) || 1.0,
+        migrationPriceQuote: parseFloat(formData.migrationPriceQuote) || 1.25,
+        migrationQuoteThreshold: parseFloat(formData.migrationQuoteThreshold.replace(/,/g, '')) || 1_000_000,
+        curveAllocationPct: allocPct,
+        baseFeeMode: 'FeeSchedulerLinear',
+        startingFeeBps: formData.baseFeeBps,
+        endingFeeBps: Math.max(10, Math.floor(formData.baseFeeBps / 2)),
+        feeDecaySeconds: formData.feeDecaySeconds || 86400,
+        creatorTradingFeePercentage: formData.creatorFeePercentage || 20,
+        dynamicFeeEnabled: formData.dynamicFeeEnabled,
+        collectFeeMode: 'QuoteToken',
+        creatorPermanentLockedLpPct: formData.liquidityLockDays > 0 ? 100 : 0,
+        creatorUnlockedLpPct: formData.liquidityLockDays > 0 ? 0 : 100,
+        partnerPermanentLockedLpPct: 0,
+        partnerUnlockedLpPct: 0,
+        migrationOption: 'MET_DAMM_V2',
+        migrationFeeOptionBps: 25,
+        antiSniperSlots: 100,
+        payerAddress: publicKeyStr,
+      };
+
+      // 1. Prepare transaction
+      const prepared = await prepareMeteoraPoolTransaction(connection, publicKey, input);
+
+      // 2. Execute & Confirm on Solana
+      const res = await executeAndConfirmPoolTransaction({
+        connection,
+        prepared,
+        signTransaction,
+        input,
+        network,
+      });
+
+      if (!res?.signature) {
+        throw new Error('Transaction execution completed without confirmation.');
+      }
+
+      // 3. Persist pool state
+      const poolState = createPoolStateFromDeployment(res, input, network);
+      saveCreatedMarket(poolState);
+
+      setConfirmedTxSignature(res.signature);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Transaction execution was cancelled or failed.';
+      const msg = sanitizeErrorMessage(err);
       setSigningError(msg);
     } finally {
       setIsSigning(false);
@@ -208,6 +262,9 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
           Configure Meteora Dynamic Bonding Curve parameters, automated AMM graduation, and dynamic fee schedulers
         </p>
       </div>
+
+      {/* Explicit On-Chain Cluster & Wallet Bar */}
+      <BlockchainContextBar screenTitle="Pool Deployment Wizard" />
 
       {/* Step Stepper */}
       <div className="grid grid-cols-5 gap-2 border-b border-zinc-800 pb-4 text-xs">

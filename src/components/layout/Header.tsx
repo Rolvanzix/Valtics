@@ -6,7 +6,7 @@ import { AddressBadge } from '../common/AddressBadge';
 import { formatCurrency } from '../../utils/format';
 import { ValticsMark } from '../brand/ValticsLogo';
 
-export type NavigationTab = 'overview' | 'markets' | 'create' | 'studio' | 'my-markets' | 'activity';
+export type NavigationTab = 'overview' | 'markets' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity';
 
 interface HeaderProps {
   activeTab: NavigationTab;
@@ -25,9 +25,10 @@ export const Header: React.FC<HeaderProps> = ({
   const navItems: { id: NavigationTab; label: string; badge?: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'markets', label: 'Markets' },
+    { id: 'passport', label: 'Asset Passport' },
     { id: 'create', label: 'Create Market' },
     { id: 'studio', label: 'Curve Studio' },
-    { id: 'my-markets', label: 'My Markets' },
+    { id: 'my-markets', label: 'Issuer Dashboard' },
     { id: 'activity', label: 'Activity' },
   ];
 

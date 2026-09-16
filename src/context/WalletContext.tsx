@@ -1,13 +1,27 @@
+/**
+ * VALTICS Secure Wallet Context & Adapter Integration
+ * 
+ * Complies with strict institutional security standards:
+ * - Zero Secret Storage: Seed phrases, private keys, and wallet secrets are NEVER requested,
+ *   stored, or persisted in localStorage, sessionStorage, or external databases.
+ * - Standard Solana Wallet Adapter protocol support (Phantom, Solflare, Standard Wallet).
+ * - Deliberate signing: No automatic transaction signing upon connection or background actions.
+ * - Address validation: Validates all public keys from wallet providers before trusting them.
+ * - Error Sanitization: Internal RPC and system error information is sanitized.
+ */
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { PublicKey, Transaction, VersionedTransaction, Keypair } from '@solana/web3.js';
 import { useNetwork } from './NetworkContext';
 import { fetchSolBalance } from '../services/solana';
+import { isValidSolanaAddress, sanitizeErrorMessage } from '../utils/security';
 
 export interface WalletProviderInfo {
   name: string;
   icon: string;
   installed: boolean;
   adapterKey: 'phantom' | 'solflare' | 'standard' | 'sandbox';
+  description: string;
 }
 
 interface WalletContextType {
@@ -48,8 +62,6 @@ declare global {
   }
 }
 
-const SANDBOX_KEYPAIR_STORAGE = 'valtics_devnet_sandbox_kp';
-
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { connection } = useNetwork();
   const [connected, setConnected] = useState(false);
@@ -59,7 +71,19 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [walletName, setWalletName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeProvider, setActiveProvider] = useState<SolanaProvider | null>(null);
+  
+  // Ephemeral In-Memory Keypair for Devnet sandboxed preview only (NEVER persisted to disk or storage)
   const [sandboxKeypair, setSandboxKeypair] = useState<Keypair | null>(null);
+
+  // Security enforcement on mount: Purge any legacy key material from browser storage
+  useEffect(() => {
+    try {
+      localStorage.removeItem('valtics_devnet_sandbox_kp');
+      sessionStorage.removeItem('valtics_devnet_sandbox_kp');
+    } catch {
+      // Storage access may be restricted in sandboxed iframes
+    }
+  }, []);
 
   const getProvider = useCallback((preferred?: 'phantom' | 'solflare' | 'standard' | 'sandbox'): { provider: SolanaProvider | null; name: string } => {
     if (typeof window === 'undefined') return { provider: null, name: '' };
@@ -86,24 +110,28 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         icon: '🟣',
         installed: !!(window.phantom?.solana || window.solana?.isPhantom),
         adapterKey: 'phantom',
+        description: 'Popular Solana self-custodial browser extension',
       },
       {
         name: 'Solflare',
         icon: '🟠',
         installed: !!window.solflare,
         adapterKey: 'solflare',
+        description: 'Institutional-grade Solana web & hardware wallet',
       },
       {
         name: 'Standard Wallet Adapter',
         icon: '⚡',
         installed: !!window.solana,
         adapterKey: 'standard',
+        description: 'Generic window.solana standard provider',
       },
       {
-        name: 'Devnet Sandbox Wallet (No extension required)',
+        name: 'Devnet In-Memory Session (Ephemeral)',
         icon: '🧪',
         installed: true,
         adapterKey: 'sandbox',
+        description: 'Volatile RAM-only testing session for sandboxed previews. Zero key storage.',
       },
     ];
   }, []);
@@ -113,8 +141,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setBalanceSol(null);
       return;
     }
-    const bal = await fetchSolBalance(connection, publicKey.toBase58());
-    setBalanceSol(bal);
+    try {
+      const bal = await fetchSolBalance(connection, publicKey.toBase58());
+      setBalanceSol(bal);
+    } catch {
+      // Non-fatal balance refresh
+    }
   }, [publicKey, connection]);
 
   useEffect(() => {
@@ -125,7 +157,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [connected, publicKey, refreshBalance]);
 
-  // Eager connect if previously authorized
+  // Eager connect ONLY if previously authorized/trusted (never prompts unsolicited popup)
   useEffect(() => {
     const { provider, name } = getProvider();
     if (provider && provider.connect) {
@@ -133,14 +165,17 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .connect({ onlyIfTrusted: true })
         .then((res) => {
           if (res?.publicKey) {
-            setPublicKey(new PublicKey(res.publicKey.toBase58()));
-            setConnected(true);
-            setWalletName(name);
-            setActiveProvider(provider);
+            const pubStr = res.publicKey.toBase58();
+            if (isValidSolanaAddress(pubStr)) {
+              setPublicKey(new PublicKey(pubStr));
+              setConnected(true);
+              setWalletName(name);
+              setActiveProvider(provider);
+            }
           }
         })
         .catch(() => {
-          // Silent fallback - user hasn't connected or trusted yet
+          // Silent fallback - user has not explicitly connected in this session
         });
     }
   }, [getProvider]);
@@ -150,24 +185,13 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setConnecting(true);
     try {
       if (walletType === 'sandbox') {
-        let kp: Keypair;
-        try {
-          const stored = localStorage.getItem(SANDBOX_KEYPAIR_STORAGE);
-          if (stored) {
-            const secretKey = Uint8Array.from(JSON.parse(stored));
-            kp = Keypair.fromSecretKey(secretKey);
-          } else {
-            kp = Keypair.generate();
-            localStorage.setItem(SANDBOX_KEYPAIR_STORAGE, JSON.stringify(Array.from(kp.secretKey)));
-          }
-        } catch {
-          kp = Keypair.generate();
-        }
-
+        // Ephemeral in-memory keypair generated strictly in volatile memory
+        // NEVER stored in localStorage, sessionStorage, cookies, or logs
+        const kp = Keypair.generate();
         setSandboxKeypair(kp);
         setPublicKey(kp.publicKey);
         setConnected(true);
-        setWalletName('Devnet Sandbox Keypair');
+        setWalletName('Devnet Ephemeral Session (RAM Only)');
         setActiveProvider(null);
         return true;
       }
@@ -175,16 +199,23 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const { provider, name } = getProvider(walletType);
       if (!provider) {
         throw new Error(
-          'No compatible Solana wallet extension detected. Please install Phantom or Solflare browser extension, or use Devnet Sandbox Wallet.'
+          'No compatible Solana wallet extension detected. Please install Phantom or Solflare browser extension, or use Devnet Ephemeral Session.'
         );
       }
 
+      // Explicit user approval required
       const response = await provider.connect();
       if (!response || !response.publicKey) {
-        throw new Error('Wallet connection was cancelled or rejected by user.');
+        throw new Error('Wallet connection was cancelled or rejected.');
       }
 
-      const pub = new PublicKey(response.publicKey.toBase58());
+      const pubStr = response.publicKey.toBase58();
+      // Security invariant: Validate the returned address
+      if (!isValidSolanaAddress(pubStr)) {
+        throw new Error('Wallet adapter returned an invalid public key format.');
+      }
+
+      const pub = new PublicKey(pubStr);
       setPublicKey(pub);
       setConnected(true);
       setWalletName(name);
@@ -197,7 +228,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           disconnect();
         });
         provider.on('accountChanged', (newPubkey: { toBase58(): string } | null) => {
-          if (newPubkey) {
+          if (newPubkey && isValidSolanaAddress(newPubkey.toBase58())) {
             setPublicKey(new PublicKey(newPubkey.toBase58()));
           } else {
             disconnect();
@@ -207,8 +238,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       return true;
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to connect wallet.';
-      setError(msg);
+      const sanitized = sanitizeErrorMessage(err);
+      setError(sanitized);
       return false;
     } finally {
       setConnecting(false);
@@ -220,8 +251,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (activeProvider && activeProvider.disconnect) {
         await activeProvider.disconnect();
       }
-    } catch (err) {
-      console.warn('Error during wallet disconnect:', err);
+    } catch {
+      // Ignore disconnect errors
     } finally {
       setConnected(false);
       setPublicKey(null);
@@ -240,24 +271,29 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       await connection.confirmTransaction(sig, 'confirmed');
       await refreshBalance();
       return true;
-    } catch (err) {
-      console.warn('Devnet airdrop failed:', err);
+    } catch {
       return false;
     }
   };
 
+  /**
+   * Secure Transaction Signing
+   * Invariant: Never signs automatically or in the background.
+   * Requires connected wallet and active user instruction.
+   */
   const signTransaction = async (tx: Transaction | VersionedTransaction) => {
     if (sandboxKeypair) {
       if ('partialSign' in tx) {
         (tx as Transaction).partialSign(sandboxKeypair);
         return tx;
       }
-      throw new Error('VersionedTransaction signing is not implemented for sandbox keypair.');
+      throw new Error('VersionedTransaction signing is not supported in ephemeral sandbox.');
     }
 
     if (!activeProvider) {
       throw new Error('Wallet is not connected. Please connect your wallet first.');
     }
+
     return await activeProvider.signTransaction(tx);
   };
 

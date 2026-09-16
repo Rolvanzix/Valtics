@@ -14,6 +14,7 @@ import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { Footer } from './components/layout/Footer';
 import { OverviewView } from './components/overview/OverviewView';
 import { MarketsView } from './components/markets/MarketsView';
+import { AssetPassportView } from './components/passport/AssetPassportView';
 import { CreateMarketView } from './components/create/CreateMarketView';
 import { CurveStudioView } from './components/studio/CurveStudioView';
 import { MyMarketsView } from './components/myMarkets/MyMarketsView';
@@ -35,6 +36,7 @@ function MainAppContent() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [transferredCurveParams, setTransferredCurveParams] = useState<CurveModelParams | null>(null);
   const [selectedMarketAddress, setSelectedMarketAddress] = useState<string | null>(null);
+  const [passportInitialMint, setPassportInitialMint] = useState<string | null>(null);
 
   // Default initial spotlight pool for contextual inspector
   const initialPool = REFERENCE_POOLS?.[0];
@@ -112,9 +114,10 @@ function MainAppContent() {
                 {[
                   { id: 'overview', label: 'Overview' },
                   { id: 'markets', label: 'Markets' },
+                  { id: 'passport', label: 'Asset Passport' },
                   { id: 'create', label: 'Create Market' },
                   { id: 'studio', label: 'Curve Studio' },
-                  { id: 'my-markets', label: 'My Markets' },
+                  { id: 'my-markets', label: 'Issuer Dashboard' },
                   { id: 'activity', label: 'Activity & Audit' },
                 ].map((item) => (
                   <button
@@ -184,9 +187,21 @@ function MainAppContent() {
               <MarketsView
                 onSelectTab={handleSelectTab}
                 selectedMarketAddress={selectedMarketAddress}
+                onOpenWalletModal={() => setWalletModalOpen(true)}
                 onSelectPoolForInspector={(pool) => {
                   setSelectedPool(pool);
                   setInspectorOpen(true);
+                }}
+              />
+            )}
+
+            {activeTab === 'passport' && (
+              <AssetPassportView
+                onSelectTab={handleSelectTab}
+                initialSelectedMint={passportInitialMint}
+                onSelectMarketForTrade={(poolAddress) => {
+                  setSelectedMarketAddress(poolAddress);
+                  handleSelectTab('markets');
                 }}
               />
             )}
@@ -206,6 +221,7 @@ function MainAppContent() {
                 onOpenWalletModal={() => setWalletModalOpen(true)}
                 onSelectMarketDetail={(poolAddress) => {
                   setSelectedMarketAddress(poolAddress);
+                  handleSelectTab('markets');
                 }}
               />
             )}

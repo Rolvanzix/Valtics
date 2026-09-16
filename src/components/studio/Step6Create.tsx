@@ -34,12 +34,15 @@ import { getExplorerUrl } from '../../config/constants';
 import { AddressBadge } from '../common/AddressBadge';
 import { formatCurrency, formatNumber } from '../../utils/format';
 import { NavigationTab } from '../layout/Header';
+import { sanitizeErrorMessage } from '../../utils/security';
+import { auditTransactionSafety } from '../../utils/txSafety';
 
 interface Step6CreateProps {
   input: CurveStudioConfigInput;
   onBack: () => void;
   onSelectTab: (tab: NavigationTab) => void;
   onSelectMarketDetail?: (poolId: string) => void;
+  onOpenWalletModal?: () => void;
 }
 
 type DeploymentState = 
@@ -57,6 +60,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
   onBack,
   onSelectTab,
   onSelectMarketDetail,
+  onOpenWalletModal,
 }) => {
   const { network, connection } = useNetwork();
   const { connected, publicKey, publicKeyStr, balanceSol, signTransaction, connect } = useWallet();
@@ -184,7 +188,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
 
       setDeploymentState('success');
     } catch (err: any) {
-      setTxError(err?.message || 'Transaction submission failed on Solana cluster.');
+      setTxError(sanitizeErrorMessage(err?.message || 'Transaction submission failed on Solana cluster.'));
       setDeploymentState('error');
     }
   };
@@ -198,7 +202,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
         setPrepared(prepResult);
         setDeploymentState('ready_to_confirm');
       } catch (err: any) {
-        setTxError(err?.message || 'Retry preparation failed.');
+        setTxError(sanitizeErrorMessage(err?.message || 'Retry preparation failed.'));
         setDeploymentState('error');
       }
     }
@@ -228,7 +232,13 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
           </div>
           <button
             type="button"
-            onClick={() => connect('sandbox')}
+            onClick={() => {
+              if (onOpenWalletModal) {
+                onOpenWalletModal();
+              } else {
+                connect();
+              }
+            }}
             className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-sm transition-colors cursor-pointer inline-flex items-center gap-2 shadow-xs shadow-amber-500/20"
           >
             <span>Connect Wallet to Deploy</span>

@@ -22,6 +22,7 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
+import { BlockchainContextBar } from '../common/BlockchainContextBar';
 
 interface ParsedTxResult {
   signature: string;
@@ -189,6 +190,9 @@ export const ActivityView: React.FC = () => {
           Inspect verifiable Meteora Dynamic Bonding Curve transactions directly on Solana ledger
         </p>
       </div>
+
+      {/* Explicit On-Chain Cluster & Wallet Bar */}
+      <BlockchainContextBar screenTitle="Activity & Audit Ledger" />
 
       {/* Real-Time Market Activity Telemetry Chart */}
       <MarketActivityChart height={210} />

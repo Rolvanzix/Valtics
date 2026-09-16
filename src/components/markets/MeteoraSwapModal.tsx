@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ArrowDownUp,
   AlertTriangle,
@@ -38,12 +38,15 @@ import { Dialog } from '../ui/Dialog';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { ValticsMark } from '../brand/ValticsLogo';
+import { auditTransactionSafety } from '../../utils/txSafety';
+import { validateNumericInput, validateSlippageTolerance, sanitizeErrorMessage } from '../../utils/security';
 
 interface MeteoraSwapModalProps {
   isOpen: boolean;
   pool: DBCPoolState;
   onClose: () => void;
   onSwapSuccess?: (receipt: VerifiedTransactionReceipt) => void;
+  onOpenWalletModal?: () => void;
 }
 
 type ExecutionStage =
@@ -61,6 +64,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
   pool,
   onClose,
   onSwapSuccess,
+  onOpenWalletModal,
 }) => {
   const { connection, network } = useNetwork();
   const { connected, publicKey, publicKeyStr, balanceSol, signTransaction, connect } = useWallet();
@@ -93,9 +97,21 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
 
   // Re-fetch deterministic quote from Meteora SDK
   const refreshQuote = useCallback(async () => {
-    if (!pool.poolAddress || !amountIn || isNaN(Number(amountIn)) || Number(amountIn) <= 0) {
+    if (!pool.poolAddress) {
       setQuote(null);
       setQuoteError(null);
+      return;
+    }
+
+    const numCheck = validateNumericInput(amountIn, {
+      min: 0.000001,
+      maxDecimals: isSellMode ? 6 : (quoteSymbol === 'SOL' ? 9 : 6),
+      label: 'Swap Amount',
+    });
+
+    if (!numCheck.isValid) {
+      setQuote(null);
+      setQuoteError(numCheck.error || 'Invalid amount');
       return;
     }
 
@@ -118,7 +134,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
       if (err instanceof MeteoraIntegrationError) {
         setQuoteError(err.humanMessage);
       } else {
-        setQuoteError(err?.message || 'Failed to fetch quote from curve invariant.');
+        setQuoteError(sanitizeErrorMessage(err?.message || 'Failed to fetch quote from curve invariant.'));
       }
     } finally {
       setIsQuoting(false);
@@ -134,6 +150,23 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
       return () => clearTimeout(timer);
     }
   }, [isOpen, refreshQuote]);
+
+  // Safety audit report for swap transaction
+  const safetyReport = useMemo(() => {
+    if (!pool || !quote) return null;
+    return auditTransactionSafety({
+      network,
+      expectedNetwork: network,
+      destinationProgramId: DBC_PROGRAM_ID_STR,
+      signerAddress: publicKeyStr,
+      userSolBalance: balanceSol,
+      estimatedFeeSol: 0.000005,
+      tradeAmountSol: !isSellMode && quoteSymbol === 'SOL' ? Number(amountIn) : 0,
+      slippagePercent: slippageBps / 100,
+      baseMint: pool.baseMint,
+      quoteMint: pool.quoteMint,
+    });
+  }, [pool, quote, network, publicKeyStr, balanceSol, isSellMode, quoteSymbol, amountIn, slippageBps]);
 
   // Reset state on close
   const handleClose = () => {
@@ -184,6 +217,17 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
       return;
     }
 
+    if (safetyReport && !safetyReport.isSafeToProceed) {
+      setExecutingError(
+        new MeteoraIntegrationError(
+          'SAFETY_CHECK_FAILED',
+          safetyReport.blockReason || 'Transaction safety checks failed.',
+          'Please resolve the reported safety constraints before proceeding.'
+        )
+      );
+      return;
+    }
+
     try {
       setExecutingError(null);
 
@@ -220,7 +264,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
         setExecutingError(
           new MeteoraIntegrationError(
             'TRANSACTION_FAILED',
-            err?.message || 'Transaction execution failed.',
+            sanitizeErrorMessage(err?.message || 'Transaction execution failed.'),
             'Please check your wallet balance and try again.'
           )
         );
@@ -281,7 +325,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleCopy(receipt.signature, 'sig')}
-                      className="text-zinc-400 hover:text-zinc-200"
+                      className="text-zinc-400 hover:text-zinc-200 cursor-pointer"
                     >
                       {copiedKey === 'sig' ? (
                         <Check className="w-3 h-3 text-emerald-400" />
@@ -316,7 +360,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
               </div>
             </div>
 
-            <Button variant="brand" size="md" onClick={handleClose} fullWidth>
+            <Button variant="brand" size="md" onClick={handleClose} fullWidth className="cursor-pointer">
               Return to Market Terminal
             </Button>
           </div>
@@ -414,7 +458,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800 col-span-full flex items-center justify-between">
                     <div>
                       <span className="text-zinc-400 font-sans text-[10px] block uppercase">
-                        Destination Pool PDA
+                        Destination Pool PDA (Verified DBC)
                       </span>
                       <span className="text-zinc-300 font-mono text-[11px]">
                         {pool.poolAddress}
@@ -446,8 +490,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-zinc-400">
-                    Never closing the modal prematurely. The transaction will only be confirmed once
-                    the Solana ledger strictly verifies its on-chain execution.
+                    The transaction will only be confirmed once the Solana ledger strictly verifies its on-chain execution.
                   </p>
                 </div>
               )}
@@ -477,7 +520,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                       type="checkbox"
                       checked={confirmedRisk}
                       onChange={(e) => setConfirmedRisk(e.target.checked)}
-                      className="mt-0.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0"
+                      className="mt-0.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0 cursor-pointer"
                     />
                     <span className="leading-snug">
                       I have reviewed the destination pool PDA, slippage bounds ({slippageBps / 100}%),
@@ -495,7 +538,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   size="md"
                   disabled={stage !== 'preflight_review'}
                   onClick={() => setStage('idle')}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                 >
                   Back to Edit
                 </Button>
@@ -503,10 +546,10 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 <Button
                   variant="brand"
                   size="md"
-                  disabled={!confirmedRisk || stage !== 'preflight_review'}
+                  disabled={!confirmedRisk || stage !== 'preflight_review' || (safetyReport && !safetyReport.isSafeToProceed)}
                   isLoading={stage !== 'preflight_review'}
                   onClick={handleConfirmAndSign}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                   rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                 >
                   Sign with Connected Wallet
@@ -528,7 +571,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   setIsSellMode(false);
                   setAmountIn('0.1');
                 }}
-                className={`py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+                className={`py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
                   !isSellMode
                     ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -544,7 +587,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   setIsSellMode(true);
                   setAmountIn('100');
                 }}
-                className={`py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+                className={`py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
                   isSellMode
                     ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -622,7 +665,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                     key={bps}
                     type="button"
                     onClick={() => setSlippageBps(bps)}
-                    className={`py-1 rounded text-xs font-mono transition-colors border ${
+                    className={`py-1 rounded text-xs font-mono transition-colors border cursor-pointer ${
                       slippageBps === bps
                         ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
                         : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
@@ -680,8 +723,15 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
               <Button
                 variant="brand"
                 size="md"
-                onClick={() => connect('phantom')}
+                onClick={() => {
+                  if (onOpenWalletModal) {
+                    onOpenWalletModal();
+                  } else {
+                    connect();
+                  }
+                }}
                 fullWidth
+                className="cursor-pointer"
               >
                 Connect Wallet to Trade
               </Button>
@@ -692,6 +742,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 disabled={!quote || isQuoting || !!quoteError}
                 onClick={handleProceedToPreflight}
                 fullWidth
+                className="cursor-pointer"
                 rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
               >
                 Review & Verify Transaction

@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Zap,
   HelpCircle,
+  FileCheck2,
 } from 'lucide-react';
 import { NavigationTab } from './Header';
 import { ValticsLogo } from '../brand/ValticsLogo';
@@ -42,9 +43,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'markets', label: 'Markets', icon: Layers, badge: 'Live' },
+    { id: 'passport', label: 'Asset Passport', icon: FileCheck2, badge: 'Verified' },
     { id: 'create', label: 'Create Market', icon: PlusCircle },
     { id: 'studio', label: 'Curve Studio', icon: Sliders },
-    { id: 'my-markets', label: 'My Markets', icon: Coins },
+    { id: 'my-markets', label: 'Issuer Dashboard', icon: Coins, badge: 'Control' },
     { id: 'activity', label: 'Activity & Audit', icon: Activity },
   ];
 

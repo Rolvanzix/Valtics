@@ -32,17 +32,22 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ProvenanceBadge, ProvenanceLegend } from '../common/DataProvenance';
 import { BlockchainContextBar } from '../common/BlockchainContextBar';
+import { VerificationStatusBadge } from '../passport/VerificationStatusBadge';
+import { getAssetProfile } from '../../data/assetProfiles';
+import { FileCheck2 } from 'lucide-react';
 
 interface MarketsViewProps {
   onSelectTab: (tab: NavigationTab) => void;
   onSelectPoolForInspector?: (pool: DBCPoolState) => void;
   selectedMarketAddress?: string | null;
+  onOpenWalletModal?: () => void;
 }
 
 export const MarketsView: React.FC<MarketsViewProps> = ({
   onSelectTab,
   onSelectPoolForInspector,
   selectedMarketAddress,
+  onOpenWalletModal,
 }) => {
   const { connection, network, rpcConfig } = useNetwork();
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -246,6 +251,7 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
         pool={activeDetailPool}
         onBack={() => setActiveDetailPool(null)}
         onSelectTab={onSelectTab}
+        onOpenWalletModal={onOpenWalletModal}
       />
     );
   }
@@ -269,6 +275,14 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            leftIcon={<FileCheck2 className="w-3.5 h-3.5 text-amber-400" />}
+            onClick={() => onSelectTab('passport')}
+          >
+            Asset Passports
+          </Button>
           <Button
             variant="brand"
             size="sm"
@@ -423,13 +437,19 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
                         }}
                         className="hover:bg-zinc-900/40 cursor-pointer transition-colors group"
                       >
-                        {/* 1. Asset Name & Symbol */}
+                        {/* 1. Asset Name, Symbol, and Verification Badge */}
                         <td className="py-3 px-4">
-                          <div className="font-sans font-bold text-zinc-100 group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                            <span>{pool.tokenName || 'Unnamed Pool'}</span>
-                            <span className="font-mono text-zinc-400 text-[10px]">
-                              (${pool.tokenSymbol || 'TKN'})
-                            </span>
+                          <div className="flex items-center gap-2">
+                            <div className="font-sans font-bold text-zinc-100 group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                              <span>{pool.tokenName || 'Unnamed Pool'}</span>
+                              <span className="font-mono text-zinc-400 text-[10px]">
+                                (${pool.tokenSymbol || 'TKN'})
+                              </span>
+                            </div>
+                            <VerificationStatusBadge
+                              status={getAssetProfile(pool.baseMint)?.verificationStatus || (pool.rwaCategory === 'Treasuries' ? 'Verified' : 'Issuer provided')}
+                              size="xs"
+                            />
                           </div>
                           <div className="text-[10px] text-zinc-400 font-mono mt-0.5 flex items-center gap-1.5">
                             <span>PDA: {pool.poolAddress.slice(0, 4)}...{pool.poolAddress.slice(-4)}</span>

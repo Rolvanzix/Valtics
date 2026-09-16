@@ -65,6 +65,9 @@ export interface DBCPoolState {
   curveAllocationTokens?: number;
   network?: ClusterNetwork;
   description?: string;
+  createdAt?: string; // ISO string or human date
+  creationDate?: string; // Formatted date string (e.g. 2026-03-15)
+  recentTxs?: OnChainActivityLog[];
   riskNotes?: {
     impermanentLossRisk: string;
     liquidityLock: string;

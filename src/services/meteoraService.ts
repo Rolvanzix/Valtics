@@ -61,6 +61,7 @@ export type MeteoraErrorCode =
   | 'TRANSACTION_FAILED'
   | 'UNSUPPORTED_NETWORK'
   | 'SDK_ERROR'
+  | 'SAFETY_CHECK_FAILED'
   | 'UNKNOWN_ERROR';
 
 export class MeteoraIntegrationError extends Error {

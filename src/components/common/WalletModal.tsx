@@ -1,9 +1,10 @@
 import React from 'react';
-import { X, Shield, Key, ExternalLink, AlertCircle } from 'lucide-react';
+import { X, Shield, Key, ExternalLink, AlertCircle, Lock, ShieldCheck } from 'lucide-react';
 import { useWallet } from '../../context/WalletContext';
 import { AddressBadge } from './AddressBadge';
 import { formatCurrency } from '../../utils/format';
 import { ValticsMark } from '../brand/ValticsLogo';
+import { sanitizeUrl } from '../../utils/security';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -11,11 +12,30 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
-  const { connected, connecting, publicKeyStr, balanceSol, walletName, availableWallets, connect, disconnect, requestDevnetAirdrop, error } = useWallet();
+  const {
+    connected,
+    connecting,
+    publicKeyStr,
+    balanceSol,
+    walletName,
+    availableWallets,
+    connect,
+    disconnect,
+    requestDevnetAirdrop,
+    error,
+  } = useWallet();
+
   const [airdropping, setAirdropping] = React.useState(false);
   const [airdropMsg, setAirdropMsg] = React.useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleExternalLink = (url: string) => {
+    const safeUrl = sanitizeUrl(url);
+    if (safeUrl && safeUrl !== '#') {
+      window.open(safeUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <div
@@ -72,9 +92,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   setAirdropMsg(null);
                   const ok = await requestDevnetAirdrop();
                   setAirdropping(false);
-                  setAirdropMsg(ok ? 'Airdrop requested successfully!' : 'Airdrop rate limit reached. Please use a devnet faucet.');
+                  setAirdropMsg(
+                    ok ? 'Airdrop requested successfully!' : 'Airdrop rate limit reached. Please use a devnet faucet.'
+                  );
                 }}
-                className="w-full py-2 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition-colors"
+                className="w-full py-2 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition-colors cursor-pointer"
               >
                 {airdropping ? 'Requesting 1 SOL...' : 'Request 1 Devnet SOL'}
               </button>
@@ -85,10 +107,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             )}
 
             <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-lg p-3 text-xs text-emerald-300 flex items-start gap-2">
-              <Shield className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
               <div>
-                <span className="font-semibold block">Secured Connection</span>
-                All pool creation and instruction signatures require explicit approval in your wallet extension.
+                <span className="font-semibold block">Secured Connection Active</span>
+                All curve deployments, swaps, and fee claim instructions require explicit cryptographic review and approval in your wallet.
               </div>
             </div>
 
@@ -99,7 +121,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 await disconnect();
                 onClose();
               }}
-              className="w-full py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-rose-950 hover:text-rose-300 hover:border-rose-900/60 border border-zinc-700 text-sm font-medium transition-colors"
+              className="w-full py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-rose-950 hover:text-rose-300 hover:border-rose-900/60 border border-zinc-700 text-sm font-medium transition-colors cursor-pointer"
             >
               Disconnect Wallet
             </button>
@@ -109,6 +131,19 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             <p className="text-xs text-zinc-400 leading-relaxed">
               Connect your institutional or self-custody Solana wallet to deploy Meteora Dynamic Bonding Curves, deposit reserves, or claim creator trading fees.
             </p>
+
+            {/* Security Guarantee Box */}
+            <div className="p-3 rounded-lg bg-zinc-950/70 border border-zinc-800 space-y-1.5 text-[11px] text-zinc-300">
+              <div className="flex items-center gap-1.5 text-amber-400 font-semibold">
+                <Lock className="w-3.5 h-3.5" />
+                <span>VALTICS Institutional Security Invariant</span>
+              </div>
+              <ul className="list-disc list-inside space-y-0.5 text-zinc-400 pl-0.5">
+                <li>Zero Secret Storage: Seed phrases & private keys are never requested or stored.</li>
+                <li>Zero Auto-Signing: No unexpected or background transactions.</li>
+                <li>Browse Without Wallet: Analytical exploration is completely open.</li>
+              </ul>
+            </div>
 
             {error && (
               <div className="bg-rose-950/30 border border-rose-900/50 rounded-lg p-3 text-xs text-rose-300 flex items-start gap-2">
@@ -128,26 +163,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       const success = await connect(w.adapterKey);
                       if (success) onClose();
                     } else {
-                      window.open(
+                      handleExternalLink(
                         w.name === 'Phantom'
                           ? 'https://phantom.app/'
-                          : 'https://solflare.com/',
-                        '_blank'
+                          : 'https://solflare.com/'
                       );
                     }
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 hover:border-zinc-700 transition-all text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 hover:border-zinc-700 transition-all text-left cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{w.icon}</span>
                     <div>
                       <div className="text-sm font-medium text-zinc-200">{w.name}</div>
                       <div className="text-[11px] text-zinc-400">
-                        {w.installed ? 'Detected in browser' : 'Not detected — click to install'}
+                        {w.description}
                       </div>
                     </div>
                   </div>
-                  {!w.installed && <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />}
+                  {!w.installed && <ExternalLink className="w-3.5 h-3.5 text-zinc-400 shrink-0" />}
                 </button>
               ))}
             </div>
@@ -156,7 +190,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               <div className="flex items-start gap-2 text-[11px] text-zinc-400 leading-normal">
                 <Key className="w-3.5 h-3.5 shrink-0 mt-0.5 text-zinc-400" />
                 <span>
-                  <strong>Zero Secret Storage:</strong> VALTICS will never request your seed phrase, private keys, or auto-sign authority. All signing occurs through your local extension.
+                  <strong>Standard Wallet Adapter:</strong> VALTICS interfaces strictly through established Solana web3 standards.
                 </span>
               </div>
             </div>

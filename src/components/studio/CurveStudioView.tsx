@@ -233,6 +233,7 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
             onBack={() => goToStep(5)}
             onSelectTab={onSelectTab}
             onSelectMarketDetail={onSelectMarketDetail}
+            onOpenWalletModal={onOpenWalletModal}
           />
         )}
       </div>

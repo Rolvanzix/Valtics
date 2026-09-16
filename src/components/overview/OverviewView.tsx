@@ -19,7 +19,8 @@ import {
   ArrowUpRight,
   PieChart,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  FileCheck2,
 } from 'lucide-react';
 import { NavigationTab } from '../layout/Header';
 import { useNetwork } from '../../context/NetworkContext';
@@ -127,6 +128,16 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onSelectTab, onSelec
                 onClick={() => onSelectTab('markets')}
               >
                 Explore Markets
+              </Button>
+
+              <Button
+                id="cta-asset-passports"
+                variant="secondary"
+                size="md"
+                leftIcon={<FileCheck2 className="w-3.5 h-3.5 text-amber-400" />}
+                onClick={() => onSelectTab('passport')}
+              >
+                Asset Passports
               </Button>
 
               <Button
@@ -358,6 +369,79 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onSelectTab, onSelec
           </div>
         </div>
       </Card>
+
+      {/* ASSET INFORMATION LAYER & PASSPORT STANDARD SPOTLIGHT */}
+      <div className="p-6 rounded-2xl bg-[#090d16] border border-zinc-800 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                Institutional Transparency
+              </span>
+              <span className="text-xs text-zinc-400 font-mono">Securities Integrity Protocol</span>
+            </div>
+            <h3 className="text-base font-bold text-white font-sans flex items-center gap-2">
+              <FileCheck2 className="w-4 h-4 text-amber-400" />
+              <span>VALTICS Asset Information Layer</span>
+            </h3>
+            <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+              Every tokenized RWA is accompanied by a cryptographic Asset Passport. We strictly forbid claiming an on-chain token represents a real-world security without verified legal and custodial attestations.
+            </p>
+          </div>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onSelectTab('passport')}
+            rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}
+          >
+            Explore Passports Registry
+          </Button>
+        </div>
+
+        {/* 4-Layer Separation Demonstration */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div className="p-3.5 rounded-xl bg-[#060910] border border-emerald-900/40 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-mono text-emerald-400 font-semibold">1. On-Chain Market</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <p className="text-[11px] text-zinc-300">
+              Deterministic dynamic bonding curve reserves, spot pricing, and liquidity vaults directly on Solana.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[#060910] border border-violet-900/40 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-mono text-violet-400 font-semibold">2. External Reference</span>
+              <span className="w-2 h-2 rounded-full bg-violet-400" />
+            </div>
+            <p className="text-[11px] text-zinc-300">
+              Audited benchmark NAV, Pyth / Chainlink oracle feeds, or certified independent appraisal values.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[#060910] border border-sky-900/40 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-mono text-sky-400 font-semibold">3. Issuer Disclosures</span>
+              <span className="w-2 h-2 rounded-full bg-sky-400" />
+            </div>
+            <p className="text-[11px] text-zinc-300">
+              Corporate entity details, legal jurisdiction, transfer agent, and custodian self-reported data.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[#060910] border border-amber-900/40 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-mono text-amber-400 font-semibold">4. Calculated Metrics</span>
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+            </div>
+            <p className="text-[11px] text-zinc-300">
+              Algorithmic premium/discount to reference NAV and reserve collateralization metrics.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* RECENT ACTIVITY SECTION (Prompt required: recent activity, no fabricated numbers, clear provenance) */}
       <Card>

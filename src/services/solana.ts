@@ -1,5 +1,19 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TokenMetadata } from '../types';
+import { getExplorerUrl } from '../config/constants';
+
+export interface RealOnChainTxItem {
+  signature: string;
+  slot: number;
+  blockTime: number | null;
+  timestampFormatted: string;
+  status: 'Finalized' | 'Confirmed' | 'Failed';
+  type: string;
+  network: string;
+  err: string | null;
+  explorerUrl: string;
+  memo?: string | null;
+}
 
 let currentConnection: Connection | null = null;
 let currentEndpointUrl: string = '';
@@ -102,5 +116,66 @@ export async function inspectSplTokenMint(
   } catch (err) {
     console.error('Error inspecting SPL token mint:', err);
     return null;
+  }
+}
+
+/**
+ * Queries real on-chain transaction signatures from Solana RPC for any address.
+ * Never generates mock transaction signatures.
+ */
+export async function fetchRealOnChainSignaturesForAddress(
+  connection: Connection,
+  address: string,
+  network: string,
+  limit = 15
+): Promise<RealOnChainTxItem[]> {
+  try {
+    const pubkey = new PublicKey(address);
+    const signatures = await connection.getSignaturesForAddress(pubkey, { limit });
+    if (!signatures || signatures.length === 0) {
+      return [];
+    }
+
+    return signatures.map((sig) => {
+      const isErr = !!sig.err;
+      const status: 'Finalized' | 'Confirmed' | 'Failed' = isErr
+        ? 'Failed'
+        : sig.confirmationStatus === 'finalized'
+        ? 'Finalized'
+        : 'Confirmed';
+
+      let txType = 'Meteora DBC Instruction';
+      if (sig.memo) {
+        txType = `Memo: ${sig.memo.slice(0, 28)}`;
+      }
+
+      const timestampFormatted = sig.blockTime
+        ? new Date(sig.blockTime * 1000).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZoneName: 'short',
+          })
+        : 'Pending confirmation';
+
+      return {
+        signature: sig.signature,
+        slot: sig.slot,
+        blockTime: sig.blockTime ?? null,
+        timestampFormatted,
+        status,
+        type: txType,
+        network,
+        err: isErr ? JSON.stringify(sig.err) : null,
+        explorerUrl: getExplorerUrl(sig.signature, 'tx', network as any),
+        memo: sig.memo,
+      };
+    });
+  } catch (err) {
+    console.warn(`Could not fetch signatures for address ${address}:`, err);
+    return [];
   }
 }
