@@ -67,7 +67,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
   onOpenWalletModal,
 }) => {
   const { connection, network } = useNetwork();
-  const { connected, publicKey, publicKeyStr, balanceSol, signTransaction, connect } = useWallet();
+  const { connected, publicKey, publicKeyStr, balanceSol, signTransaction, connect, isWrongNetwork, networkError } = useWallet();
 
   // Swap direction: false = Buy base token with quote, true = Sell base token for quote
   const [isSellMode, setIsSellMode] = useState<boolean>(false);
@@ -201,6 +201,17 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
           'WALLET_DISCONNECTED',
           'Wallet is not connected.',
           'Please connect your Solana wallet to proceed with transaction signing.'
+        )
+      );
+      return;
+    }
+
+    if (isWrongNetwork) {
+      setExecutingError(
+        new MeteoraIntegrationError(
+          'UNSUPPORTED_NETWORK',
+          'Not on Solana Devnet.',
+          networkError || 'Valtics is strictly restricted to Solana Devnet. Please switch your wallet to Devnet.'
         )
       );
       return;
@@ -540,7 +551,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   onClick={() => setStage('idle')}
                   className="flex-1 cursor-pointer"
                 >
-                  Back to Edit
+                  Back
                 </Button>
 
                 <Button
@@ -552,7 +563,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   className="flex-1 cursor-pointer"
                   rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                 >
-                  Sign with Connected Wallet
+                  Confirm
                 </Button>
               </div>
             </div>
@@ -733,7 +744,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 fullWidth
                 className="cursor-pointer"
               >
-                Connect Wallet to Trade
+                Connect wallet
               </Button>
             ) : (
               <Button
@@ -745,7 +756,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 className="cursor-pointer"
                 rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
               >
-                Review & Verify Transaction
+                Continue
               </Button>
             )}
           </div>

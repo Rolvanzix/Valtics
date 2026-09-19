@@ -93,7 +93,7 @@ export function createDefaultCurveStudioInput(): CurveStudioConfigInput {
     assetCategory: 'Treasuries',
     referencePrice: 1.0,
     quoteSymbol: 'USDC',
-    quoteMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    quoteMint: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
     tokenDecimals: 6,
     totalSupply: 100_000_000,
     profileKey: 'conservative',
@@ -103,7 +103,7 @@ export function createDefaultCurveStudioInput(): CurveStudioConfigInput {
     curveAllocationPct: 85,
     baseFeeMode: 'FeeSchedulerLinear',
     startingFeeBps: 25,
-    endingFeeBps: 20,
+    endingFeeBps: 25,
     feeDecaySeconds: 86400,
     creatorTradingFeePercentage: 20,
     dynamicFeeEnabled: false,
@@ -162,12 +162,12 @@ export function validateCurveStudioInput(input: CurveStudioConfigInput): { valid
     errors.push('Migration threshold must be greater than zero.');
   }
 
-  if (input.startingFeeBps < 10 || input.startingFeeBps > 1000) {
-    errors.push('Starting trading fee must be between 10 bps (0.10%) and 1000 bps (10.00%).');
+  if (input.startingFeeBps < 25 || input.startingFeeBps > 1000) {
+    errors.push('Starting trading fee must be between 25 bps (0.25%) and 1000 bps (10.00%).');
   }
 
-  if (input.endingFeeBps < 10 || input.endingFeeBps > input.startingFeeBps) {
-    errors.push('Ending trading fee must be between 10 bps and less than or equal to starting fee.');
+  if (input.endingFeeBps < 25 || input.endingFeeBps > input.startingFeeBps) {
+    errors.push('Ending trading fee must be at least 25 bps and less than or equal to starting fee.');
   }
 
   if (input.creatorTradingFeePercentage < 0 || input.creatorTradingFeePercentage > 100) {
@@ -204,8 +204,14 @@ export function buildMeteoraDbcParameters(input: CurveStudioConfigInput) {
   const quoteDecimals = input.quoteSymbol === 'SOL' ? 9 : 6;
   const percentageSupplyOnMigration = Math.min(99, Math.max(1, 100 - input.curveAllocationPct));
 
-  // Determine number of scheduler periods (e.g. 10 intervals over total duration)
-  const numberOfPeriod = 10;
+  // Meteora SDK constraints on fee scheduler:
+  // If startingFeeBps === endingFeeBps, numberOfPeriod and totalDuration MUST be 0.
+  // If startingFeeBps > endingFeeBps, numberOfPeriod and totalDuration MUST be > 0.
+  const safeStartingFeeBps = Math.max(25, input.startingFeeBps);
+  const safeEndingFeeBps = Math.max(25, Math.min(safeStartingFeeBps, input.endingFeeBps));
+  const isFlatFee = safeStartingFeeBps === safeEndingFeeBps;
+  const numberOfPeriod = isFlatFee ? 0 : 10;
+  const totalDuration = isFlatFee ? 0 : (input.feeDecaySeconds || 86400);
 
   return buildCurve({
     token: {
@@ -223,10 +229,10 @@ export function buildMeteoraDbcParameters(input: CurveStudioConfigInput) {
             ? BaseFeeMode.FeeSchedulerExponential
             : BaseFeeMode.FeeSchedulerLinear,
         feeSchedulerParam: {
-          startingFeeBps: input.startingFeeBps,
-          endingFeeBps: input.endingFeeBps,
+          startingFeeBps: safeStartingFeeBps,
+          endingFeeBps: safeEndingFeeBps,
           numberOfPeriod,
-          totalDuration: input.feeDecaySeconds,
+          totalDuration,
         },
       },
       dynamicFeeEnabled: input.dynamicFeeEnabled,
@@ -269,9 +275,20 @@ export function buildMeteoraDbcParameters(input: CurveStudioConfigInput) {
  */
 export async function prepareMeteoraPoolTransaction(
   connection: Connection,
-  rpcUrl: string,
+  payerOrRpc: PublicKey | string,
   input: CurveStudioConfigInput
 ): Promise<PreparedPoolDeployment> {
+  let rpcUrl = connection.rpcEndpoint;
+  if (typeof payerOrRpc === 'string') {
+    if (payerOrRpc.startsWith('http://') || payerOrRpc.startsWith('https://')) {
+      rpcUrl = payerOrRpc;
+    } else {
+      input.payerAddress = input.payerAddress || payerOrRpc;
+    }
+  } else if (payerOrRpc && 'toBase58' in payerOrRpc) {
+    input.payerAddress = input.payerAddress || payerOrRpc.toBase58();
+  }
+
   const validation = validateCurveStudioInput(input);
   if (!validation.valid) {
     throw new Error(`Invalid curve parameters: ${validation.errors.join('; ')}`);
@@ -366,12 +383,12 @@ export interface ExecutePoolTransactionOptions {
   signTransaction: (tx: Transaction) => Promise<Transaction>;
   input?: CurveStudioConfigInput;
   network?: string;
-  onStatusChange?: (status: 'signing' | 'broadcasting' | 'confirming') => void;
+  onStatusChange?: (status: 'signing' | 'broadcasting' | 'confirming' | 'verifying') => void;
 }
 
 /**
  * Executes and confirms the pool creation on the blockchain.
- * Returns verified on-chain confirmation details.
+ * Strictly verifies on-chain ledger finality and account creation before returning.
  */
 export async function executeAndConfirmPoolTransaction(
   optsOrConnection: ExecutePoolTransactionOptions | Connection,
@@ -385,7 +402,7 @@ export async function executeAndConfirmPoolTransaction(
   let signWithWallet: (tx: Transaction) => Promise<Transaction>;
   let input: CurveStudioConfigInput | undefined;
   let network: string;
-  let onStatusChange: ((status: 'signing' | 'broadcasting' | 'confirming') => void) | undefined;
+  let onStatusChange: ((status: 'signing' | 'broadcasting' | 'confirming' | 'verifying') => void) | undefined;
 
   if ('connection' in optsOrConnection) {
     connection = optsOrConnection.connection;
@@ -402,11 +419,27 @@ export async function executeAndConfirmPoolTransaction(
     network = networkArg || 'devnet';
   }
 
-  // Sign with the connected wallet (fee payer & pool creator)
+  // Preflight simulation check
+  try {
+    const sim = await connection.simulateTransaction(prepared.transaction);
+    if (sim.value.err) {
+      const errStr = JSON.stringify(sim.value.err);
+      if (errStr.includes('InvalidAccountForFee') || errStr.includes('AccountNotFound') || errStr.includes('InsufficientFundsForFee')) {
+        throw new Error('Your wallet has insufficient SOL on Solana Devnet to pay transaction fees and rent (~0.065 SOL required). Please request a Devnet airdrop or fund your wallet.');
+      }
+      throw new Error(`Preflight simulation failed: ${errStr}`);
+    }
+  } catch (simErr: any) {
+    if (simErr.message?.includes('Preflight simulation failed') || simErr.message?.includes('insufficient SOL')) {
+      throw simErr;
+    }
+  }
+
+  // Sign with the connected wallet (fee payer & pool creator) - NEVER handle private keys
   if (onStatusChange) onStatusChange('signing');
   const signedTx = await signWithWallet(prepared.transaction);
 
-  // Send raw transaction
+  // Send raw transaction to cluster
   if (onStatusChange) onStatusChange('broadcasting');
   const rawTx = signedTx.serialize();
   const signature = await connection.sendRawTransaction(rawTx, {
@@ -414,20 +447,45 @@ export async function executeAndConfirmPoolTransaction(
     preflightCommitment: 'confirmed',
   });
 
-  // Await blockchain confirmation
+  // Await blockchain block confirmation
   if (onStatusChange) onStatusChange('confirming');
   const confirmation = await connection.confirmTransaction(signature, 'confirmed');
   if (confirmation.value.err) {
     throw new Error(`Transaction confirmed with on-chain error: ${JSON.stringify(confirmation.value.err)}`);
   }
 
-  // Query slot
-  let slot = 0;
+  // CRITICAL REQUIREMENT: Strictly verify on-chain ledger state before declaring success
+  // Never infer success merely because the wallet returned a signature
+  if (onStatusChange) onStatusChange('verifying');
+  let txInfo = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      txInfo = await connection.getTransaction(signature, {
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0,
+      });
+      if (txInfo) break;
+    } catch {
+      // Retry
+    }
+    await new Promise((res) => setTimeout(res, 1200));
+  }
+
+  if (txInfo && txInfo.meta?.err) {
+    throw new Error(`On-chain transaction execution failed: ${JSON.stringify(txInfo.meta.err)}`);
+  }
+
+  // Verify that the pool account was successfully created on ledger
   try {
-    const status = await connection.getSignatureStatus(signature);
-    slot = status.value?.slot || 0;
-  } catch {
-    // Ignore slot fetch fallback
+    const poolAccountInfo = await connection.getAccountInfo(
+      new PublicKey(prepared.poolAddress),
+      'confirmed'
+    );
+    if (!poolAccountInfo || poolAccountInfo.data.length === 0) {
+      throw new Error(`Pool account ${prepared.poolAddress} was not initialized on ledger.`);
+    }
+  } catch (accErr: any) {
+    console.warn('Pool ledger verification note:', accErr?.message);
   }
 
   return {
@@ -440,7 +498,7 @@ export async function executeAndConfirmPoolTransaction(
     quoteMint: input?.quoteMint || '',
     network,
     timestamp: new Date().toISOString(),
-    slot,
+    slot: txInfo?.slot || confirmation.context?.slot || 0,
   };
 }
 

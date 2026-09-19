@@ -59,7 +59,7 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
   onOpenWalletModal,
   onSelectPoolForInspector,
 }) => {
-  const { connected, publicKeyStr, signTransaction } = useWallet();
+  const { connected, publicKeyStr, signTransaction, isWrongNetwork, networkError } = useWallet();
   const { connection, rpcConfig, network } = useNetwork();
 
   // Active view: 'portfolio' (MY MARKETS) or 'management' (MARKET MANAGEMENT)
@@ -138,20 +138,20 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
     }
   }, [activeAuthority, connection, rpcConfig.endpoint]);
 
-  // Combine user created markets, on-chain markets, and reference markets
+  // Combine user created markets and on-chain creator pools (No fake reference pools in Issuer Dashboard!)
   const allAvailableMarkets: DBCPoolState[] = useMemo(() => {
     const poolMap = new Map<string, DBCPoolState>();
 
     // 1. Add locally created markets first (highest priority)
     localCreatedMarkets.forEach((p) => {
-      const formattedDate = p.creationDate || (p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Sep 16, 2026');
+      const formattedDate = p.creationDate || (p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent');
       poolMap.set(p.poolAddress, {
         ...p,
         creationDate: formattedDate,
       });
     });
 
-    // 2. Add on-chain pools
+    // 2. Add on-chain pools where creator is authority
     onChainPools.forEach((p) => {
       if (!poolMap.has(p.poolAddress)) {
         poolMap.set(p.poolAddress, {
@@ -161,53 +161,8 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
       }
     });
 
-    // 3. If user has no created markets yet, add curated institutional demo reference pools so the control center is immediately fully operational
-    REFERENCE_POOLS.forEach((ref, index) => {
-      if (!poolMap.has(ref.poolAddress)) {
-        const demoCreationDates = ['Sep 14, 2026, 14:32 UTC', 'Aug 28, 2026, 09:15 UTC', 'Jul 19, 2026, 18:40 UTC'];
-        const quoteSymbol = ref.quoteSymbol || (ref.quoteMint.includes('So111111111') ? 'SOL' : 'USDC');
-        poolMap.set(ref.poolAddress, {
-          poolAddress: ref.poolAddress,
-          configAddress: `Config${ref.poolAddress.slice(0, 8)}...DBC`,
-          baseMint: ref.baseMint,
-          quoteMint: ref.quoteMint,
-          baseVault: `VaultBase_${ref.poolAddress.slice(0, 6)}`,
-          quoteVault: `VaultQuote_${ref.poolAddress.slice(0, 6)}`,
-          creator: publicKeyStr || 'Authority_Institutional_Issuer',
-          migrationOption: ref.migrationOption === 'MET_DAMM' ? 0 : 1,
-          migrationOptionLabel: ref.migrationOption,
-          baseReserve: '10,000,000',
-          quoteReserve: `${ref.quoteThreshold} ${quoteSymbol}`,
-          quoteThreshold: ref.quoteThreshold,
-          currentPrice: ref.currentPrice,
-          startPrice: ref.startPrice,
-          migrationPrice: ref.migrationPrice,
-          referencePrice: ref.referencePrice,
-          referencePriceLabel: ref.referencePriceLabel,
-          quoteCurveProgressPct: ref.progressPct,
-          baseCurveProgressPct: ref.progressPct,
-          isMigrated: ref.isMigrated,
-          baseFeeBps: ref.feeBps,
-          tokenName: ref.name,
-          tokenSymbol: ref.symbol,
-          rwaCategory: ref.rwaCategory,
-          tvlUsd: ref.tvlUsd,
-          curveType: ref.curveType,
-          antiSniperSlots: ref.antiSniperSlots,
-          liquidityLockDays: ref.liquidityLockDays,
-          creatorFeeShareBps: ref.creatorFeeShareBps,
-          totalSupply: ref.totalSupply,
-          curveAllocationTokens: ref.curveAllocationTokens,
-          network,
-          description: ref.description,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * (index + 2)).toISOString(),
-          creationDate: demoCreationDates[index % demoCreationDates.length],
-        });
-      }
-    });
-
     return Array.from(poolMap.values());
-  }, [localCreatedMarkets, onChainPools, publicKeyStr, network]);
+  }, [localCreatedMarkets, onChainPools]);
 
   // Set default selected pool for management
   useEffect(() => {
@@ -284,6 +239,9 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
       if (!connected || !publicKeyStr) {
         throw new Error('Wallet must be connected to sign the claim instruction.');
       }
+      if (isWrongNetwork) {
+        throw new Error(`Transaction blocked: ${networkError || 'Wallet or RPC is not on Solana Devnet.'}`);
+      }
       throw new Error(
         `On-chain claim instruction prepared for Meteora DBC on ${network.toUpperCase()}. Authority account verified; accrued creator fee balance is currently 0.00.`
       );
@@ -294,6 +252,44 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
       setIsSigningClaim(false);
     }
   };
+
+  if (!connected) {
+    return (
+      <div className="space-y-6">
+        <BlockchainContextBar screenTitle="Issuer Dashboard" />
+        <div className="rounded-xl border border-zinc-800 bg-[#07090e] p-8 sm:p-12 text-center space-y-5 max-w-xl mx-auto my-10 shadow-xl">
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto">
+            <Wallet className="w-7 h-7" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-lg sm:text-xl font-bold text-white font-sans">
+              Connect wallet to access dashboard
+            </h2>
+            <p className="text-xs text-zinc-400 leading-relaxed max-w-md mx-auto">
+              The Issuer Dashboard displays the bonding curve markets you have created, your accrued creator fee balances, and market administration controls.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              variant="brand"
+              size="md"
+              leftIcon={<Wallet className="w-4 h-4" />}
+              onClick={onOpenWalletModal}
+            >
+              Connect wallet
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => onSelectTab('markets')}
+            >
+              Explore public markets
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -567,21 +563,34 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
               })
             ) : (
               <div className="p-12 rounded-xl border border-zinc-800 bg-[#0c1018] text-center space-y-4">
-                <Coins className="w-10 h-10 text-zinc-600 mx-auto" />
+                <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 mx-auto">
+                  <Coins className="w-6 h-6" />
+                </div>
                 <div className="max-w-md mx-auto space-y-1">
-                  <h3 className="text-sm font-semibold text-zinc-200">No matching markets found</h3>
-                  <p className="text-xs text-zinc-400">
-                    Deploy your first tokenized asset dynamic bonding curve market with Meteora DBC.
+                  <h3 className="text-sm font-semibold text-zinc-200 font-sans">
+                    No markets created yet with this wallet
+                  </h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+                    You have not deployed any tokenized asset bonding curve markets with this connected authority ({publicKeyStr ? `${publicKeyStr.slice(0, 4)}...${publicKeyStr.slice(-4)}` : 'wallet'}) on Solana Devnet.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onSelectTab('create')}
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-amber-500 hover:opacity-90 text-white font-semibold text-xs inline-flex items-center gap-1.5 transition-opacity cursor-pointer shadow-xs"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create Market</span>
-                </button>
+                <div className="pt-2 flex items-center justify-center gap-3">
+                  <Button
+                    variant="brand"
+                    size="sm"
+                    leftIcon={<Plus className="w-3.5 h-3.5" />}
+                    onClick={() => onSelectTab('create')}
+                  >
+                    Create market
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onSelectTab('markets')}
+                  >
+                    Explore public markets
+                  </Button>
+                </div>
               </div>
             )}
           </div>

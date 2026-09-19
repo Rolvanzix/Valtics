@@ -63,7 +63,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
   onOpenWalletModal,
 }) => {
   const { network, connection } = useNetwork();
-  const { connected, publicKey, publicKeyStr, balanceSol, signTransaction, connect } = useWallet();
+  const { connected, publicKey, publicKeyStr, balanceSol, signTransaction, connect, isWrongNetwork, networkError } = useWallet();
 
   const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
   const [prepared, setPrepared] = useState<PreparedPoolDeployment | null>(null);
@@ -140,6 +140,18 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
 
   // Execution handler: Explicit user confirmation required
   const handleExecute = async () => {
+    if (!connected || !publicKey) {
+      setTxError('Wallet not connected. Please connect your Solana Devnet wallet.');
+      setDeploymentState('error');
+      return;
+    }
+
+    if (isWrongNetwork) {
+      setTxError(`Transaction blocked: ${networkError || 'Wallet or RPC is not on Solana Devnet.'}`);
+      setDeploymentState('error');
+      return;
+    }
+
     if (!prepared || !signTransaction) {
       setTxError('Deployment transaction not prepared or wallet signer unavailable.');
       setDeploymentState('error');
@@ -212,9 +224,9 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
     <div className="space-y-6">
       {/* Step Header */}
       <div className="border-b border-zinc-800/80 pb-4">
-        <h2 className="text-xl font-bold text-white tracking-tight">Step 6 — On-Chain Creation & Deployment</h2>
+        <h2 className="text-xl font-bold text-white tracking-tight font-sans">Review</h2>
         <p className="text-xs text-zinc-400 mt-1">
-          Execute the official Meteora Dynamic Bonding Curve smart contract instructions on Solana.
+          Review market parameters, verify derived on-chain accounts, and create market on Solana Devnet.
         </p>
       </div>
 
@@ -225,9 +237,9 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
             <Key className="w-6 h-6" />
           </div>
           <div className="max-w-md mx-auto space-y-1">
-            <h3 className="text-base font-bold text-white">Wallet Connection Required</h3>
+            <h3 className="text-base font-bold text-white font-sans">Wallet connection required</h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              An institutional or self-custody Solana wallet must be connected to sign the pool initialization and fund the rent exemption on {network}.
+              Connect your Solana wallet to sign the market initialization and deploy the dynamic bonding curve on {network}.
             </p>
           </div>
           <button
@@ -239,9 +251,9 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
                 connect();
               }
             }}
-            className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-sm transition-colors cursor-pointer inline-flex items-center gap-2 shadow-xs shadow-amber-500/20"
+            className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs transition-colors cursor-pointer inline-flex items-center gap-2 shadow-xs shadow-amber-500/20"
           >
-            <span>Connect Wallet to Deploy</span>
+            <span>Connect wallet</span>
           </button>
         </div>
       )}
@@ -372,7 +384,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
               className="py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-2 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Preview</span>
+              <span>Back</span>
             </button>
 
             <button
@@ -382,7 +394,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
               className="py-3 px-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm transition-all cursor-pointer flex items-center gap-2 shadow-md shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Sign & Broadcast Deployment</span>
+              <span>Create market</span>
             </button>
           </div>
         </div>
@@ -403,7 +415,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
               {deploymentState === 'signing' && 'Please confirm and sign the transaction in your Solana wallet extension prompt.'}
-              {deploymentState === 'broadcasting' && 'Transaction is being dispatched to active Solana devnet/mainnet RPC validators.'}
+              {deploymentState === 'broadcasting' && 'Transaction is being dispatched to active Solana Devnet RPC validators.'}
               {deploymentState === 'confirming' && 'Transaction committed to block. Awaiting finality status...'}
             </p>
           </div>
@@ -546,10 +558,11 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => onSelectTab('markets')}
-                className="py-2.5 px-5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white text-xs font-semibold cursor-pointer transition-colors"
+                onClick={() => onSelectTab('my-markets')}
+                className="py-2.5 px-5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
               >
-                View in Markets Directory
+                <Layers className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Go to dashboard</span>
               </button>
 
               <button
@@ -558,11 +571,11 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
                   if (onSelectMarketDetail) {
                     onSelectMarketDetail(deploymentResult.poolAddress);
                   }
-                  onSelectTab('market-detail');
+                  onSelectTab('markets');
                 }}
                 className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold cursor-pointer transition-colors flex items-center gap-1.5 shadow-xs shadow-amber-500/20"
               >
-                <span>Open Market Terminal</span>
+                <span>View market</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -596,7 +609,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
               onClick={onBack}
               className="py-2 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium cursor-pointer"
             >
-              Back to Configuration Preview
+              Back
             </button>
 
             <button

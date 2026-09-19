@@ -64,59 +64,141 @@ export async function fetchAccountInfo(connection: Connection, address: string) 
   }
 }
 
+const METAPLEX_PROGRAM_ID = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
+
+const SPL_TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+const TOKEN_2022_PROGRAM_ID = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb';
+
 export async function inspectSplTokenMint(
   connection: Connection,
   mintAddress: string
-): Promise<TokenMetadata | null> {
+): Promise<TokenMetadata> {
+  const trimmed = mintAddress.trim();
+  let pubkey: PublicKey;
+
   try {
-    const pubkey = new PublicKey(mintAddress);
-    const accountInfo = await connection.getAccountInfo(pubkey, 'confirmed');
-    if (!accountInfo) return null;
+    pubkey = new PublicKey(trimmed);
+  } catch {
+    throw new Error('Invalid address format. Expected a 32-44 character Base58 Solana public key.');
+  }
 
-    const data = accountInfo.data;
-    // Standard SPL Token Mint layout is 82 bytes
-    // Decimals is at offset 44 (1 byte)
-    // IsInitialized is at offset 45
-    // Freeze Authority option is at offset 46 (4 bytes) and pubkey at 50
-    let decimals = 9;
-    let mintAuthority: string | null = null;
-    let freezeAuthority: string | null = null;
-    let supplyStr = '0';
+  // 1. Fetch parsed account info from Solana Devnet RPC
+  let parsedAccount;
+  try {
+    parsedAccount = await connection.getParsedAccountInfo(pubkey, 'confirmed');
+  } catch (rpcErr: any) {
+    throw new Error(`RPC connection error checking Devnet address: ${rpcErr?.message || 'Network timeout'}`);
+  }
 
-    if (data.length >= 82) {
-      // Mint authority option (first 4 bytes)
-      const hasMintAuth = data.readUInt32LE(0) !== 0;
-      if (hasMintAuth) {
-        mintAuthority = new PublicKey(data.subarray(4, 36)).toBase58();
+  if (!parsedAccount.value) {
+    throw new Error('Account does not exist on Solana Devnet. The entered address is not deployed on this network.');
+  }
+
+  const ownerStr = parsedAccount.value.owner.toBase58();
+  const isSplToken = ownerStr === SPL_TOKEN_PROGRAM_ID;
+  const isToken2022 = ownerStr === TOKEN_2022_PROGRAM_ID;
+
+  if (!isSplToken && !isToken2022) {
+    throw new Error(
+      `Account is owned by program ${ownerStr}, not an SPL Token or Token-2022 program. Only verified token mints can be onboarded.`
+    );
+  }
+
+  const data = parsedAccount.value.data;
+  if (!data || typeof data !== 'object' || !('parsed' in data)) {
+    throw new Error('Unable to parse token data structure on Devnet.');
+  }
+
+  if (data.parsed.type !== 'mint') {
+    throw new Error(
+      `Address belongs to a "${data.parsed.type}" account, not an initialized token mint. Please enter the token's Mint address.`
+    );
+  }
+
+  const info = data.parsed.info;
+  if (!info.isInitialized) {
+    throw new Error('Token mint account exists on Devnet but has not been initialized.');
+  }
+
+  const decimals = info.decimals;
+  const rawSupply = info.supply;
+  
+  // Reliably format supply
+  let supplyStr = '0';
+  try {
+    const rawBig = BigInt(rawSupply);
+    const factor = BigInt(10 ** decimals);
+    const whole = rawBig / factor;
+    const frac = rawBig % factor;
+    supplyStr = whole.toLocaleString('en-US');
+    if (decimals > 0 && frac > 0n) {
+      const fracFormatted = frac.toString().padStart(decimals, '0').replace(/0+$/, '');
+      supplyStr += '.' + fracFormatted;
+    }
+  } catch {
+    supplyStr = info.supply || '0';
+  }
+
+  let tokenName = '';
+  let tokenSymbol = '';
+  let tokenUri: string | undefined = undefined;
+
+  // 2. Query real on-chain Metaplex metadata PDA
+  try {
+    const [metadataPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from('metadata'), METAPLEX_PROGRAM_ID.toBuffer(), pubkey.toBuffer()],
+      METAPLEX_PROGRAM_ID
+    );
+    const metaAccount = await connection.getAccountInfo(metadataPDA, 'confirmed');
+    if (metaAccount && metaAccount.data.length > 68) {
+      const metaData = metaAccount.data;
+      let offset = 1 + 32 + 32;
+      const nameLen = metaData.readUInt32LE(offset);
+      offset += 4;
+      if (nameLen > 0 && offset + nameLen <= metaData.length) {
+        const rawName = metaData.subarray(offset, offset + nameLen).toString('utf8').replace(/\0/g, '').trim();
+        if (rawName) tokenName = rawName;
       }
-      // Supply: uint64 at offset 36
-      const supplyBigInt = data.readBigUInt64LE(36);
-      decimals = data[44];
-      supplyStr = (Number(supplyBigInt) / Math.pow(10, decimals)).toLocaleString();
-
-      // Freeze authority option at offset 46
-      const hasFreezeAuth = data.readUInt32LE(46) !== 0;
-      if (hasFreezeAuth) {
-        freezeAuthority = new PublicKey(data.subarray(50, 82)).toBase58();
+      offset += nameLen;
+      const symLen = metaData.readUInt32LE(offset);
+      offset += 4;
+      if (symLen > 0 && offset + symLen <= metaData.length) {
+        const rawSym = metaData.subarray(offset, offset + symLen).toString('utf8').replace(/\0/g, '').trim();
+        if (rawSym) tokenSymbol = rawSym;
+      }
+      offset += symLen;
+      const uriLen = metaData.readUInt32LE(offset);
+      offset += 4;
+      if (uriLen > 0 && offset + uriLen <= metaData.length) {
+        const rawUri = metaData.subarray(offset, offset + uriLen).toString('utf8').replace(/\0/g, '').trim();
+        if (rawUri) tokenUri = rawUri;
       }
     }
-
-    const isToken2022 = accountInfo.owner.toBase58() === 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb';
-
-    return {
-      mint: mintAddress,
-      name: `Token ${mintAddress.slice(0, 4)}...${mintAddress.slice(-4)}`,
-      symbol: 'TKN',
-      decimals,
-      supply: supplyStr,
-      mintAuthority,
-      freezeAuthority,
-      isToken2022,
-    };
-  } catch (err) {
-    console.error('Error inspecting SPL token mint:', err);
-    return null;
+  } catch {
+    // Non-fatal if Metaplex PDA does not exist
   }
+
+  // Fallback labels if on-chain Metaplex metadata is not registered
+  if (!tokenName) {
+    tokenName = `Token ${trimmed.slice(0, 4)}...${trimmed.slice(-4)}`;
+  }
+  if (!tokenSymbol) {
+    tokenSymbol = 'TKN';
+  }
+
+  return {
+    mint: trimmed,
+    name: tokenName,
+    symbol: tokenSymbol,
+    decimals,
+    supply: supplyStr,
+    rawSupply,
+    uri: tokenUri,
+    mintAuthority: info.mintAuthority || null,
+    freezeAuthority: info.freezeAuthority || null,
+    isToken2022,
+    programId: ownerStr,
+  };
 }
 
 /**

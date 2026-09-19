@@ -45,23 +45,24 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
   onSelectMarketDetail,
 }) => {
   const { network } = useNetwork();
-  const activeQuoteMints = QUOTE_MINTS[network === 'mainnet-beta' ? 'mainnet-beta' : 'devnet'];
+  const activeQuoteMints = QUOTE_MINTS.devnet;
 
   // Current active step in workflow (1 through 6)
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
-  // Step 1: Asset State
+  // Step 1: Asset State - Clean uninitialized state requiring real Devnet validation
   const [assetData, setAssetData] = useState<Step1AssetData>({
-    assetName: 'Apollo U.S. Treasury Bill 3M',
-    ticker: 'USTB-3M',
-    baseMint: '2mK3mR8aXWvQv8qY4p7X6e2UvL5fT9bK3gR3RwhK6eUu',
+    assetName: '',
+    ticker: '',
+    baseMint: '',
     assetCategory: 'Treasuries',
     referencePrice: '1.00',
     quoteSymbol: 'USDC',
     quoteMint: activeQuoteMints.USDC.mint,
     decimals: 6,
-    totalSupply: '100,000,000',
+    totalSupply: '10,000,000',
+    verifiedMetadata: null,
   });
 
   // Step 2: Selected Market Profile Preset

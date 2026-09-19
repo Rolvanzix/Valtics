@@ -113,7 +113,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
             onClick={onBack}
             leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}
           >
-            Back to Markets Directory
+            Back to markets
           </Button>
           <span className="text-zinc-600 text-xs">/</span>
           <span className="text-xs font-mono font-medium text-zinc-300">
@@ -203,7 +203,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
               leftIcon={<Sliders className="w-3.5 h-3.5 text-zinc-400" />}
               onClick={() => onSelectTab('studio')}
             >
-              Simulate in Studio
+              Curve studio
             </Button>
             <Button
               variant="brand"
@@ -211,7 +211,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
               leftIcon={<Coins className="w-3.5 h-3.5" />}
               onClick={() => setIsSwapModalOpen(true)}
             >
-              Trade via Curve
+              Trade
             </Button>
           </div>
         </div>

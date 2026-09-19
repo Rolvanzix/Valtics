@@ -1,4 +1,4 @@
-export type ClusterNetwork = 'devnet' | 'mainnet-beta' | 'custom';
+export type ClusterNetwork = 'devnet' | 'custom';
 
 export interface RpcEndpointConfig {
   name: string;
@@ -15,9 +15,11 @@ export interface TokenMetadata {
   decimals: number;
   uri?: string;
   supply?: string;
+  rawSupply?: string;
   mintAuthority?: string | null;
   freezeAuthority?: string | null;
   isToken2022?: boolean;
+  programId?: string;
 }
 
 export type MigrationOptionType = 'MET_DAMM' | 'MET_DAMM_V2';

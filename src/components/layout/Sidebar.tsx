@@ -42,12 +42,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     badge?: string;
   }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'markets', label: 'Markets', icon: Layers, badge: 'Live' },
-    { id: 'passport', label: 'Asset Passport', icon: FileCheck2, badge: 'Verified' },
-    { id: 'create', label: 'Create Market', icon: PlusCircle },
-    { id: 'studio', label: 'Curve Studio', icon: Sliders },
-    { id: 'my-markets', label: 'Issuer Dashboard', icon: Coins, badge: 'Control' },
-    { id: 'activity', label: 'Activity & Audit', icon: Activity },
+    { id: 'markets', label: 'Explore markets', icon: Layers },
+    { id: 'create', label: 'Create market', icon: PlusCircle },
+    { id: 'my-markets', label: 'Dashboard', icon: Coins },
   ];
 
   return (
@@ -90,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] via-[#ec4899] to-[#f59e0b] hover:opacity-95 active:scale-[0.98] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-violet-900/25 border border-white/10 transition-all cursor-pointer"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Deploy DBC Market</span>
+                <span>Create market</span>
               </button>
             </div>
           )}

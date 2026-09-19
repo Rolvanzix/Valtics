@@ -19,17 +19,14 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTab,
   onOpenWalletModal,
 }) => {
-  const { connected, publicKeyStr, balanceSol, disconnect, walletName } = useWallet();
+  const { connected, publicKeyStr, balanceSol, disconnect, walletName, isWrongNetwork } = useWallet();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
 
   const navItems: { id: NavigationTab; label: string; badge?: string }[] = [
     { id: 'overview', label: 'Overview' },
-    { id: 'markets', label: 'Markets' },
-    { id: 'passport', label: 'Asset Passport' },
-    { id: 'create', label: 'Create Market' },
-    { id: 'studio', label: 'Curve Studio' },
-    { id: 'my-markets', label: 'Issuer Dashboard' },
-    { id: 'activity', label: 'Activity' },
+    { id: 'markets', label: 'Explore markets' },
+    { id: 'create', label: 'Create market' },
+    { id: 'my-markets', label: 'Dashboard' },
   ];
 
   return (
@@ -53,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
               <p className="text-[10px] text-zinc-400 hidden sm:block tracking-tight font-medium">
-                Programmable markets for tokenized assets
+                Create programmable markets around tokenized assets
               </p>
             </div>
           </div>
@@ -90,17 +87,27 @@ export const Header: React.FC<HeaderProps> = ({
                 id="wallet-user-pill"
                 type="button"
                 onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
-                className="flex items-center gap-2 pl-2.5 pr-2 py-1 rounded-md border border-zinc-800 bg-[#0e131d] hover:border-zinc-700 transition-colors text-xs text-zinc-200"
+                className={`flex items-center gap-2 pl-2.5 pr-2 py-1 rounded-md border transition-colors text-xs ${
+                  isWrongNetwork
+                    ? 'border-rose-800/80 bg-rose-950/40 text-rose-200'
+                    : 'border-zinc-800 bg-[#0e131d] hover:border-zinc-700 text-zinc-200'
+                }`}
               >
-                <div className="flex items-center gap-1.5 font-mono-nums">
-                  <span className="text-emerald-400 font-medium hidden sm:inline">
-                    {balanceSol !== null ? `${balanceSol.toFixed(3)} SOL` : '—'}
+                {isWrongNetwork ? (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-900/60 text-rose-200 font-medium">
+                    Wrong Network (Devnet required)
                   </span>
-                  <span className="w-1 h-1 rounded-full bg-zinc-700 hidden sm:inline" />
-                  <span className="text-zinc-300 font-mono">
-                    {publicKeyStr.slice(0, 4)}...{publicKeyStr.slice(-4)}
-                  </span>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 font-mono-nums">
+                    <span className="text-emerald-400 font-medium hidden sm:inline">
+                      {balanceSol !== null ? `${balanceSol.toFixed(3)} SOL` : '—'}
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-zinc-700 hidden sm:inline" />
+                    <span className="text-zinc-300 font-mono">
+                      {publicKeyStr.slice(0, 4)}...{publicKeyStr.slice(-4)}
+                    </span>
+                  </div>
+                )}
                 <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
               </button>
 

@@ -1,22 +1,59 @@
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import {
   DynamicBondingCurveClient,
   DYNAMIC_BONDING_CURVE_PROGRAM_ID,
   MigrationOption,
+  MigrationFeeOption,
+  BaseFeeMode,
+  CollectFeeMode,
+  ActivationType,
+  TokenType,
+  TokenAuthorityOption,
+  buildCurve,
+  deriveDbcPoolAddress,
+  deriveDbcTokenVaultAddress,
 } from '@meteora-ag/dynamic-bonding-curve-sdk';
-import { DBCPoolState } from '../types';
+import { DBCPoolState, ClusterNetwork } from '../types';
+
+// Re-export core types and functions from sub-services for seamless single-module access
+export * from './meteoraService';
+export * from './meteoraCreation';
+
+export {
+  DYNAMIC_BONDING_CURVE_PROGRAM_ID,
+  MigrationOption,
+  MigrationFeeOption,
+  BaseFeeMode,
+  CollectFeeMode,
+  ActivationType,
+  TokenType,
+  TokenAuthorityOption,
+  buildCurve,
+  deriveDbcPoolAddress,
+  deriveDbcTokenVaultAddress,
+};
 
 let cachedClient: { rpcUrl: string; client: DynamicBondingCurveClient } | null = null;
 
-export function getMeteoraDbcClient(connection: Connection, rpcUrl: string): DynamicBondingCurveClient {
-  if (cachedClient && cachedClient.rpcUrl === rpcUrl) {
+/**
+ * Returns a cached DynamicBondingCurveClient instance for the active connection.
+ */
+export function getMeteoraDbcClient(
+  connection: Connection,
+  rpcUrl?: string
+): DynamicBondingCurveClient {
+  const url = rpcUrl || connection.rpcEndpoint;
+  if (cachedClient && cachedClient.rpcUrl === url) {
     return cachedClient.client;
   }
-  const client = DynamicBondingCurveClient.create(connection);
-  cachedClient = { rpcUrl, client };
+  const client = DynamicBondingCurveClient.create(connection, 'confirmed');
+  cachedClient = { rpcUrl: url, client };
   return client;
 }
 
+/**
+ * Fetches and formats an authentic on-chain Meteora VirtualPool state.
+ */
 export async function fetchOnChainPool(
   connection: Connection,
   rpcUrl: string,
@@ -51,7 +88,8 @@ export async function fetchOnChainPool(
 
     const state: any = (pool as any).poolState || (pool as any).account || pool;
     const migrationOptionNum = state.migrationOption;
-    const migrationOptionLabel = migrationOptionNum === MigrationOption.MET_DAMM ? 'MET_DAMM' : 'MET_DAMM_V2';
+    const migrationOptionLabel =
+      migrationOptionNum === MigrationOption.MET_DAMM ? 'MET_DAMM' : 'MET_DAMM_V2';
 
     // Retrieve quote mint & base fee from config account
     let quoteMint = 'So11111111111111111111111111111111111111112';
@@ -95,7 +133,12 @@ export async function fetchOnChainPool(
       migrationOptionLabel,
       baseReserve: state.baseReserve ? state.baseReserve.toString() : '0',
       quoteReserve: state.quoteReserve ? state.quoteReserve.toString() : '0',
-      quoteThreshold: quoteThreshold !== '0' ? quoteThreshold : (state.migrationProgress ? state.migrationProgress.toString() : '0'),
+      quoteThreshold:
+        quoteThreshold !== '0'
+          ? quoteThreshold
+          : state.migrationProgress
+          ? state.migrationProgress.toString()
+          : '0',
       currentPrice: currentPrice > 0 ? currentPrice : 0.001,
       startPrice: currentPrice > 0 ? currentPrice : 0.001,
       migrationPrice: currentPrice > 0 ? currentPrice * 2.5 : 0.0025,
@@ -111,6 +154,9 @@ export async function fetchOnChainPool(
   }
 }
 
+/**
+ * Fetches all Meteora DBC pools created by a specific creator wallet.
+ */
 export async function fetchCreatorPools(
   connection: Connection,
   rpcUrl: string,
@@ -126,7 +172,8 @@ export async function fetchCreatorPools(
       const state: any = p.poolState || p.account || p;
       const pubkey: PublicKey = p.publicKey || p.pubkey || creatorPubkey;
       const migrationOptionNum = state.migrationOption;
-      const migrationOptionLabel = migrationOptionNum === MigrationOption.MET_DAMM ? 'MET_DAMM' : 'MET_DAMM_V2';
+      const migrationOptionLabel =
+        migrationOptionNum === MigrationOption.MET_DAMM ? 'MET_DAMM' : 'MET_DAMM_V2';
       return {
         poolAddress: pubkey.toBase58 ? pubkey.toBase58() : String(pubkey),
         configAddress: state.config?.toBase58?.() || '',
@@ -155,4 +202,45 @@ export async function fetchCreatorPools(
   }
 }
 
-export { DYNAMIC_BONDING_CURVE_PROGRAM_ID };
+/**
+ * Formats a transaction safety review package according to institutional standards.
+ * Required to be shown prior to requesting wallet signature.
+ */
+export interface TransactionSafetyDisplayPackage {
+  purpose: string;
+  tokenAsset: string;
+  amount: string;
+  quoteAsset: string;
+  estimatedNetworkFee: string;
+  protocolFee: string;
+  slippage: string;
+  destinationPool: string;
+  network: ClusterNetwork | string;
+  requiresExplicitConfirmation: boolean;
+}
+
+export function buildTransactionSafetyDisplay(params: {
+  purpose: string;
+  tokenSymbol: string;
+  amount: string | number;
+  quoteSymbol: string;
+  estimatedNetworkFeeSol?: number;
+  protocolFeeFormatted?: string;
+  slippageBps?: number;
+  poolAddress: string;
+  network: ClusterNetwork | string;
+}): TransactionSafetyDisplayPackage {
+  const slippagePct = (params.slippageBps ?? 100) / 100;
+  return {
+    purpose: params.purpose,
+    tokenAsset: params.tokenSymbol,
+    amount: String(params.amount),
+    quoteAsset: params.quoteSymbol,
+    estimatedNetworkFee: `${(params.estimatedNetworkFeeSol ?? 0.000005).toFixed(6)} SOL (~$0.0008)`,
+    protocolFee: params.protocolFeeFormatted || '0.25% (25 bps)',
+    slippage: `${slippagePct.toFixed(2)}% (${params.slippageBps ?? 100} bps)`,
+    destinationPool: params.poolAddress,
+    network: params.network,
+    requiresExplicitConfirmation: true,
+  };
+}

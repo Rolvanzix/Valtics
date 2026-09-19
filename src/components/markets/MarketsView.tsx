@@ -145,7 +145,7 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
           poolAddress: query,
           configAddress: '',
           baseMint: query,
-          quoteMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          quoteMint: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
           baseVault: '',
           quoteVault: '',
           creator: mintInfo.mintAuthority || '',
@@ -281,14 +281,14 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
             leftIcon={<FileCheck2 className="w-3.5 h-3.5 text-amber-400" />}
             onClick={() => onSelectTab('passport')}
           >
-            Asset Passports
+            Asset passports
           </Button>
           <Button
             variant="brand"
             size="sm"
             onClick={() => onSelectTab('create')}
           >
-            Launch New Market
+            Create market
           </Button>
         </div>
       </div>
@@ -572,7 +572,7 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
                               if (onSelectPoolForInspector) onSelectPoolForInspector(pool);
                             }}
                           >
-                            Open Terminal
+                            View market
                           </Button>
                         </td>
                       </tr>

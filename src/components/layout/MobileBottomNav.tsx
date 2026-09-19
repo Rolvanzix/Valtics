@@ -25,12 +25,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     icon: React.ComponentType<{ className?: string }>;
   }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'markets', label: 'Markets', icon: Layers },
-    { id: 'passport', label: 'Passport', icon: FileCheck2 },
+    { id: 'markets', label: 'Explore', icon: Layers },
     { id: 'create', label: 'Create', icon: PlusCircle },
-    { id: 'studio', label: 'Studio', icon: Sliders },
-    { id: 'my-markets', label: 'Issuer', icon: Coins },
-    { id: 'activity', label: 'Audit', icon: Activity },
+    { id: 'my-markets', label: 'Dashboard', icon: Coins },
   ];
 
   return (

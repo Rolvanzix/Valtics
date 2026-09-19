@@ -22,7 +22,7 @@ import { ActivityView } from './components/activity/ActivityView';
 import { WalletModal } from './components/common/WalletModal';
 import { PlatformPrimerModal } from './components/common/PlatformPrimerModal';
 import { CurveModelParams, DBCPoolState } from './types';
-import { REFERENCE_POOLS } from './config/constants';
+import { getCreatedMarkets, onMarketCreated } from './services/marketStorage';
 import { X, HelpCircle } from 'lucide-react';
 import { ValticsLogo } from './components/brand/ValticsLogo';
 
@@ -38,36 +38,18 @@ function MainAppContent() {
   const [selectedMarketAddress, setSelectedMarketAddress] = useState<string | null>(null);
   const [passportInitialMint, setPassportInitialMint] = useState<string | null>(null);
 
-  // Default initial spotlight pool for contextual inspector
-  const initialPool = REFERENCE_POOLS?.[0];
-  const [selectedPool, setSelectedPool] = useState<DBCPoolState | null>(
-    initialPool
-      ? {
-          poolAddress: initialPool.poolAddress,
-          configAddress: 'Config7vS4Z6hT9bK3gR3RwhK6eUuWkL2kRjV7K4Uv',
-          baseMint: initialPool.baseMint,
-          quoteMint: initialPool.quoteMint,
-          baseVault: 'VaultB1cT2eR3uK6fP5hW9jQ2mD7zC4vB8xM1q9aL4nS',
-          quoteVault: 'VaultQ2mD7zC4vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP',
-          creator: 'Auth4vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2m',
-          migrationOption: initialPool.migrationOption === 'MET_DAMM' ? 0 : 1,
-          migrationOptionLabel: initialPool.migrationOption,
-          baseReserve: '1000000000',
-          quoteReserve: '50000000',
-          quoteThreshold: initialPool.quoteThreshold,
-          currentPrice: initialPool.currentPrice,
-          startPrice: initialPool.startPrice,
-          migrationPrice: initialPool.migrationPrice,
-          quoteCurveProgressPct: initialPool.progressPct,
-          baseCurveProgressPct: initialPool.progressPct,
-          isMigrated: initialPool.isMigrated,
-          baseFeeBps: initialPool.feeBps,
-          tokenName: initialPool.name,
-          tokenSymbol: initialPool.symbol,
-          rwaCategory: initialPool.rwaCategory,
-        }
-      : null
-  );
+  // Spotlight pool for contextual inspector: authentic on-chain created pool or null
+  const [selectedPool, setSelectedPool] = useState<DBCPoolState | null>(() => {
+    const created = getCreatedMarkets();
+    return created.length > 0 ? created[0] : null;
+  });
+
+  React.useEffect(() => {
+    const unsub = onMarketCreated((newPool) => {
+      setSelectedPool(newPool);
+    });
+    return unsub;
+  }, []);
 
   const handleApplyCurveToCreation = (params: CurveModelParams) => {
     setTransferredCurveParams(params);
@@ -113,12 +95,9 @@ function MainAppContent() {
               <div className="space-y-1">
                 {[
                   { id: 'overview', label: 'Overview' },
-                  { id: 'markets', label: 'Markets' },
-                  { id: 'passport', label: 'Asset Passport' },
-                  { id: 'create', label: 'Create Market' },
-                  { id: 'studio', label: 'Curve Studio' },
-                  { id: 'my-markets', label: 'Issuer Dashboard' },
-                  { id: 'activity', label: 'Activity & Audit' },
+                  { id: 'markets', label: 'Explore markets' },
+                  { id: 'create', label: 'Create market' },
+                  { id: 'my-markets', label: 'Dashboard' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -211,13 +190,17 @@ function MainAppContent() {
                 initialParams={transferredCurveParams}
                 onSelectTab={handleSelectTab}
                 onOpenWalletModal={() => setWalletModalOpen(true)}
+                onSelectMarketDetail={(poolAddress) => {
+                  setSelectedMarketAddress(poolAddress);
+                  handleSelectTab('markets');
+                }}
               />
             )}
 
             {activeTab === 'studio' && (
-              <CurveStudioView
+              <CreateMarketView
+                initialParams={transferredCurveParams}
                 onSelectTab={handleSelectTab}
-                onApplyToCreation={handleApplyCurveToCreation}
                 onOpenWalletModal={() => setWalletModalOpen(true)}
                 onSelectMarketDetail={(poolAddress) => {
                   setSelectedMarketAddress(poolAddress);

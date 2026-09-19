@@ -50,7 +50,7 @@ export const NetworkStatus: React.FC = () => {
         </span>
 
         <span className="capitalize font-mono-nums">
-          {network === 'mainnet-beta' ? 'Mainnet' : network === 'devnet' ? 'Devnet' : 'Custom RPC'}
+          {network === 'devnet' ? 'Devnet' : 'Custom Devnet RPC'}
         </span>
 
         {latencyMs >= 0 && (

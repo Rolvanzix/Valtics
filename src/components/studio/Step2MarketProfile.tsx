@@ -204,7 +204,7 @@ export const Step2MarketProfile: React.FC<Step2MarketProfileProps> = ({
           className="py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Asset</span>
+          <span>Back</span>
         </button>
 
         <button
@@ -212,7 +212,7 @@ export const Step2MarketProfile: React.FC<Step2MarketProfileProps> = ({
           onClick={onNext}
           className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-xs shadow-amber-500/20"
         >
-          <span>Configure Curve Parameters</span>
+          <span>Continue</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

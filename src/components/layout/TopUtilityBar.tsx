@@ -36,7 +36,7 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
   onSearchQuery,
   onOpenPrimer,
 }) => {
-  const { connected, publicKeyStr, balanceSol, disconnect, walletName } = useWallet();
+  const { connected, publicKeyStr, balanceSol, disconnect, walletName, isWrongNetwork } = useWallet();
   const { currentNetwork, supportedNetworks, selectNetwork, latencyMs } = useNetwork();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
@@ -88,9 +88,7 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
             className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-zinc-800 bg-[#0e141f] hover:border-zinc-700 text-xs text-zinc-300 transition-colors"
           >
             <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                currentNetwork?.network === 'mainnet-beta' ? 'bg-emerald-400' : 'bg-amber-400'
-              }`}
+              className="w-1.5 h-1.5 rounded-full bg-amber-400"
             />
             <span className="font-medium hidden md:inline">{currentNetwork?.name || 'Solana Cluster'}</span>
             {latencyMs !== null && (
@@ -123,11 +121,7 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          net.network === 'mainnet-beta' ? 'bg-emerald-400' : 'bg-amber-400'
-                        }`}
-                      />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                       <span>{net.name}</span>
                     </div>
                     {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
@@ -145,15 +139,27 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
               id="wallet-user-pill"
               type="button"
               onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
-              className="flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-lg border border-zinc-800 bg-[#0e131d] hover:border-zinc-700 transition-colors text-xs text-zinc-200"
+              className={`flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-lg border transition-colors text-xs ${
+                isWrongNetwork
+                  ? 'border-rose-800/80 bg-rose-950/40 text-rose-200'
+                  : 'border-zinc-800 bg-[#0e131d] hover:border-zinc-700 text-zinc-200'
+              }`}
             >
-              <span className="text-emerald-400 font-semibold font-mono-nums hidden sm:inline">
-                {balanceSol !== null ? `${balanceSol.toFixed(3)} SOL` : '—'}
-              </span>
-              <span className="w-1 h-1 rounded-full bg-zinc-700 hidden sm:inline" />
-              <span className="font-mono text-zinc-300">
-                {publicKeyStr.slice(0, 4)}...{publicKeyStr.slice(-4)}
-              </span>
+              {isWrongNetwork ? (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-900/60 text-rose-200 font-medium">
+                  Wrong Network
+                </span>
+              ) : (
+                <>
+                  <span className="text-emerald-400 font-semibold font-mono-nums hidden sm:inline">
+                    {balanceSol !== null ? `${balanceSol.toFixed(3)} SOL` : '—'}
+                  </span>
+                  <span className="w-1 h-1 rounded-full bg-zinc-700 hidden sm:inline" />
+                  <span className="font-mono text-zinc-300">
+                    {publicKeyStr.slice(0, 4)}...{publicKeyStr.slice(-4)}
+                  </span>
+                </>
+              )}
               <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
             </button>
 
@@ -189,7 +195,7 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
                     className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded bg-zinc-800/80 hover:bg-rose-950/60 hover:text-rose-300 text-zinc-300 text-xs transition-colors"
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    <span>Disconnect Wallet</span>
+                    <span>Disconnect wallet</span>
                   </button>
                 </div>
               </div>
@@ -203,7 +209,7 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#8b5cf6] via-[#ec4899] to-[#f59e0b] hover:opacity-95 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-violet-900/25 border border-white/10 transition-all tracking-tight cursor-pointer"
           >
             <Wallet className="w-3.5 h-3.5 text-white" />
-            <span>Connect Wallet</span>
+            <span>Connect wallet</span>
           </button>
         )}
 

@@ -8,30 +8,31 @@ export interface StepItem {
   subtitle: string;
 }
 
-export const STUDIO_STEPS: StepItem[] = [
-  { id: 1, key: 'asset', title: 'Asset', subtitle: 'Token details & mint' },
-  { id: 2, key: 'profile', title: 'Market Profile', subtitle: 'Parameter presets' },
-  { id: 3, key: 'config', title: 'Curve Config', subtitle: 'SDK parameters' },
-  { id: 4, key: 'visualization', title: 'Visualization', subtitle: 'Invariant model' },
-  { id: 5, key: 'preview', title: 'Preview', subtitle: 'Specification summary' },
-  { id: 6, key: 'create', title: 'Create', subtitle: 'Meteora on-chain deployment' },
+export const CREATE_MARKET_STEPS: StepItem[] = [
+  { id: 1, key: 'asset', title: 'Asset', subtitle: 'Paste mint & validate' },
+  { id: 2, key: 'market', title: 'Market', subtitle: 'Configure' },
+  { id: 3, key: 'review', title: 'Review', subtitle: 'Create' },
 ];
+
+export const STUDIO_STEPS = CREATE_MARKET_STEPS;
 
 interface StudioStepperProps {
   currentStep: number;
   onSelectStep: (step: number) => void;
   completedSteps: number[];
+  steps?: StepItem[];
 }
 
 export const StudioStepper: React.FC<StudioStepperProps> = ({
   currentStep,
   onSelectStep,
   completedSteps,
+  steps = CREATE_MARKET_STEPS,
 }) => {
   return (
     <div className="w-full bg-[#0c101a] border border-zinc-800 rounded-xl p-3 sm:p-4">
       <div className="flex items-center justify-between overflow-x-auto gap-2 sm:gap-4 no-scrollbar">
-        {STUDIO_STEPS.map((step, idx) => {
+        {steps.map((step, idx) => {
           const isCurrent = currentStep === step.id;
           const isCompleted = completedSteps.includes(step.id);
           const isClickable = isCompleted || step.id <= Math.max(...completedSteps, 1) + 1;
@@ -71,7 +72,7 @@ export const StudioStepper: React.FC<StudioStepperProps> = ({
                 </div>
               </button>
 
-              {idx < STUDIO_STEPS.length - 1 && (
+              {idx < steps.length - 1 && (
                 <div className="hidden lg:flex items-center text-zinc-700 shrink-0">
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>

@@ -3,6 +3,7 @@ import { Connection } from '@solana/web3.js';
 import { ClusterNetwork, RpcEndpointConfig } from '../types';
 import { DEFAULT_NETWORKS, DEFAULT_NETWORK } from '../config/networks';
 import { getSolanaConnection, checkRpcLatency } from '../services/solana';
+import { validateDevnetCluster } from '../services/networkValidator';
 
 export interface NetworkContextType {
   network: ClusterNetwork;
@@ -16,6 +17,8 @@ export interface NetworkContextType {
   slotHeight: number;
   tps: number;
   isRpcHealthy: boolean;
+  isWrongNetwork: boolean;
+  networkError: string | null;
   setNetwork: (net: ClusterNetwork) => void;
   setCustomRpc: (url: string) => void;
   refreshHealth: () => Promise<void>;
@@ -30,6 +33,8 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentSlot, setCurrentSlot] = useState<number>(326419);
   const [tps, setTps] = useState<number>(2468);
   const [isRpcHealthy, setIsRpcHealthy] = useState<boolean>(true);
+  const [isWrongNetwork, setIsWrongNetwork] = useState<boolean>(false);
+  const [networkError, setNetworkError] = useState<string | null>(null);
 
   const activeRpcConfig: RpcEndpointConfig = React.useMemo(() => {
     if (network === 'custom' && customRpcUrl) {
@@ -58,12 +63,25 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setCurrentSlot(res.slot);
       }
       setIsRpcHealthy(true);
-      // Fluctuate simulated live TPS realistically around standard Solana load
       setTps(Math.floor(2350 + Math.random() * 260));
     } else {
       setIsRpcHealthy(false);
     }
-  }, [activeRpcConfig.endpoint]);
+
+    // Verify Genesis Hash on the active RPC to strictly enforce Devnet
+    try {
+      const clusterCheck = await validateDevnetCluster(connection);
+      if (!clusterCheck.isDevnet) {
+        setIsWrongNetwork(true);
+        setNetworkError(clusterCheck.error || 'Connected RPC is not Solana Devnet.');
+      } else {
+        setIsWrongNetwork(false);
+        setNetworkError(null);
+      }
+    } catch {
+      // Retain previous network state
+    }
+  }, [activeRpcConfig.endpoint, connection]);
 
   useEffect(() => {
     refreshHealth();
@@ -72,6 +90,7 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [refreshHealth]);
 
   const setNetwork = (net: ClusterNetwork) => {
+    // Only devnet or custom (which must validate against devnet) is allowed
     setNetworkState(net);
   };
 
@@ -103,6 +122,8 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
         slotHeight: currentSlot,
         tps,
         isRpcHealthy,
+        isWrongNetwork,
+        networkError,
         setNetwork,
         setCustomRpc,
         refreshHealth,

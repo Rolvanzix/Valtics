@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   ShieldCheck,
@@ -23,7 +23,8 @@ import {
   FileText
 } from 'lucide-react';
 import { StructuredAssetProfile, VerificationStatus, AssetClassificationType } from '../../types/asset';
-import { STRUCTURED_ASSET_PROFILES, getAssetProfile } from '../../data/assetProfiles';
+import { STRUCTURED_ASSET_PROFILES, getAssetProfile, getAllAssetProfiles } from '../../data/assetProfiles';
+import { onMarketCreated } from '../../services/marketStorage';
 import { VerificationStatusBadge } from './VerificationStatusBadge';
 import { AssetPassportModal } from './AssetPassportModal';
 import { formatCurrency, formatPercent } from '../../utils/format';
@@ -47,18 +48,26 @@ export const AssetPassportView: React.FC<AssetPassportViewProps> = ({
   initialSelectedMint,
 }) => {
   const { network } = useNetwork();
-  const [profiles, setProfiles] = useState<StructuredAssetProfile[]>(STRUCTURED_ASSET_PROFILES);
+  const [profiles, setProfiles] = useState<StructuredAssetProfile[]>(() => getAllAssetProfiles());
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | VerificationStatus>('ALL');
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [activePassportAsset, setActivePassportAsset] = useState<StructuredAssetProfile | null>(() => {
     if (initialSelectedMint) {
-      return getAssetProfile(initialSelectedMint) || STRUCTURED_ASSET_PROFILES[0];
+      return getAssetProfile(initialSelectedMint) || getAllAssetProfiles()[0];
     }
     return null;
   });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [verificationSimulatorOpen, setVerificationSimulatorOpen] = useState<boolean>(false);
+
+  // Subscribe to newly created markets in real-time
+  useEffect(() => {
+    const unsub = onMarketCreated(() => {
+      setProfiles(getAllAssetProfiles());
+    });
+    return unsub;
+  }, []);
 
   // Filter profiles
   const filteredProfiles = useMemo(() => {

@@ -462,7 +462,7 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
           className="py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Profile</span>
+          <span>Back</span>
         </button>
 
         <button
@@ -471,7 +471,7 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
           onClick={onNext}
           className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-xs shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <span>Review Curve Visualization</span>
+          <span>Continue</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

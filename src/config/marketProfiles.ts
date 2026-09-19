@@ -47,7 +47,7 @@ export const MARKET_PROFILES: Record<MarketProfileKey, MarketProfilePreset> = {
     defaultThresholdQuote: 150000,
     curveAllocationPct: 85,
     startingFeeBps: 25,
-    endingFeeBps: 20,
+    endingFeeBps: 25,
     feeDecaySeconds: 86400, // 24 hours
     creatorFeePercentage: 20,
     dynamicFeeEnabled: false,
