@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { NavigationTab } from '../layout/Header';
 import { StudioStepper, CREATE_MARKET_STEPS } from '../studio/StudioStepper';
 import { Step1Asset, Step1AssetData } from '../studio/Step1Asset';
-import { Step2ConfigureMarket } from '../studio/Step2ConfigureMarket';
+import { Step2MarketParameters } from '../studio/Step2MarketParameters';
+import { Step3BondingCurve } from '../studio/Step3BondingCurve';
+import { Step4Review } from '../studio/Step4Review';
 import { Step6Create } from '../studio/Step6Create';
 import { 
   CurveStudioConfigInput, 
@@ -30,10 +32,10 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
   onOpenWalletModal,
   onSelectMarketDetail,
 }) => {
-  const { network } = useNetwork();
+  const { network, isMainnet, environmentStatusMessage } = useNetwork();
   const activeQuoteMints = QUOTE_MINTS.devnet;
 
-  // 3 Workflow steps: 1: Asset, 2: Market, 3: Review
+  // 5 Workflow steps: 1: Asset, 2: Market parameters, 3: Bonding curve, 4: Review, 5: Deploy
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -62,15 +64,14 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
 
   // Sync quote mint when network or symbol changes
   useEffect(() => {
-    const quote = activeQuoteMints[assetData.quoteSymbol];
+    const quote = activeQuoteMints[configInput.quoteSymbol];
     if (quote && configInput.quoteMint !== quote.mint) {
       setConfigInput((prev) => ({
         ...prev,
-        quoteSymbol: assetData.quoteSymbol,
         quoteMint: quote.mint,
       }));
     }
-  }, [network, assetData.quoteSymbol, activeQuoteMints]);
+  }, [network, configInput.quoteSymbol, activeQuoteMints]);
 
   // Handler when Step 1 changes
   const handleAssetDataChange = (updated: Step1AssetData) => {
@@ -88,8 +89,6 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
         baseMint: updated.baseMint,
         assetCategory: updated.assetCategory,
         referencePrice: refPrice,
-        quoteSymbol: updated.quoteSymbol,
-        quoteMint: updated.quoteMint,
         tokenDecimals: updated.decimals,
         totalSupply: supply,
       };
@@ -115,9 +114,33 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <BlockchainContextBar screenTitle="Create market" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+            Create Market
+          </h1>
+          <p className="text-xs text-zinc-400 mt-0.5">
+            Initialize dynamic bonding curve liquidity and verifiable reference benchmarks.
+          </p>
+        </div>
 
-      {/* Stepper with 4 short contextual labels */}
+        <div
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono shrink-0 self-start sm:self-auto ${
+            isMainnet
+              ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold'
+              : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+          }`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              isMainnet ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
+            }`}
+          />
+          <span>{environmentStatusMessage}</span>
+        </div>
+      </div>
+
+      {/* Stepper with 5 clear steps */}
       <StudioStepper
         currentStep={currentStep}
         onSelectStep={(step) => {
@@ -137,9 +160,9 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
         />
       )}
 
-      {/* STEP 2: Market */}
+      {/* STEP 2: Market parameters */}
       {currentStep === 2 && (
-        <Step2ConfigureMarket
+        <Step2MarketParameters
           input={configInput}
           onChange={setConfigInput}
           selectedProfile={selectedProfile}
@@ -149,11 +172,30 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
         />
       )}
 
-      {/* STEP 3: Review */}
+      {/* STEP 3: Bonding curve */}
       {currentStep === 3 && (
+        <Step3BondingCurve
+          input={configInput}
+          onChange={setConfigInput}
+          onNext={() => goToNextStep(3)}
+          onBack={() => goToPrevStep(3)}
+        />
+      )}
+
+      {/* STEP 4: Review */}
+      {currentStep === 4 && (
+        <Step4Review
+          input={configInput}
+          onNext={() => goToNextStep(4)}
+          onBack={() => goToPrevStep(4)}
+        />
+      )}
+
+      {/* STEP 5: Deploy */}
+      {currentStep === 5 && (
         <Step6Create
           input={configInput}
-          onBack={() => goToPrevStep(3)}
+          onBack={() => goToPrevStep(5)}
           onSelectTab={onSelectTab}
           onSelectMarketDetail={onSelectMarketDetail}
           onOpenWalletModal={onOpenWalletModal}

@@ -6,7 +6,7 @@ import { AddressBadge } from '../common/AddressBadge';
 import { formatCurrency } from '../../utils/format';
 import { ValticsMark } from '../brand/ValticsLogo';
 
-export type NavigationTab = 'overview' | 'markets' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity';
+export type NavigationTab = 'overview' | 'explore-assets' | 'markets' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity';
 
 interface HeaderProps {
   activeTab: NavigationTab;
@@ -24,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems: { id: NavigationTab; label: string; badge?: string }[] = [
     { id: 'overview', label: 'Overview' },
+    { id: 'explore-assets', label: 'Explore assets' },
     { id: 'markets', label: 'Explore markets' },
     { id: 'create', label: 'Create market' },
     { id: 'my-markets', label: 'Dashboard' },
@@ -155,10 +156,10 @@ export const Header: React.FC<HeaderProps> = ({
               id="connect-wallet-btn"
               type="button"
               onClick={onOpenWalletModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-semibold shadow-xs transition-all tracking-tight active:scale-[0.98]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold shadow-xs transition-all tracking-tight active:scale-[0.98] cursor-pointer font-sans"
             >
               <Wallet className="w-3.5 h-3.5 text-zinc-950" />
-              <span>Connect Wallet</span>
+              <span>Connect wallet</span>
             </button>
           )}
         </div>

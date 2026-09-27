@@ -42,6 +42,7 @@ export function getExplorerUrl(
   type: 'address' | 'tx' = 'address',
   network: string = 'devnet'
 ): string {
-  const clusterParam = '?cluster=devnet';
+  const isMain = network === 'mainnet';
+  const clusterParam = isMain ? '' : '?cluster=devnet';
   return `https://explorer.solana.com/${type}/${addressOrTx}${clusterParam}`;
 }

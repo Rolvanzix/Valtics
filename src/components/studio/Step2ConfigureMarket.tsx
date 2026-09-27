@@ -321,11 +321,11 @@ export const Step2ConfigureMarket: React.FC<Step2ConfigureMarketProps> = ({
       </div>
 
       {/* Navigation Actions */}
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between gap-3 pt-2">
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium cursor-pointer transition-colors flex items-center gap-1.5 border border-zinc-800"
+          className="min-h-[44px] px-5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium cursor-pointer transition-colors flex items-center justify-center gap-1.5 border border-zinc-800"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
@@ -334,7 +334,7 @@ export const Step2ConfigureMarket: React.FC<Step2ConfigureMarketProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold cursor-pointer transition-colors flex items-center gap-1.5 shadow-xs shadow-amber-500/20"
+          className="min-h-[44px] px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-xs shadow-amber-500/20"
         >
           <span>Review</span>
           <ArrowRight className="w-3.5 h-3.5" />

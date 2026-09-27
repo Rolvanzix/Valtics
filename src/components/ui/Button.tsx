@@ -31,37 +31,37 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-md transition-all select-none whitespace-nowrap focus:outline-hidden focus:ring-1 focus:ring-zinc-400/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]';
+      'inline-flex items-center justify-center font-sans font-medium rounded-lg transition-all select-none whitespace-nowrap focus:outline-hidden focus:ring-1 focus:ring-zinc-400/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99] cursor-pointer';
 
     const sizeStyles = {
-      xs: 'text-[11px] px-2 py-1 gap-1.5 h-6.5 tracking-tight',
-      sm: 'text-xs px-2.5 py-1.5 gap-1.5 h-8 tracking-tight',
-      md: 'text-xs px-3.5 py-2 gap-2 h-9.5 font-semibold tracking-tight',
-      lg: 'text-sm px-5 py-2.5 gap-2.5 h-11 font-semibold tracking-tight',
+      xs: 'text-[11px] px-2.5 py-1 gap-1.5 h-7 tracking-tight',
+      sm: 'text-xs px-3 py-1.5 gap-1.5 h-8 tracking-tight',
+      md: 'text-xs px-4 py-2 gap-2 h-9 font-medium tracking-tight',
+      lg: 'text-sm px-5 py-2.5 gap-2.5 h-10 font-medium tracking-tight',
     }[size];
 
     const variantStyles = {
-      // Primary Institutional Accent: Warm amber / gold with dark contrast
+      // Primary: High-contrast clean accent
       primary:
-        'bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-zinc-950 font-semibold shadow-xs hover:shadow-amber-500/10',
-      // Secondary: Deep Slate container with crisp border
+        'bg-zinc-100 hover:bg-white active:bg-zinc-200 text-zinc-950 font-semibold shadow-xs',
+      // Secondary: Deep slate container with subtle border
       secondary:
-        'bg-[#121824] hover:bg-[#182133] active:bg-[#0e141f] text-zinc-200 border border-zinc-700/80 shadow-xs hover:border-zinc-600',
-      // Outline: Transparent with clean border
+        'bg-zinc-900/80 hover:bg-zinc-800 active:bg-zinc-900 text-zinc-200 border border-zinc-800 hover:border-zinc-700 shadow-xs',
+      // Outline: Transparent with subtle hairline border
       outline:
-        'bg-transparent hover:bg-zinc-800/60 active:bg-zinc-800 text-zinc-300 border border-zinc-700/80 hover:text-zinc-100 hover:border-zinc-500',
-      // Subtle / Ghost: Minimal container for inline toolbar actions
+        'bg-transparent hover:bg-zinc-800/50 active:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:text-zinc-100 hover:border-zinc-700',
+      // Subtle / Ghost: Clean hover state for inline actions
       subtle:
-        'bg-transparent hover:bg-zinc-800/60 active:bg-zinc-800 text-zinc-400 hover:text-zinc-200',
+        'bg-transparent hover:bg-zinc-800/50 active:bg-zinc-800 text-zinc-400 hover:text-zinc-200',
       // Destructive: Controlled crimson
       destructive:
-        'bg-rose-950/40 hover:bg-rose-900/60 active:bg-rose-950 text-rose-300 border border-rose-800/60 hover:border-rose-700',
-      // Accent: Violet-amber hybrid for high-conviction issuance
+        'bg-rose-950/30 hover:bg-rose-900/50 active:bg-rose-950 text-rose-300 border border-rose-800/40 hover:border-rose-700/60',
+      // Accent: Violet-amber subtle transition
       accent:
-        'bg-gradient-to-r from-violet-600 via-purple-600 to-amber-500 hover:opacity-95 text-white font-semibold shadow-md',
-      // Brand: Signature VALTICS Gradient (Violet -> Rose -> Amber) matching Brand Kit
+        'bg-gradient-to-r from-violet-600 to-amber-600 hover:opacity-90 text-white font-medium shadow-xs',
+      // Brand: Refined VALTICS gradient
       brand:
-        'bg-gradient-to-r from-[#8b5cf6] via-[#ec4899] to-[#f59e0b] hover:opacity-95 active:scale-[0.98] text-white font-bold shadow-lg shadow-violet-900/25 border border-white/10',
+        'bg-gradient-to-r from-[#7c3aed] via-[#db2777] to-[#ea580c] hover:opacity-95 text-white font-semibold shadow-xs border border-white/10',
     }[variant];
 
     const widthStyle = fullWidth ? 'w-full' : '';

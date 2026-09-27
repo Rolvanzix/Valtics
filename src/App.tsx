@@ -13,6 +13,7 @@ import { ContextualInspector } from './components/layout/ContextualInspector';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { Footer } from './components/layout/Footer';
 import { OverviewView } from './components/overview/OverviewView';
+import { ExploreAssetsView } from './components/assets/ExploreAssetsView';
 import { MarketsView } from './components/markets/MarketsView';
 import { AssetPassportView } from './components/passport/AssetPassportView';
 import { CreateMarketView } from './components/create/CreateMarketView';
@@ -25,17 +26,23 @@ import { CurveModelParams, DBCPoolState } from './types';
 import { getCreatedMarkets, onMarketCreated } from './services/marketStorage';
 import { X, HelpCircle } from 'lucide-react';
 import { ValticsLogo } from './components/brand/ValticsLogo';
+import { BackgroundGrid } from './components/common/BackgroundGrid';
+import { EnvironmentSwitch } from './components/common/EnvironmentSwitch';
 
 function MainAppContent() {
   const [activeTab, setActiveTab] = useState<NavigationTab>('overview');
   const [walletModalOpen, setWalletModalOpen] = useState<boolean>(false);
   const [primerModalOpen, setPrimerModalOpen] = useState<boolean>(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
-  const [inspectorOpen, setInspectorOpen] = useState<boolean>(true);
+  const [inspectorOpen, setInspectorOpen] = useState<boolean>(() => {
+    return typeof window !== 'undefined' ? window.innerWidth >= 1280 : false;
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [transferredCurveParams, setTransferredCurveParams] = useState<CurveModelParams | null>(null);
   const [selectedMarketAddress, setSelectedMarketAddress] = useState<string | null>(null);
+  const [selectedCustomPool, setSelectedCustomPool] = useState<DBCPoolState | null>(null);
+  const [navigatedFromTab, setNavigatedFromTab] = useState<NavigationTab | null>(null);
   const [passportInitialMint, setPassportInitialMint] = useState<string | null>(null);
 
   // Spotlight pool for contextual inspector: authentic on-chain created pool or null
@@ -57,13 +64,31 @@ function MainAppContent() {
   };
 
   const handleSelectTab = (tab: NavigationTab) => {
+    // If user explicitly clicks a top-level tab, clear active drill-down pool
+    if (tab !== 'markets' || !selectedCustomPool) {
+      setSelectedCustomPool(null);
+      setSelectedMarketAddress(null);
+      setNavigatedFromTab(null);
+    }
     setActiveTab(tab);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleSelectAssetPage = (pool: DBCPoolState, fromTab: NavigationTab = 'explore-assets') => {
+    setSelectedCustomPool(pool);
+    setSelectedMarketAddress(pool.poolAddress);
+    setNavigatedFromTab(fromTab);
+    setActiveTab('markets');
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="min-h-screen flex bg-[#080c14] text-[#e2e8f0]">
+    <div className="min-h-screen flex bg-[#080c14] text-[#e2e8f0] relative overflow-x-hidden">
+      {/* Subtle Financial Infrastructure Background Layer */}
+      <BackgroundGrid />
+
       {/* 1. Desktop Persistent Left Navigation */}
       <Sidebar
         activeTab={activeTab}
@@ -92,6 +117,14 @@ function MainAppContent() {
                 </button>
               </div>
 
+              {/* Mobile Environment Selector */}
+              <div className="py-2 border-b border-zinc-800/80">
+                <span className="text-[10px] uppercase font-mono text-zinc-500 mb-1.5 block">
+                  Cluster Environment
+                </span>
+                <EnvironmentSwitch showStatusTip compact={true} />
+              </div>
+
               <div className="space-y-1">
                 {[
                   { id: 'overview', label: 'Overview' },
@@ -103,7 +136,7 @@ function MainAppContent() {
                     key={item.id}
                     type="button"
                     onClick={() => handleSelectTab(item.id as NavigationTab)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    className={`w-full text-left px-3.5 py-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-colors flex items-center ${
                       activeTab === item.id
                         ? 'bg-[#121824] text-zinc-100 font-semibold border border-zinc-700'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
@@ -121,7 +154,7 @@ function MainAppContent() {
                     setMobileMenuOpen(false);
                     setPrimerModalOpen(true);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-950/30 text-violet-300 border border-violet-800/40 text-xs font-medium"
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg bg-violet-950/30 text-violet-300 border border-violet-800/40 text-xs font-medium"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-violet-400" />
                   <span>Platform Guide (How it works)</span>
@@ -155,10 +188,24 @@ function MainAppContent() {
             {activeTab === 'overview' && (
               <OverviewView
                 onSelectTab={handleSelectTab}
+                onSelectAssetPage={(pool) => handleSelectAssetPage(pool, 'overview')}
                 onSelectPool={(address) => {
-                  setSelectedMarketAddress(address);
-                  handleSelectTab('markets');
+                  const found = getCreatedMarkets().find((m) => m.poolAddress === address);
+                  if (found) {
+                    handleSelectAssetPage(found, 'overview');
+                  } else {
+                    setSelectedMarketAddress(address);
+                    setNavigatedFromTab('overview');
+                    handleSelectTab('markets');
+                  }
                 }}
+              />
+            )}
+
+            {activeTab === 'explore-assets' && (
+              <ExploreAssetsView
+                onSelectTab={handleSelectTab}
+                onSelectAssetPage={(pool) => handleSelectAssetPage(pool, 'explore-assets')}
               />
             )}
 
@@ -166,6 +213,17 @@ function MainAppContent() {
               <MarketsView
                 onSelectTab={handleSelectTab}
                 selectedMarketAddress={selectedMarketAddress}
+                customActivePool={selectedCustomPool}
+                onBackToExplore={() => {
+                  const fromTab = navigatedFromTab;
+                  setSelectedCustomPool(null);
+                  setSelectedMarketAddress(null);
+                  setNavigatedFromTab(null);
+                  if (fromTab && fromTab !== 'markets') {
+                    setActiveTab(fromTab);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
                 onOpenWalletModal={() => setWalletModalOpen(true)}
                 onSelectPoolForInspector={(pool) => {
                   setSelectedPool(pool);
@@ -224,11 +282,11 @@ function MainAppContent() {
               <ActivityView />
             )}
 
-            {/* Institutional Footer */}
-            <Footer />
+            {/* Institutional Compact Footer */}
+            <Footer onSelectTab={handleSelectTab} />
           </main>
 
-          {/* 3. Optional Right-Side Contextual Panel (Desktop) */}
+          {/* 3. Right-Side Contextual Panel (Desktop persistent, Mobile/Tablet slide-over) */}
           <div className="hidden xl:block">
             <ContextualInspector
               isOpen={inspectorOpen}
@@ -237,6 +295,27 @@ function MainAppContent() {
               onNavigateToStudio={() => handleSelectTab('studio')}
             />
           </div>
+
+          {/* Contextual Inspector Mobile/Tablet Drawer */}
+          {inspectorOpen && (
+            <div className="xl:hidden fixed inset-0 z-50 flex justify-end">
+              <div
+                className="fixed inset-0 bg-black/70 backdrop-blur-xs"
+                onClick={() => setInspectorOpen(false)}
+              />
+              <div className="relative z-10 h-full">
+                <ContextualInspector
+                  isOpen={true}
+                  onClose={() => setInspectorOpen(false)}
+                  selectedPool={selectedPool}
+                  onNavigateToStudio={() => {
+                    setInspectorOpen(false);
+                    handleSelectTab('studio');
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 4. Mobile Bottom Navigation */}

@@ -1,4 +1,5 @@
-export type ClusterNetwork = 'devnet' | 'custom';
+export type AppEnvironment = 'testnet' | 'mainnet';
+export type ClusterNetwork = 'testnet' | 'devnet' | 'mainnet' | 'custom';
 
 export interface RpcEndpointConfig {
   name: string;

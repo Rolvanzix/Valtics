@@ -60,7 +60,7 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
   onSelectPoolForInspector,
 }) => {
   const { connected, publicKeyStr, signTransaction, isWrongNetwork, networkError } = useWallet();
-  const { connection, rpcConfig, network } = useNetwork();
+  const { connection, rpcConfig, network, isMainnet, environmentStatusMessage } = useNetwork();
 
   // Active view: 'portfolio' (MY MARKETS) or 'management' (MARKET MANAGEMENT)
   const [activeView, setActiveView] = useState<'portfolio' | 'management'>('portfolio');
@@ -308,9 +308,20 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                 <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 font-bold">
                   Issuer Control Center
                 </span>
-                <Badge variant="brand" size="xs">
-                  Solana {network.toUpperCase()}
-                </Badge>
+                <span
+                  className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 ${
+                    isMainnet
+                      ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold'
+                      : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      isMainnet ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
+                    }`}
+                  />
+                  <span>{environmentStatusMessage}</span>
+                </span>
               </div>
               <p className="text-xs text-zinc-400 font-normal max-w-2xl leading-relaxed">
                 Autonomous dynamic bonding curve market management, real-time liquidity supervision, and threshold graduation tracking on Meteora DBC.
@@ -319,32 +330,32 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
           </div>
 
           {/* Quick Actions & Navigation Toggle */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 font-sans">
             <div className="flex items-center p-1 rounded-lg bg-zinc-900 border border-zinc-800">
               <button
                 type="button"
                 onClick={() => setActiveView('portfolio')}
-                className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   activeView === 'portfolio'
-                    ? 'bg-gradient-to-r from-violet-600 to-amber-500 text-white shadow-xs'
+                    ? 'bg-zinc-800 text-zinc-100 shadow-xs'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span>My Markets ({allAvailableMarkets.length})</span>
+                <span>My markets ({allAvailableMarkets.length})</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveView('management')}
-                className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   activeView === 'management'
-                    ? 'bg-gradient-to-r from-violet-600 to-amber-500 text-white shadow-xs'
+                    ? 'bg-zinc-800 text-zinc-100 shadow-xs'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 <Sliders className="w-3.5 h-3.5" />
-                <span>Market Management</span>
+                <span>Market management</span>
               </button>
             </div>
 
@@ -456,18 +467,30 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                         : 'border-zinc-800'
                     }`}
                   >
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-center">
                       {/* 1 & 2: Asset & Symbol */}
                       <div className="lg:col-span-3 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-zinc-100 font-sans tracking-tight">
-                            {market.tokenName || 'Tokenized Asset'}
-                          </span>
-                          <span className="px-2 py-0.5 rounded bg-zinc-800 text-amber-400 font-mono text-xs font-bold border border-amber-500/20">
-                            {market.tokenSymbol || 'TKN'}
-                          </span>
+                        <div className="flex items-center justify-between lg:justify-start gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-zinc-100 font-sans tracking-tight">
+                              {market.tokenName || 'Tokenized Asset'}
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-zinc-800 text-amber-400 font-mono text-xs font-bold border border-amber-500/20">
+                              {market.tokenSymbol || 'TKN'}
+                            </span>
+                          </div>
+                          {/* Mobile status badge */}
+                          <div className="lg:hidden">
+                            <Badge
+                              variant={isGraduated ? 'graduated' : isThresholdMet ? 'warning' : 'live'}
+                              size="xs"
+                              dot
+                            >
+                              {isGraduated ? 'Graduated' : isThresholdMet ? 'Threshold Met' : 'Active Curve'}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-zinc-400">
+                        <div className="flex items-center gap-2 text-[11px] text-zinc-400 flex-wrap">
                           <span className="px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono">
                             {market.rwaCategory || 'Real World Asset'}
                           </span>
@@ -490,7 +513,7 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                           <span className="capitalize font-semibold text-zinc-200">
                             {market.curveType || 'Linear'} Model
                           </span>
-                          <span className="text-zinc-500">({formatCurrency(market.startPrice, quoteUnit)} → {formatCurrency(market.migrationPrice, quoteUnit)})</span>
+                          <span className="text-zinc-500 text-[10px]">({formatCurrency(market.startPrice, quoteUnit)} → {formatCurrency(market.migrationPrice, quoteUnit)})</span>
                         </div>
                       </div>
 
@@ -511,7 +534,7 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
 
                       {/* 3 & 8: Market Status & Graduation Progress */}
                       <div className="lg:col-span-3 space-y-2">
-                        <div className="flex items-center justify-between text-xs">
+                        <div className="hidden lg:flex items-center justify-between text-xs">
                           <Badge
                             variant={isGraduated ? 'graduated' : isThresholdMet ? 'warning' : 'live'}
                             size="xs"
@@ -519,6 +542,12 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                           >
                             {isGraduated ? 'Graduated' : isThresholdMet ? 'Threshold Met' : 'Active Curve'}
                           </Badge>
+                          <span className="font-mono text-[11px] text-amber-400 font-semibold">
+                            {formatPercent(progressPct, 1)}
+                          </span>
+                        </div>
+                        <div className="lg:hidden flex items-center justify-between text-xs">
+                          <span className="text-[11px] text-zinc-400 font-sans">Graduation progress</span>
                           <span className="font-mono text-[11px] text-amber-400 font-semibold">
                             {formatPercent(progressPct, 1)}
                           </span>
@@ -544,14 +573,14 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                       </div>
 
                       {/* Action Arrow */}
-                      <div className="lg:col-span-1 flex justify-end">
+                      <div className="lg:col-span-1 flex justify-end pt-1 lg:pt-0">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleOpenMarketManagement(market);
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-400 hover:text-amber-300 text-xs font-medium flex items-center gap-1 cursor-pointer transition-colors border border-zinc-700"
+                          className="w-full lg:w-auto min-h-[44px] lg:min-h-0 px-3 py-2 lg:py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-400 hover:text-amber-300 text-xs font-medium flex items-center justify-center gap-1 cursor-pointer transition-colors border border-zinc-700"
                         >
                           <span>Manage</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -623,6 +652,21 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                   <span className="text-zinc-500">·</span>
                   <span className="text-[11px] font-mono text-zinc-400">
                     Created: {selectedPool.creationDate || 'Sep 16, 2026'}
+                  </span>
+                  <span className="text-zinc-500">·</span>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded inline-flex items-center gap-1.5 ${
+                      isMainnet
+                        ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold'
+                        : 'bg-zinc-900 border border-zinc-800 text-zinc-400'
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        isMainnet ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
+                      }`}
+                    />
+                    <span>{environmentStatusMessage}</span>
                   </span>
                 </div>
 

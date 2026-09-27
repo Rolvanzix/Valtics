@@ -129,23 +129,23 @@ export const AssetPassportView: React.FC<AssetPassportViewProps> = ({
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-16">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans">
       {/* 1. Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
-        <div className="space-y-1.5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-wider font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              VALTICS ASSET INFORMATION LAYER
+            <span className="text-xs uppercase tracking-wider font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+              Information layer
             </span>
             <span className="text-xs font-mono text-zinc-400">
-              Solana Cluster: <strong className="text-zinc-300">{network.toUpperCase()}</strong>
+              Solana <strong className="text-zinc-300">{network.toUpperCase()}</strong>
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
             Asset Passport & Verification Registry
           </h1>
-          <p className="text-sm text-zinc-400 max-w-3xl leading-relaxed">
-            Standardized asset profiles for tokenized RWAs and equity-like instruments. Every asset explicitly separates on-chain market state from external reference benchmarks and issuer self-disclosures.
+          <p className="text-xs text-zinc-400 max-w-3xl leading-relaxed">
+            Standardized asset profiles for tokenized RWAs. Verifiable legal disclosures, custodian attestations, and external reference price feeds.
           </p>
         </div>
 
@@ -154,17 +154,17 @@ export const AssetPassportView: React.FC<AssetPassportViewProps> = ({
             variant="secondary"
             size="sm"
             onClick={() => setVerificationSimulatorOpen(!verificationSimulatorOpen)}
-            leftIcon={<Compass className="w-4 h-4 text-violet-400" />}
+            leftIcon={<Compass className="w-3.5 h-3.5 text-zinc-400" />}
           >
-            {verificationSimulatorOpen ? 'Hide Verification Criteria' : 'Verification Standard'}
+            {verificationSimulatorOpen ? 'Hide Criteria' : 'Verification criteria'}
           </Button>
           <Button
-            variant="primary"
+            variant="brand"
             size="sm"
             onClick={() => onSelectTab('markets')}
-            rightIcon={<ArrowUpRight className="w-4 h-4" />}
+            rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}
           >
-            Browse Live Markets
+            Browse markets
           </Button>
         </div>
       </div>

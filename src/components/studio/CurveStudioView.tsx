@@ -97,6 +97,7 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
         assetName: updated.assetName,
         ticker: updated.ticker,
         baseMint: updated.baseMint,
+        baseMintKeypair: updated.baseMintKeypair || prev.baseMintKeypair,
         assetCategory: updated.assetCategory,
         quoteSymbol: updated.quoteSymbol,
         quoteMint: updated.quoteMint,
@@ -139,25 +140,23 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto font-sans">
       {/* Header Banner */}
-      <div className="bg-radial from-amber-500/10 via-[#0c101a] to-[#080b12] border border-zinc-800/80 rounded-2xl p-5 sm:p-7 relative overflow-hidden">
+      <div className="border border-zinc-800/80 bg-[#090d15] rounded-xl p-5 sm:p-6 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-4 max-w-2xl">
-            <ValticsMark size={52} glow className="shrink-0 hidden sm:inline-flex" />
-            <div className="space-y-1.5">
+            <ValticsMark size={44} className="shrink-0 hidden sm:inline-flex" />
+            <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  Primary Product Feature
-                </span>
-                <span className="text-zinc-400 text-xs">•</span>
-                <span className="text-zinc-400 text-xs font-mono">Meteora Dynamic Bonding Curve v1</span>
+                <span className="text-xs text-zinc-400 font-sans">Meteora Dynamic Bonding Curve</span>
+                <span className="text-zinc-600 text-xs">•</span>
+                <span className="text-zinc-400 text-xs font-mono">Solana Devnet</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                VALTICS Curve Studio
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+                Curve Studio
               </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                Design, simulate, and configure production-grade Dynamic Bonding Curve markets for tokenized Real World Assets on Solana.
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Design and simulate dynamic bonding curve models for tokenized assets with deterministic pricing and migration thresholds.
               </p>
             </div>
           </div>
@@ -166,10 +165,10 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
             <button
               type="button"
               onClick={handleReset}
-              className="py-2 px-3.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-300 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
-              <span>Reset Configuration</span>
+              <span>Reset parameters</span>
             </button>
           </div>
         </div>

@@ -112,33 +112,37 @@ export const PoolInfoPanel: React.FC<PoolInfoPanelProps> = ({ pool }) => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-800/40">
               <span className="font-mono text-xs text-zinc-300 bg-zinc-900 px-2 py-1 rounded border border-zinc-800">
                 {row.address.slice(0, 6)}...{row.address.slice(-6)}
               </span>
 
-              <button
-                type="button"
-                onClick={() => handleCopy(row.address, row.key)}
-                className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
-                title="Copy address"
-              >
-                {copiedKey === row.key ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleCopy(row.address, row.key)}
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                  title="Copy address"
+                  aria-label={`Copy ${row.label}`}
+                >
+                  {copiedKey === row.key ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
 
-              <a
-                href={getExplorerUrl(row.address, 'address', network as any)}
-                target="_blank"
-                rel="noreferrer"
-                className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-amber-400 hover:text-amber-300 transition-colors"
-                title="View in Solana Explorer"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+                <a
+                  href={getExplorerUrl(row.address, 'address', network as any)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 text-amber-400 hover:text-amber-300 transition-colors"
+                  title="View in Solana Explorer"
+                  aria-label={`View ${row.label} in Solana Explorer`}
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           </div>
         ))}

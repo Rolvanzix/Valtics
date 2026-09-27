@@ -12,7 +12,7 @@ import {
   Zap,
   ArrowRight
 } from 'lucide-react';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Keypair } from '@solana/web3.js';
 import { useNetwork } from '../../context/NetworkContext';
 import { isValidSolanaAddress } from '../../utils/security';
 import { inspectSplTokenMint } from '../../services/solana';
@@ -33,6 +33,7 @@ export interface Step1AssetData {
   assetName: string;
   ticker: string;
   baseMint: string;
+  baseMintKeypair?: Keypair;
   assetCategory: string;
   referencePrice: string;
   quoteSymbol: 'USDC' | 'SOL';
@@ -353,7 +354,7 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
         {/* Reference Price (NAV / Par Value) */}
         <div className="space-y-1.5">
           <label className="block text-xs font-medium text-zinc-300">
-            Reference Price / Stated NAV (USD)
+            Reference NAV (USD)
           </label>
           <div className="relative">
             <span className="absolute left-3.5 top-2.5 text-sm text-zinc-400 font-mono">$</span>
@@ -367,88 +368,23 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
               className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg pl-8 pr-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
-          <p className="text-[11px] text-zinc-400">Benchmark par value or audited appraisal price for curve alignment.</p>
-        </div>
-
-        {/* Quote Token Selection */}
-        <div className="space-y-1.5 md:col-span-2">
-          <label className="block text-xs font-medium text-zinc-300">
-            Quote Currency Pair <span className="text-rose-400">*</span>
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => handleQuoteChange('USDC')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleQuoteChange('USDC');
-                }
-              }}
-              className={`p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition-all ${
-                data.quoteSymbol === 'USDC'
-                  ? 'bg-amber-500/10 border-amber-500/50 text-white'
-                  : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Coins className="w-5 h-5 text-emerald-400 shrink-0" />
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">USDC (USD Coin)</div>
-                  <div className="text-[11px] text-zinc-400">Fiat-pegged stable currency (6 decimals)</div>
-                </div>
-              </div>
-              <div className="text-xs font-mono text-zinc-400">
-                <AddressBadge address={activeQuoteMints.USDC.mint} head={4} tail={4} />
-              </div>
-            </div>
-
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => handleQuoteChange('SOL')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleQuoteChange('SOL');
-                }
-              }}
-              className={`p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition-all ${
-                data.quoteSymbol === 'SOL'
-                  ? 'bg-amber-500/10 border-amber-500/50 text-white'
-                  : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Zap className="w-5 h-5 text-violet-400 shrink-0" />
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">SOL (Wrapped SOL)</div>
-                  <div className="text-[11px] text-zinc-400">Native Solana blockchain quote token (9 decimals)</div>
-                </div>
-              </div>
-              <div className="text-xs font-mono text-zinc-400">
-                <AddressBadge address={activeQuoteMints.SOL.mint} head={4} tail={4} />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Navigation Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-zinc-800">
         <div className="flex items-center gap-2 text-xs text-zinc-400">
-          <Info className="w-3.5 h-3.5 text-zinc-400" />
-          <span>Real Solana SPL mint addresses are mandatory for Meteora Dynamic Bonding Curves.</span>
+          <Info className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+          <span>Solana SPL token mint address on Devnet is required.</span>
         </div>
 
         <button
           type="button"
           disabled={!isFormValid}
           onClick={onNext}
-          className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 shadow-xs shadow-amber-500/20"
+          className="w-full sm:w-auto min-h-[44px] py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 shadow-xs shadow-amber-500/20"
         >
-          <span>Configure market</span>
+          <span>Next: Market parameters</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

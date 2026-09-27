@@ -21,6 +21,7 @@ export interface CurveStudioConfigInput {
   assetName: string;
   ticker: string;
   baseMint: string;
+  baseMintKeypair?: Keypair;
   assetCategory: string;
   referencePrice?: number;
   quoteSymbol: 'USDC' | 'SOL';
@@ -61,7 +62,9 @@ export interface CurveStudioConfigInput {
 
 export interface PreparedPoolDeployment {
   configKeypair: Keypair;
+  baseMintKeypair: Keypair;
   configPubkey: string;
+  baseMintAddress: string;
   poolAddress: string;
   baseVaultAddress: string;
   quoteVaultAddress: string;
@@ -85,11 +88,42 @@ export interface DeploymentResult {
   slot: number;
 }
 
+export interface TransactionDiagnosticsData {
+  instructionIndex: number | null;
+  failingProgramId: string | null;
+  simulationLogs: string[];
+  instructionSummary: {
+    index: number;
+    programId: string;
+    programName: string;
+    accountsCount: number;
+    accounts: { pubkey: string; isSigner: boolean; isWritable: boolean }[];
+  }[];
+  baseMint: string;
+  quoteMint: string;
+  configAddress: string;
+  walletAddress: string;
+  cluster: string;
+  sdkVersion: string;
+  rawError: string;
+}
+
+export class MeteoraDeploymentError extends Error {
+  diagnostics: TransactionDiagnosticsData;
+  constructor(message: string, diagnostics: TransactionDiagnosticsData) {
+    super(message);
+    this.name = 'MeteoraDeploymentError';
+    this.diagnostics = diagnostics;
+  }
+}
+
 export function createDefaultCurveStudioInput(): CurveStudioConfigInput {
+  const initialBaseMint = Keypair.generate();
   return {
     assetName: 'Apollo U.S. Treasury Bill 3M',
     ticker: 'USTB-3M',
-    baseMint: '2mK3mR8aXWvQv8qY4p7X6e2UvL5fT9bK3gR3RwhK6eUu',
+    baseMint: initialBaseMint.publicKey.toBase58(),
+    baseMintKeypair: initialBaseMint,
     assetCategory: 'Treasuries',
     referencePrice: 1.0,
     quoteSymbol: 'USDC',
@@ -278,15 +312,20 @@ export async function prepareMeteoraPoolTransaction(
   payerOrRpc: PublicKey | string,
   input: CurveStudioConfigInput
 ): Promise<PreparedPoolDeployment> {
-  let rpcUrl = connection.rpcEndpoint;
-  if (typeof payerOrRpc === 'string') {
-    if (payerOrRpc.startsWith('http://') || payerOrRpc.startsWith('https://')) {
-      rpcUrl = payerOrRpc;
-    } else {
-      input.payerAddress = input.payerAddress || payerOrRpc;
-    }
-  } else if (payerOrRpc && 'toBase58' in payerOrRpc) {
-    input.payerAddress = input.payerAddress || payerOrRpc.toBase58();
+  const rpcUrl = connection.rpcEndpoint;
+  
+  // Resolve payer directly from the connected wallet's PublicKey
+  let payerPubkey: PublicKey;
+  if (payerOrRpc instanceof PublicKey) {
+    payerPubkey = payerOrRpc;
+    input.payerAddress = payerPubkey.toBase58();
+  } else if (typeof payerOrRpc === 'string' && !payerOrRpc.startsWith('http://') && !payerOrRpc.startsWith('https://')) {
+    payerPubkey = new PublicKey(payerOrRpc);
+    input.payerAddress = payerPubkey.toBase58();
+  } else if (input.payerAddress) {
+    payerPubkey = new PublicKey(input.payerAddress);
+  } else {
+    throw new Error('Invalid Payer/Wallet address. A valid connected Solana PublicKey is required.');
   }
 
   const validation = validateCurveStudioInput(input);
@@ -296,8 +335,16 @@ export async function prepareMeteoraPoolTransaction(
 
   const client = getMeteoraDbcClient(connection, rpcUrl);
   const configKeypair = Keypair.generate();
-  const payerPubkey = new PublicKey(input.payerAddress);
-  const baseMintPubkey = new PublicKey(input.baseMint);
+  // Meteora DBC initializes base_mint on-chain as a brand-new SPL token mint.
+  // Instruction 1 (InitializeVirtualPoolWithSplToken) invokes SystemProgram.createAccount on base_mint.
+  // Therefore:
+  // 1. base_mint MUST NOT already exist on Solana (otherwise SystemProgram throws 0x0 / AccountAlreadyInUse).
+  // 2. base_mint MUST be a Keypair and sign the transaction (signer: true in DBC IDL).
+  const baseMintKeypair = input.baseMintKeypair || Keypair.generate();
+  input.baseMintKeypair = baseMintKeypair;
+  input.baseMint = baseMintKeypair.publicKey.toBase58();
+
+  const baseMintPubkey = baseMintKeypair.publicKey;
   const quoteMintPubkey = new PublicKey(input.quoteMint);
 
   // 1. Calculate deterministic SDK curve parameters
@@ -331,21 +378,56 @@ export async function prepareMeteoraPoolTransaction(
   tx.recentBlockhash = blockhash;
   tx.feePayer = payerPubkey;
 
-  // The configKeypair is a new account initialized by the program, so it signs here
+  // The configKeypair and baseMintKeypair are newly initialized accounts on-chain,
+  // so both MUST partially sign the transaction
   tx.partialSign(configKeypair);
+  tx.partialSign(baseMintKeypair);
 
   return {
     configKeypair,
+    baseMintKeypair,
     configPubkey: configKeypair.publicKey.toBase58(),
+    baseMintAddress: baseMintPubkey.toBase58(),
     poolAddress: poolPubkey.toBase58(),
     baseVaultAddress: baseVaultPubkey.toBase58(),
     quoteVaultAddress: quoteVaultPubkey.toBase58(),
     programId: DYNAMIC_BONDING_CURVE_PROGRAM_ID.toBase58(),
     transaction: tx,
     curveData: curveConfig,
-    estimatedRentSol: 0.065, // ~0.065 SOL for Config PDA + Pool PDA + Vault ATAs
+    estimatedRentSol: 0.065, // ~0.065 SOL for Config PDA + Pool PDA + Vault ATAs + Metadata
     estimatedTxFeeSol: 0.000005,
   };
+}
+
+/**
+ * Extracts a high-level instruction summary for diagnostic inspection without exposing private keys.
+ */
+function extractInstructionSummary(tx: Transaction) {
+  return tx.instructions.map((ix, idx) => {
+    let programName = 'Program';
+    const progId = ix.programId.toBase58();
+    if (progId === DYNAMIC_BONDING_CURVE_PROGRAM_ID.toBase58()) {
+      programName = idx === 0 ? 'Meteora DBC: CreateConfig' : 'Meteora DBC: InitializeVirtualPoolWithSplToken';
+    } else if (progId === '11111111111111111111111111111111') {
+      programName = 'System Program';
+    } else if (progId === 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
+      programName = 'SPL Token Program';
+    } else if (progId === 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s') {
+      programName = 'Metaplex Token Metadata';
+    }
+
+    return {
+      index: idx,
+      programId: progId,
+      programName,
+      accountsCount: ix.keys.length,
+      accounts: ix.keys.map((k) => ({
+        pubkey: k.pubkey.toBase58(),
+        isSigner: k.isSigner,
+        isWritable: k.isWritable,
+      })),
+    };
+  });
 }
 
 /**
@@ -354,19 +436,40 @@ export async function prepareMeteoraPoolTransaction(
 export async function simulateMeteoraTransaction(
   connection: Connection,
   transaction: Transaction
-): Promise<{ success: boolean; logs: string[]; error?: string }> {
+): Promise<{
+  success: boolean;
+  logs: string[];
+  error?: string;
+  instructionIndex?: number;
+  failingProgramId?: string;
+}> {
   try {
-    const simResult = await connection.simulateTransaction(transaction);
-    if (simResult.value.err) {
+    const wire = transaction.serialize({ requireAllSignatures: false }).toString('base64');
+    const res = await (connection as any)._rpcRequest('simulateTransaction', [
+      wire,
+      { sigVerify: false, commitment: 'confirmed', encoding: 'base64' },
+    ]);
+    const val = res?.result?.value;
+    if (val) {
+      let instructionIndex: number | undefined;
+      let failingProgramId: string | undefined;
+      if (val.err && typeof val.err === 'object' && 'InstructionError' in val.err) {
+        instructionIndex = val.err.InstructionError[0];
+        if (typeof instructionIndex === 'number' && transaction.instructions[instructionIndex]) {
+          failingProgramId = transaction.instructions[instructionIndex].programId.toBase58();
+        }
+      }
       return {
-        success: false,
-        logs: simResult.value.logs || [],
-        error: JSON.stringify(simResult.value.err),
+        success: val.err === null,
+        logs: val.logs || [],
+        error: val.err ? JSON.stringify(val.err) : undefined,
+        instructionIndex,
+        failingProgramId,
       };
     }
     return {
       success: true,
-      logs: simResult.value.logs || [],
+      logs: [],
     };
   } catch (err: any) {
     return {
@@ -419,20 +522,52 @@ export async function executeAndConfirmPoolTransaction(
     network = networkArg || 'devnet';
   }
 
-  // Preflight simulation check
-  try {
-    const sim = await connection.simulateTransaction(prepared.transaction);
-    if (sim.value.err) {
-      const errStr = JSON.stringify(sim.value.err);
-      if (errStr.includes('InvalidAccountForFee') || errStr.includes('AccountNotFound') || errStr.includes('InsufficientFundsForFee')) {
-        throw new Error('Your wallet has insufficient SOL on Solana Devnet to pay transaction fees and rent (~0.065 SOL required). Please request a Devnet airdrop or fund your wallet.');
+  const createDiagnostics = (
+    rawErr: string,
+    logs: string[],
+    tx: Transaction,
+    overrideIx?: number,
+    overrideProg?: string
+  ): TransactionDiagnosticsData => {
+    let instructionIndex: number | null = overrideIx !== undefined ? overrideIx : null;
+    let failingProgramId: string | null = overrideProg || null;
+
+    if (instructionIndex === null) {
+      const match = rawErr.match(/InstructionError:\s*\[(\d+)/i) || rawErr.match(/Instruction\s+(\d+)/i);
+      if (match) {
+        instructionIndex = parseInt(match[1], 10);
       }
-      throw new Error(`Preflight simulation failed: ${errStr}`);
     }
-  } catch (simErr: any) {
-    if (simErr.message?.includes('Preflight simulation failed') || simErr.message?.includes('insufficient SOL')) {
-      throw simErr;
+
+    if (!failingProgramId && instructionIndex !== null && tx.instructions[instructionIndex]) {
+      failingProgramId = tx.instructions[instructionIndex].programId.toBase58();
     }
+
+    return {
+      instructionIndex,
+      failingProgramId,
+      simulationLogs: logs,
+      instructionSummary: extractInstructionSummary(tx),
+      baseMint: input?.baseMint || prepared.baseMintAddress || '',
+      quoteMint: input?.quoteMint || '',
+      configAddress: prepared.configPubkey,
+      walletAddress: input?.payerAddress || '',
+      cluster: network,
+      sdkVersion: '1.5.12',
+      rawError: rawErr,
+    };
+  };
+
+  // Preflight simulation check via RPC
+  const sim = await simulateMeteoraTransaction(connection, prepared.transaction);
+  if (!sim.success) {
+    const errStr = sim.error || 'Preflight simulation rejected';
+    if (errStr.includes('InvalidAccountForFee') || errStr.includes('AccountNotFound') || errStr.includes('InsufficientFundsForFee')) {
+      const diag = createDiagnostics(errStr, sim.logs, prepared.transaction, sim.instructionIndex, sim.failingProgramId);
+      throw new MeteoraDeploymentError('Your wallet has insufficient SOL on Solana Devnet to pay transaction fees and rent (~0.065 SOL required). Please request a Devnet airdrop or fund your wallet.', diag);
+    }
+    const diag = createDiagnostics(errStr, sim.logs, prepared.transaction, sim.instructionIndex, sim.failingProgramId);
+    throw new MeteoraDeploymentError(`Preflight simulation failed: ${errStr}`, diag);
   }
 
   // Sign with the connected wallet (fee payer & pool creator) - NEVER handle private keys
@@ -441,17 +576,36 @@ export async function executeAndConfirmPoolTransaction(
 
   // Send raw transaction to cluster
   if (onStatusChange) onStatusChange('broadcasting');
-  const rawTx = signedTx.serialize();
-  const signature = await connection.sendRawTransaction(rawTx, {
-    skipPreflight: false,
-    preflightCommitment: 'confirmed',
-  });
+  let signature: string;
+  try {
+    const rawTx = signedTx.serialize();
+    signature = await connection.sendRawTransaction(rawTx, {
+      skipPreflight: false,
+      preflightCommitment: 'confirmed',
+    });
+  } catch (sendErr: any) {
+    let simLogs: string[] = sendErr.logs || [];
+    let overrideIx: number | undefined;
+    let overrideProg: string | undefined;
+
+    if (simLogs.length === 0) {
+      const resim = await simulateMeteoraTransaction(connection, signedTx);
+      simLogs = resim.logs;
+      overrideIx = resim.instructionIndex;
+      overrideProg = resim.failingProgramId;
+    }
+
+    const diag = createDiagnostics(sendErr.message || 'sendRawTransaction failed', simLogs, signedTx, overrideIx, overrideProg);
+    throw new MeteoraDeploymentError(sendErr.message || 'Transaction submission failed on Solana cluster.', diag);
+  }
 
   // Await blockchain block confirmation
   if (onStatusChange) onStatusChange('confirming');
   const confirmation = await connection.confirmTransaction(signature, 'confirmed');
   if (confirmation.value.err) {
-    throw new Error(`Transaction confirmed with on-chain error: ${JSON.stringify(confirmation.value.err)}`);
+    const errStr = JSON.stringify(confirmation.value.err);
+    const diag = createDiagnostics(errStr, [], signedTx);
+    throw new MeteoraDeploymentError(`Transaction confirmed with on-chain error: ${errStr}`, diag);
   }
 
   // CRITICAL REQUIREMENT: Strictly verify on-chain ledger state before declaring success

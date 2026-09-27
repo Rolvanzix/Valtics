@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Activity, 
   Search, 
@@ -7,13 +7,16 @@ import {
   ExternalLink, 
   Loader2, 
   Clock, 
-  FileCode,
-  ShieldCheck,
-  Zap,
-  Layers
+  FileCode, 
+  ShieldCheck, 
+  Zap, 
+  Layers,
+  RefreshCw
 } from 'lucide-react';
+import { PublicKey } from '@solana/web3.js';
 import { useNetwork } from '../../context/NetworkContext';
 import { METEORA_DBC_PROGRAM_ID, getExplorerUrl } from '../../config/constants';
+import { getRecordedActivities, onActivityRecorded } from '../../services/activityStorage';
 import { AddressBadge } from '../common/AddressBadge';
 import { formatRelativeTime } from '../../utils/format';
 import { MarketActivityChart } from '../charts/MarketActivityChart';
@@ -50,41 +53,70 @@ export const ActivityView: React.FC = () => {
   const [txResult, setTxResult] = useState<ParsedTxResult | null>(null);
   const [txError, setTxError] = useState<string | null>(null);
 
-  // Curated on-chain audit and program reference activity
-  const referenceActivities: ActivityItem[] = [
-    {
-      signature: '5wK4p7X6e2UvL5fT9bK3gR3RwhK6eUuWkL2kRjV7K4UvYtJ8F2q7vS4Z6hT9bK3gR3RwhK6eUuWkL2kRjV7K4Uv',
-      timestamp: Date.now() - 1000 * 60 * 18,
-      type: 'Dynamic Bonding Curve Initialized',
-      pool: '7gR3RwhK6eUuWkL2kRjV7K4UvYtJ8F2q7vS4Z6hT9bK3',
-      asset: 'aT-26 (Apollo Treasury Alpha)',
-      status: 'confirmed',
-    },
-    {
-      signature: '4hW9jQ2mD7zC4vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2mD7zC4vB8xM1q9aL4nS7vX8bY1cT2eR3u',
-      timestamp: Date.now() - 1000 * 60 * 42,
-      type: 'AMM Migration Completed (MET_DAMM_V2)',
-      pool: '4bW9jQ2mD7zC4vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP',
-      asset: 'vCRB (AeroCarbon Credits 2025)',
-      status: 'confirmed',
-    },
-    {
-      signature: '3vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2mD7zC4vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2m',
-      timestamp: Date.now() - 1000 * 60 * 115,
-      type: 'Creator Fee Claim Executed',
-      pool: '9aL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2mD7zC4vB8xM1q',
-      asset: 'vCRE-01 (Manhattan Prime Note)',
-      status: 'confirmed',
-    },
-    {
-      signature: '2tL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2mD7zC4vB8xM1q9aL4nS7vX8bY1cT2eR3uK6fP5hW9jQ2mD7zC4vB8',
-      timestamp: Date.now() - 1000 * 60 * 190,
-      type: 'Dynamic Bonding Curve Initialized',
-      pool: '3fR3RwhK6eUuWkL2kRjV7K4UvYtJ8F2q7vS4Z6hT9bK3',
-      asset: 'bPC-8 (BlueRock Private Credit)',
-      status: 'confirmed',
-    },
-  ];
+  const [isLoadingLedger, setIsLoadingLedger] = useState<boolean>(true);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+
+  // Load real on-chain ledger entries from Solana RPC & user-executed transactions
+  const loadLedger = async () => {
+    setIsLoadingLedger(true);
+    try {
+      const userRecorded = getRecordedActivities();
+      const userItems: ActivityItem[] = userRecorded.map((r) => ({
+        signature: r.signature,
+        timestamp: r.timestamp,
+        type: r.type === 'swap' ? 'Swap / Trade' : r.type === 'pool_created' ? 'Dynamic Bonding Curve Initialized' : 'Meteora DBC Event',
+        pool: r.pool,
+        asset: r.asset,
+        status: r.status,
+      }));
+
+      // Query real on-chain program signatures from Solana Devnet
+      let onChainItems: ActivityItem[] = [];
+      try {
+        const sigs = await connection.getSignaturesForAddress(
+          new PublicKey(METEORA_DBC_PROGRAM_ID),
+          { limit: 12 }
+        );
+        if (sigs && sigs.length > 0) {
+          onChainItems = sigs.map((s) => ({
+            signature: s.signature,
+            timestamp: s.blockTime ? s.blockTime * 1000 : Date.now(),
+            type: s.memo ? `Memo: ${s.memo.slice(0, 30)}` : 'Meteora DBC Program Call',
+            pool: METEORA_DBC_PROGRAM_ID,
+            asset: 'DBC Devnet Pool',
+            status: s.err ? 'failed' : 'confirmed',
+          }));
+        }
+      } catch (rpcErr) {
+        console.warn('RPC signatures query for DBC program:', rpcErr);
+      }
+
+      // Merge and deduplicate
+      const seen = new Set<string>();
+      const combined: ActivityItem[] = [];
+      for (const item of [...userItems, ...onChainItems]) {
+        if (!seen.has(item.signature)) {
+          seen.add(item.signature);
+          combined.push(item);
+        }
+      }
+
+      combined.sort((a, b) => b.timestamp - a.timestamp);
+      setActivities(combined);
+    } catch (err) {
+      console.warn('Error building activity ledger:', err);
+    } finally {
+      setIsLoadingLedger(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLedger();
+    const unsub = onActivityRecorded(() => {
+      loadLedger();
+    });
+    return () => unsub();
+  }, [connection, network]);
 
   const handleInspectSignature = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +133,7 @@ export const ActivityView: React.FC = () => {
     setIsQuerying(true);
     try {
       const parsed = await connection.getParsedTransaction(sig, {
-        maxSupportedTransactionVersion: 0,
+        maxSupportedTransactionVersion: 1,
         commitment: 'confirmed',
       });
 
@@ -313,22 +345,95 @@ export const ActivityView: React.FC = () => {
         </form>
       </Card>
 
-      {/* Curated Ledger Table */}
+      {/* Live On-Chain Activity Ledger Table */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300 font-sans">
-            Reference Protocol Events
+          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300 font-sans flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Cryptographic Activity Ledger</span>
           </span>
-          <span className="text-[11px] font-mono text-zinc-500">
-            Meteora DBC Audited Activity
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-zinc-500">
+              Solana {network.toUpperCase()}
+            </span>
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={loadLedger}
+              isLoading={isLoadingLedger}
+              leftIcon={<RefreshCw className="w-3 h-3" />}
+            >
+              Refresh
+            </Button>
+          </div>
         </div>
 
-        <Table
-          columns={columns}
-          data={referenceActivities}
-          keyExtractor={(item) => item.signature}
-        />
+        {isLoadingLedger ? (
+          <div className="py-12 text-center text-zinc-400 space-y-2 bg-[#090d14] rounded-xl border border-zinc-800">
+            <Loader2 className="w-6 h-6 animate-spin text-amber-400 mx-auto" />
+            <p className="text-xs font-sans">Querying on-chain signatures from Solana {network.toUpperCase()}...</p>
+          </div>
+        ) : activities.length > 0 ? (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <Table
+                columns={columns}
+                data={activities}
+                keyExtractor={(item) => item.signature}
+              />
+            </div>
+
+            {/* Mobile Activity Cards View */}
+            <div className="md:hidden space-y-2.5">
+              {activities.map((item) => (
+                <div
+                  key={item.signature}
+                  className="p-3.5 rounded-xl border border-zinc-800/80 bg-[#090d14] space-y-2.5 font-sans"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="font-semibold text-zinc-100 text-xs truncate">
+                        {item.type}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 font-mono">
+                        {item.asset}
+                      </div>
+                    </div>
+                    <div className="shrink-0 flex items-center gap-1.5">
+                      <Badge variant={item.status === 'confirmed' ? 'positive' : 'negative'} size="xs" dot>
+                        {item.status === 'confirmed' ? 'Confirmed' : 'Failed'}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-800/50">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-zinc-500">Pool:</span>
+                      <AddressBadge address={item.pool} head={3} tail={3} />
+                    </div>
+                    <span className="text-[11px] text-zinc-400 font-mono-nums">
+                      {formatRelativeTime(item.timestamp)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-zinc-800/40 text-xs">
+                    <span className="text-[10px] text-zinc-500">Transaction</span>
+                    <AddressBadge address={item.signature} type="tx" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="py-10 text-center text-zinc-400 space-y-2 bg-[#090d14] rounded-xl border border-zinc-800">
+            <Clock className="w-6 h-6 text-zinc-500 mx-auto" />
+            <p className="text-sm font-semibold text-zinc-200">No On-Chain Activity Recorded Yet</p>
+            <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+              Execute a swap on an active market or create a dynamic bonding curve pool to generate verifiable transactions.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -15,7 +15,8 @@ import {
   Coins, 
   Key,
   Flame,
-  ArrowRight
+  ArrowRight,
+  Terminal,
 } from 'lucide-react';
 import { PublicKey } from '@solana/web3.js';
 import { 
@@ -25,8 +26,17 @@ import {
   simulateMeteoraTransaction, 
   executeAndConfirmPoolTransaction,
   validateCurveStudioInput,
-  createPoolStateFromDeployment
+  createPoolStateFromDeployment,
+  TransactionDiagnosticsData,
+  MeteoraDeploymentError
 } from '../../services/meteoraCreation';
+import { 
+  runPreDeploymentChecks, 
+  PreDeploymentValidationResult,
+  DEVNET_RPC_ENDPOINT,
+  DEVNET_DBC_PROGRAM_ID,
+  DEVNET_SOL_QUOTE_MINT
+} from '../../services/networkValidator';
 import { useNetwork } from '../../context/NetworkContext';
 import { useWallet } from '../../context/WalletContext';
 import { saveCreatedMarket } from '../../services/marketStorage';
@@ -68,6 +78,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
   const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
   const [prepared, setPrepared] = useState<PreparedPoolDeployment | null>(null);
   const [prepError, setPrepError] = useState<string | null>(null);
+  const [preCheckResult, setPreCheckResult] = useState<PreDeploymentValidationResult | null>(null);
   const [simulationLogs, setSimulationLogs] = useState<string[] | null>(null);
   const [confirmedCheck, setConfirmedCheck] = useState(false);
 
@@ -82,6 +93,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
   } | null>(null);
 
   const [txError, setTxError] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<TransactionDiagnosticsData | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const handleCopy = (text: string, key: string) => {
@@ -90,7 +102,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  // Automatically prepare transaction when entering Step 6 if wallet is connected
+  // Automatically prepare transaction when entering Step 6 after strictly passing 10-point Pre-Deployment Checks
   useEffect(() => {
     let isMounted = true;
 
@@ -102,7 +114,43 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
       setDeploymentState('preparing');
       setPrepError(null);
 
-      // Validate inputs
+      // Execute 10-Point Pre-Deployment Verification
+      const preCheck = await runPreDeploymentChecks({
+        connection,
+        connected,
+        walletPublicKey: publicKey,
+        walletPublicKeyStr: publicKeyStr,
+        appNetwork: network,
+        isWrongNetwork,
+        networkError,
+      });
+
+      if (!isMounted) return;
+      setPreCheckResult(preCheck);
+
+      // Check 10: Block deployment immediately if any pre-check fails
+      if (!preCheck.success || !preCheck.payerPublicKey) {
+        const failureMsg = preCheck.errorSummary || 'Pre-deployment verification checks failed.';
+        setPrepError(failureMsg);
+        setDiagnostics({
+          instructionIndex: null,
+          failingProgramId: DEVNET_DBC_PROGRAM_ID,
+          simulationLogs: [],
+          instructionSummary: [],
+          baseMint: input.baseMint,
+          quoteMint: input.quoteMint,
+          configAddress: 'Pending',
+          walletAddress: preCheck.payerPublicKey ? preCheck.payerPublicKey.toBase58() : publicKeyStr || '',
+          cluster: 'devnet',
+          sdkVersion: '1.5.12',
+          rawError: failureMsg,
+        });
+        setDeploymentState('error');
+        return;
+      }
+
+      // Validate Curve Studio input constraints
+      input.payerAddress = preCheck.payerPublicKey.toBase58();
       const validation = validateCurveStudioInput(input);
       if (!validation.valid) {
         setPrepError(validation.errors.join('; '));
@@ -111,7 +159,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
       }
 
       try {
-        const prepResult = await prepareMeteoraPoolTransaction(connection, publicKey, input);
+        const prepResult = await prepareMeteoraPoolTransaction(connection, preCheck.payerPublicKey, input);
         if (!isMounted) return;
 
         // Perform simulation
@@ -136,7 +184,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [connected, publicKey, input, connection]);
+  }, [connected, publicKey, publicKeyStr, input, connection, network, isWrongNetwork, networkError]);
 
   // Execution handler: Explicit user confirmation required
   const handleExecute = async () => {
@@ -200,6 +248,29 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
 
       setDeploymentState('success');
     } catch (err: any) {
+      if (err?.diagnostics) {
+        setDiagnostics(err.diagnostics);
+      } else if (prepared) {
+        setDiagnostics({
+          instructionIndex: 1,
+          failingProgramId: 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN',
+          simulationLogs: simulationLogs || [],
+          instructionSummary: prepared.transaction.instructions.map((ix, idx) => ({
+            index: idx,
+            programId: ix.programId.toBase58(),
+            programName: idx === 0 ? 'Meteora DBC: CreateConfig' : 'Meteora DBC: InitializeVirtualPoolWithSplToken',
+            accountsCount: ix.keys.length,
+            accounts: ix.keys.map((k) => ({ pubkey: k.pubkey.toBase58(), isSigner: k.isSigner, isWritable: k.isWritable })),
+          })),
+          baseMint: input.baseMint || prepared.baseMintAddress,
+          quoteMint: input.quoteMint,
+          configAddress: prepared.configPubkey,
+          walletAddress: publicKeyStr || '',
+          cluster: network,
+          sdkVersion: '1.5.12',
+          rawError: err?.message || 'Transaction failed',
+        });
+      }
       setTxError(sanitizeErrorMessage(err?.message || 'Transaction submission failed on Solana cluster.'));
       setDeploymentState('error');
     }
@@ -207,10 +278,35 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
 
   const handleRetry = async () => {
     setTxError(null);
+    setDiagnostics(null);
+    setPrepError(null);
     if (publicKey) {
       setDeploymentState('preparing');
       try {
-        const prepResult = await prepareMeteoraPoolTransaction(connection, publicKey, input);
+        const preCheck = await runPreDeploymentChecks({
+          connection,
+          connected,
+          walletPublicKey: publicKey,
+          walletPublicKeyStr: publicKeyStr,
+          appNetwork: network,
+          isWrongNetwork,
+          networkError,
+        });
+        setPreCheckResult(preCheck);
+
+        if (!preCheck.success || !preCheck.payerPublicKey) {
+          const failureMsg = preCheck.errorSummary || 'Pre-deployment verification checks failed.';
+          setPrepError(failureMsg);
+          setDeploymentState('error');
+          return;
+        }
+
+        input.payerAddress = preCheck.payerPublicKey.toBase58();
+        const prepResult = await prepareMeteoraPoolTransaction(connection, preCheck.payerPublicKey, input);
+        const sim = await simulateMeteoraTransaction(connection, prepResult.transaction);
+        if (sim.logs) {
+          setSimulationLogs(sim.logs);
+        }
         setPrepared(prepResult);
         setDeploymentState('ready_to_confirm');
       } catch (err: any) {
@@ -377,11 +473,11 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
           </div>
 
           {/* Action Button Bar */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
             <button
               type="button"
               onClick={onBack}
-              className="py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto min-h-[44px] py-2.5 px-5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer border border-zinc-700/80"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -391,7 +487,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
               type="button"
               disabled={!confirmedCheck}
               onClick={handleExecute}
-              className="py-3 px-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm transition-all cursor-pointer flex items-center gap-2 shadow-md shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto min-h-[44px] py-3 px-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Create market</span>
@@ -600,6 +696,129 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
           <div className="bg-black/60 rounded-lg p-3.5 font-mono text-xs text-rose-300 border border-rose-950/80 overflow-x-auto">
             <div className="text-[10px] text-zinc-400 uppercase font-sans mb-1">Error Diagnostics:</div>
             <div>{txError || prepError || 'Unknown execution failure.'}</div>
+          </div>
+
+          {/* Developer-Only Transaction Diagnostics Section */}
+          <div className="border border-zinc-800 bg-zinc-950/90 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider font-mono">
+                  Transaction Diagnostics (Developer)
+                </span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-850 text-zinc-400 font-mono border border-zinc-800">
+                Solana Devnet
+              </span>
+            </div>
+
+            {/* Core Diagnostics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Failing Instruction Index</span>
+                <span className="text-rose-400 font-bold">
+                  {diagnostics?.instructionIndex !== null && diagnostics?.instructionIndex !== undefined
+                    ? `Index ${diagnostics.instructionIndex}`
+                    : '1 (Preflight simulation)'}
+                </span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Failing Program ID</span>
+                <span className="text-zinc-200 truncate block">
+                  {diagnostics?.failingProgramId || 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN (Meteora DBC)'}
+                </span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Base Mint (Asset)</span>
+                <span className="text-zinc-200 truncate block">{diagnostics?.baseMint || input.baseMint}</span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Quote Mint</span>
+                <span className="text-zinc-200 truncate block">{diagnostics?.quoteMint || input.quoteMint}</span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Config Address / Keypair</span>
+                <span className="text-zinc-200 truncate block">
+                  {diagnostics?.configAddress || prepared?.configPubkey || 'Generated per deployment'}
+                </span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Wallet / Payer Address</span>
+                <span className="text-zinc-200 truncate block">
+                  {diagnostics?.walletAddress || publicKeyStr || 'Connected wallet'}
+                </span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Solana Cluster / Genesis</span>
+                <span className="text-zinc-200 truncate block">
+                  {preCheckResult?.details.genesisHash ? `devnet (${preCheckResult.details.genesisHash.slice(0, 10)}...)` : 'devnet (EtWTRABZaYq6iMfeYKouRu166VU2xqaWEnWNgFAYgTK8)'}
+                </span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Fee Payer Balance</span>
+                <span className={preCheckResult?.details.solBalance !== undefined && preCheckResult.details.solBalance >= 0.05 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                  {preCheckResult?.details.solBalance !== undefined ? `${preCheckResult.details.solBalance.toFixed(4)} SOL` : `${balanceSol.toFixed(4)} SOL`}
+                </span>
+              </div>
+              <div className="bg-zinc-900/60 p-2 rounded border border-zinc-800/60">
+                <span className="text-[10px] text-zinc-400 font-sans block uppercase">Meteora DBC SDK Version</span>
+                <span className="text-zinc-200">{diagnostics?.sdkVersion || '1.5.12'}</span>
+              </div>
+            </div>
+
+            {/* Instruction Summary */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10px] text-zinc-400 font-sans uppercase block">
+                Transaction Instruction Summary ({diagnostics?.instructionSummary?.length || prepared?.transaction.instructions.length || 2} Instructions)
+              </span>
+              <div className="bg-zinc-900/70 rounded p-2.5 space-y-2 text-xs font-mono border border-zinc-800/60">
+                {(diagnostics?.instructionSummary || (prepared?.transaction ? [
+                  { index: 0, programId: 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN', programName: 'Meteora DBC: CreateConfig', accountsCount: 5 },
+                  { index: 1, programId: 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN', programName: 'Meteora DBC: InitializeVirtualPoolWithSplToken', accountsCount: 16 },
+                ] : [
+                  { index: 0, programId: 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN', programName: 'Meteora DBC: CreateConfig', accountsCount: 5 },
+                  { index: 1, programId: 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN', programName: 'Meteora DBC: InitializeVirtualPoolWithSplToken', accountsCount: 16 },
+                ])).map((ix) => (
+                  <div key={ix.index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1.5 border-b border-zinc-800/50 last:border-0 last:pb-0">
+                    <div>
+                      <span className="text-amber-400 font-bold mr-2">#{ix.index}</span>
+                      <span className="text-zinc-200">{ix.programName}</span>
+                    </div>
+                    <div className="text-[11px] text-zinc-400 flex items-center gap-3">
+                      <span>Prog: {ix.programId.slice(0, 6)}...{ix.programId.slice(-4)}</span>
+                      <span className="text-zinc-400">{ix.accountsCount} accounts</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Simulation Logs */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10px] text-zinc-400 font-sans uppercase block">
+                Solana Preflight Simulation Logs ({(diagnostics?.simulationLogs || simulationLogs || []).length} lines)
+              </span>
+              <div className="bg-black/80 rounded p-3 font-mono text-[11px] text-zinc-300 max-h-52 overflow-y-auto space-y-0.5 border border-zinc-800/80 leading-relaxed whitespace-pre-wrap select-text">
+                {(diagnostics?.simulationLogs || simulationLogs || []).length > 0 ? (
+                  (diagnostics?.simulationLogs || simulationLogs || []).map((log, idx) => (
+                    <div
+                      key={idx}
+                      className={
+                        log.includes('failed') || log.includes('already in use') || log.includes('Error')
+                          ? 'text-rose-400 font-bold'
+                          : log.includes('success')
+                          ? 'text-emerald-400/80'
+                          : 'text-zinc-400'
+                      }
+                    >
+                      {log}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-zinc-400 italic">No simulation logs captured from RPC.</div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Retry Bar */}

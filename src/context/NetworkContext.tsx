@@ -1,11 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Connection } from '@solana/web3.js';
-import { ClusterNetwork, RpcEndpointConfig } from '../types';
-import { DEFAULT_NETWORKS, DEFAULT_NETWORK } from '../config/networks';
+import { ClusterNetwork, RpcEndpointConfig, AppEnvironment } from '../types';
+import { DEFAULT_NETWORKS, DEFAULT_NETWORK, ENVIRONMENT_CONFIGS, DEFAULT_ENVIRONMENT } from '../config/networks';
 import { getSolanaConnection, checkRpcLatency } from '../services/solana';
-import { validateDevnetCluster } from '../services/networkValidator';
+import { validateClusterEnvironment } from '../services/networkValidator';
 
 export interface NetworkContextType {
+  environment: AppEnvironment;
+  setEnvironment: (env: AppEnvironment) => void;
+  isMainnet: boolean;
+  isTestnet: boolean;
+  environmentStatusMessage: string;
   network: ClusterNetwork;
   rpcConfig: RpcEndpointConfig;
   currentNetwork: RpcEndpointConfig;
@@ -27,7 +32,22 @@ export interface NetworkContextType {
 const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 
 export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [network, setNetworkState] = useState<ClusterNetwork>(DEFAULT_NETWORK);
+  const [environment, setEnvironmentState] = useState<AppEnvironment>(() => {
+    try {
+      const stored = localStorage.getItem('valtics_environment');
+      if (stored === 'mainnet' || stored === 'testnet') {
+        return stored;
+      }
+    } catch {
+      // ignore
+    }
+    return DEFAULT_ENVIRONMENT;
+  });
+
+  const [network, setNetworkState] = useState<ClusterNetwork>(() => {
+    return environment === 'mainnet' ? 'mainnet' : 'testnet';
+  });
+
   const [customRpcUrl, setCustomRpcUrl] = useState<string>('');
   const [latencyMs, setLatencyMs] = useState<number>(24);
   const [currentSlot, setCurrentSlot] = useState<number>(326419);
@@ -45,9 +65,8 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isCustom: true,
       };
     }
-    const found = DEFAULT_NETWORKS.find((n) => n.network === network);
-    return found || DEFAULT_NETWORKS[0];
-  }, [network, customRpcUrl]);
+    return ENVIRONMENT_CONFIGS[environment] || ENVIRONMENT_CONFIGS.testnet;
+  }, [environment, network, customRpcUrl]);
 
   const connection = React.useMemo(() => {
     return getSolanaConnection(activeRpcConfig.endpoint);
@@ -68,12 +87,12 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsRpcHealthy(false);
     }
 
-    // Verify Genesis Hash on the active RPC to strictly enforce Devnet
+    // Verify Genesis Hash on the active RPC to strictly guarantee environment alignment
     try {
-      const clusterCheck = await validateDevnetCluster(connection);
-      if (!clusterCheck.isDevnet) {
+      const clusterCheck = await validateClusterEnvironment(connection, environment);
+      if (clusterCheck.error) {
         setIsWrongNetwork(true);
-        setNetworkError(clusterCheck.error || 'Connected RPC is not Solana Devnet.');
+        setNetworkError(clusterCheck.error);
       } else {
         setIsWrongNetwork(false);
         setNetworkError(null);
@@ -81,7 +100,7 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch {
       // Retain previous network state
     }
-  }, [activeRpcConfig.endpoint, connection]);
+  }, [activeRpcConfig.endpoint, connection, environment]);
 
   useEffect(() => {
     refreshHealth();
@@ -89,9 +108,23 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => clearInterval(interval);
   }, [refreshHealth]);
 
+  const setEnvironment = (newEnv: AppEnvironment) => {
+    setEnvironmentState(newEnv);
+    setNetworkState(newEnv);
+    try {
+      localStorage.setItem('valtics_environment', newEnv);
+    } catch {
+      // ignore
+    }
+  };
+
   const setNetwork = (net: ClusterNetwork) => {
-    // Only devnet or custom (which must validate against devnet) is allowed
     setNetworkState(net);
+    if (net === 'mainnet') {
+      setEnvironment('mainnet');
+    } else if (net === 'testnet' || net === 'devnet') {
+      setEnvironment('testnet');
+    }
   };
 
   const selectNetwork = (target: RpcEndpointConfig) => {
@@ -99,7 +132,7 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCustomRpcUrl(target.endpoint);
       setNetworkState('custom');
     } else {
-      setNetworkState(target.network);
+      setNetwork(target.network);
     }
   };
 
@@ -108,9 +141,20 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setNetworkState('custom');
   };
 
+  const isMainnet = environment === 'mainnet';
+  const isTestnet = environment === 'testnet';
+  const environmentStatusMessage = isMainnet
+    ? 'Mainnet • Wallet verification required'
+    : 'Testnet • Development environment';
+
   return (
     <NetworkContext.Provider
       value={{
+        environment,
+        setEnvironment,
+        isMainnet,
+        isTestnet,
+        environmentStatusMessage,
         network,
         rpcConfig: activeRpcConfig,
         currentNetwork: activeRpcConfig,

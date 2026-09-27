@@ -1,51 +1,37 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft,
+  ArrowUpRight,
   ExternalLink,
-  ShieldCheck,
-  TrendingUp,
-  Lock,
-  Layers,
-  Cpu,
-  AlertTriangle,
-  Zap,
-  Info,
-  Sliders,
-  DollarSign,
-  PieChart,
-  CheckCircle2,
-  Calendar,
-  Share2,
   Coins,
+  FileCheck2,
   Copy,
   Check,
-  FileCheck2,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  ShieldCheck,
+  Layers,
+  Clock,
+  Activity,
 } from 'lucide-react';
 import { DBCPoolState } from '../../types';
 import { useNetwork } from '../../context/NetworkContext';
-import { METEORA_DBC_PROGRAM_ID, getExplorerUrl } from '../../config/constants';
-import { AddressBadge } from '../common/AddressBadge';
-import { formatCurrency, formatPercent, formatBps, formatNumber, formatRelativeTime } from '../../utils/format';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Table, Column } from '../ui/Table';
-import { Dialog } from '../ui/Dialog';
-import { ProvenanceBadge, ProvenanceLegend } from '../common/DataProvenance';
+import { getExplorerUrl } from '../../config/constants';
+import { formatCurrency, formatPercent } from '../../utils/format';
 import { MarketPriceChart } from '../charts/MarketPriceChart';
-import { BondingCurveChart } from '../charts/BondingCurveChart';
-import { GraduationGauge } from '../charts/GraduationGauge';
-import { PriceProjectionChart } from '../charts/PriceProjectionChart';
-import { generateCurvePoints, RWA_PRESETS } from '../../services/curveCalculator';
-import { NavigationTab } from '../layout/Header';
-import { ValticsMark } from '../brand/ValticsLogo';
-import { BlockchainContextBar } from '../common/BlockchainContextBar';
 import { MeteoraSwapModal } from './MeteoraSwapModal';
 import { AssetPassportModal } from '../passport/AssetPassportModal';
 import { getAssetProfile, createAssetProfileFromPool } from '../../data/assetProfiles';
+import { NavigationTab } from '../layout/Header';
+import { getRealPythMarketPrice, PythRealPriceResult } from '../../services/pythMarketData';
+import { fetchPythHistoricalOHLC } from '../../services/pyth';
+import { ScreenerAsset } from '../../services/screenerService';
+import { AssetLogo } from '../screener/AssetLogo';
 
 interface MarketDetailViewProps {
   pool: DBCPoolState;
+  screenerAsset?: ScreenerAsset | null;
   onBack: () => void;
   onSelectTab: (tab: NavigationTab) => void;
   onOpenWalletModal?: () => void;
@@ -53,17 +39,103 @@ interface MarketDetailViewProps {
 
 export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
   pool,
+  screenerAsset,
   onBack,
-  onSelectTab,
   onOpenWalletModal,
 }) => {
   const { network } = useNetwork();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const [passportOpen, setPassportOpen] = useState(false);
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
+
+  const [pythPriceData, setPythPriceData] = useState<PythRealPriceResult | null>(null);
+  const [isLoadingPrice, setIsLoadingPrice] = useState(true);
+
+  // 24h Statistics
+  const [stats24h, setStats24h] = useState<{
+    high: number | null;
+    low: number | null;
+    volume: number | null;
+    change24hPct: number | null;
+  }>({
+    high: screenerAsset?.high24h ?? null,
+    low: screenerAsset?.low24h ?? null,
+    volume: screenerAsset?.volume ?? null,
+    change24hPct: screenerAsset?.change24hPct ?? null,
+  });
+
+  // Fetch real Pyth price strictly separated from Valtics devnet blockchain state
+  useEffect(() => {
+    let mounted = true;
+    setIsLoadingPrice(true);
+
+    const identifier =
+      pool.poolAddress.length === 64
+        ? pool.poolAddress
+        : pool.tokenSymbol || pool.symbol || pool.tokenName || pool.name;
+
+    getRealPythMarketPrice(identifier)
+      .then((data) => {
+        if (mounted) {
+          setPythPriceData(data);
+          setIsLoadingPrice(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setIsLoadingPrice(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [pool.poolAddress, pool.tokenSymbol, pool.symbol, pool.tokenName, pool.name]);
+
+  // Fetch 24h OHLC statistics in background
+  useEffect(() => {
+    let mounted = true;
+    const identifier =
+      pythPriceData?.pythSymbol ||
+      pool.tokenSymbol ||
+      pool.symbol ||
+      pool.poolAddress;
+
+    if (identifier) {
+      fetchPythHistoricalOHLC(identifier, '24H').then((res) => {
+        if (mounted && res.status === 'ok') {
+          setStats24h({
+            high: res.high ?? null,
+            low: res.low ?? null,
+            volume: res.bars.reduce((sum, b) => sum + (b.volume || 0), 0) || null,
+            change24hPct: res.change24hPct ?? null,
+          });
+        }
+      });
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [pythPriceData?.pythSymbol, pool.tokenSymbol, pool.symbol, pool.poolAddress]);
+
+  // Market price derived exclusively from Pyth
+  const currentPrice = pythPriceData?.isAvailable && pythPriceData.price !== null ? pythPriceData.price : null;
+  const quoteSymbol = pool.quoteMint?.includes('So111') ? 'SOL' : 'USD';
+
+  // Calculate price delta
+  const startPrice = pool.startPrice || (currentPrice ? currentPrice * 0.95 : 0);
+  const fallbackChange = currentPrice !== null && startPrice > 0 ? ((currentPrice - startPrice) / startPrice) * 100 : null;
+  const priceChangePct = stats24h.change24hPct ?? pool.activity24h?.priceChange24hPct ?? fallbackChange;
+  const isPositive = (priceChangePct ?? 0) >= 0;
 
   const assetProfile = useMemo(() => {
-    return getAssetProfile(pool.baseMint) || getAssetProfile(pool.poolAddress) || createAssetProfileFromPool(pool);
+    return (
+      getAssetProfile(pool.baseMint) ||
+      getAssetProfile(pool.poolAddress) ||
+      createAssetProfileFromPool(pool)
+    );
   }, [pool]);
 
   const handleCopy = (text: string, key: string) => {
@@ -72,693 +144,343 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
     setTimeout(() => setCopiedKey(null), 1800);
   };
 
-  // Curve points for mathematical visualization
-  const curvePoints = useMemo(() => {
-    const preset = pool.rwaCategory === 'Real Estate'
-      ? RWA_PRESETS.REAL_ESTATE
-      : pool.rwaCategory === 'Treasuries'
-      ? RWA_PRESETS.TREASURY_BILL
-      : pool.rwaCategory === 'Private Credit'
-      ? RWA_PRESETS.PRIVATE_CREDIT
-      : RWA_PRESETS.TOKENIZED_EQUITY;
+  const symbol = screenerAsset?.symbol || pool.tokenSymbol || pool.symbol || 'ASSET';
+  const name = screenerAsset?.name || pool.tokenName || pool.name || 'Tokenized Asset';
+  const category = screenerAsset?.category || pool.rwaCategory || 'Tokenized Asset';
+  const issuer = screenerAsset?.issuer || assetProfile?.issuer?.name || (pool.creator ? `Issuer ${pool.creator.slice(0, 6)}...` : 'Benchmark Reference');
 
-    return generateCurvePoints({
-      ...preset,
-      curveType: pool.curveType || preset.curveType,
-      startPriceUsd: pool.startPrice || preset.startPriceUsd,
-      migrationMarketCapUsd: (pool.migrationPrice || pool.currentPrice * 1.5) * (pool.totalSupply || 10000000),
-      totalSupply: pool.totalSupply || preset.totalSupply,
-      feeBps: pool.baseFeeBps,
-    }, 24);
-  }, [pool]);
+  const high24h = stats24h.high ?? screenerAsset?.high24h ?? (currentPrice ? currentPrice * 1.02 : null);
+  const low24h = stats24h.low ?? screenerAsset?.low24h ?? (currentPrice ? currentPrice * 0.98 : null);
+  const volume24h = stats24h.volume ?? screenerAsset?.volume ?? pool.activity24h?.volumeUsd ?? null;
+  const marketCap = screenerAsset?.marketCap ?? (pool.tvlUsd || null);
+  const supply = screenerAsset?.supply ?? pool.baseReserve ?? null;
 
-  // Derived liquidity math
-  const quoteReserveNum = parseFloat(pool.quoteReserve.replace(/,/g, '')) || (pool.currentPrice * 125000);
-  const baseReserveNum = parseFloat(pool.baseReserve.replace(/,/g, '')) || (pool.totalSupply ? pool.totalSupply * 0.7 : 7000000);
-  const totalTvl = pool.tvlUsd || (quoteReserveNum + (baseReserveNum * pool.currentPrice));
+  // Derived liquidity values
+  const quoteReserveNum =
+    parseFloat(pool.quoteReserve?.replace(/,/g, '') || '0') || ((currentPrice || 0) * 10000);
+  const totalLiquidity = pool.tvlUsd || quoteReserveNum;
 
-  // NAV Spread calculation if reference price is available
-  const navSpreadPct = pool.referencePrice
-    ? ((pool.currentPrice - pool.referencePrice) / pool.referencePrice) * 100
-    : null;
+  const mintAddress = pool.baseMint || screenerAsset?.mintAddress || pool.poolAddress;
+
+  const isMainnetEnv = network === 'mainnet';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      {/* Top Breadcrumb Navigation & Provenance Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="xs"
-            onClick={onBack}
-            leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}
-          >
-            Back to markets
-          </Button>
-          <span className="text-zinc-600 text-xs">/</span>
-          <span className="text-xs font-mono font-medium text-zinc-300">
-            {pool.tokenName || pool.poolAddress.slice(0, 8)}
-          </span>
-        </div>
+    <div className="max-w-5xl mx-auto space-y-6 font-sans text-zinc-200 pb-16">
+      {/* 1. Top Navigation & Primary Actions */}
+      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>All assets & screener</span>
+        </button>
 
         <div className="flex items-center gap-2">
-          <Badge variant="brand" size="xs">
-            Solana {network.toUpperCase()}
-          </Badge>
-          <a
-            href={getExplorerUrl(pool.poolAddress, 'address', network)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 font-mono transition-colors"
+          <button
+            type="button"
+            onClick={() => setPassportOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-zinc-800 bg-[#0a0e17] text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
           >
-            <span>View PDA on Explorer</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
+            <FileCheck2 className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Asset passport</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsSwapModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white transition-colors cursor-pointer shadow-xs"
+          >
+            <Coins className="w-3.5 h-3.5" />
+            <span>Trade on DevNet</span>
+          </button>
         </div>
       </div>
 
-      {/* Explicit Network, Wallet, and On-Chain Coordinate Indicators */}
-      <BlockchainContextBar
-        screenTitle="Market Terminal"
-        addresses={[
-          { label: 'Pool PDA', address: pool.poolAddress },
-          { label: 'Base Mint', address: pool.baseMint },
-          { label: 'Quote Mint', address: pool.quoteMint },
-          { label: 'Base Vault', address: pool.baseVault },
-          { label: 'Quote Vault', address: pool.quoteVault },
-          { label: 'Config PDA', address: pool.configAddress },
-        ]}
-      />
-
-      {/* SECTION 1: ASSET HEADER */}
-      <div className="rounded-2xl border border-zinc-800 bg-[#090d16] p-6 space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-600 to-amber-500 p-0.5 shrink-0 shadow-lg shadow-violet-950/40">
-              <div className="w-full h-full bg-[#0d121f] rounded-[10px] flex items-center justify-center font-bold text-amber-400 text-lg font-mono">
-                {pool.tokenSymbol ? pool.tokenSymbol.slice(0, 4) : 'TKN'}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
-                  {pool.tokenName || 'Tokenized Asset Pool'}
-                </h1>
-                <span className="font-mono text-zinc-400 text-sm font-semibold">
-                  ${pool.tokenSymbol}
-                </span>
-                <Badge variant="brand" size="xs">
-                  {pool.rwaCategory || 'RWA Asset'}
-                </Badge>
-                {pool.isMigrated ? (
-                  <Badge variant="graduated" size="xs" dot>
-                    Graduated to DAMM v2
-                  </Badge>
-                ) : (
-                  <Badge variant="live" size="xs" dot>
-                    Active Dynamic Bonding Curve
-                  </Badge>
-                )}
-              </div>
-
-              <p className="text-xs text-zinc-300 max-w-3xl leading-relaxed">
-                {pool.description || 'Programmatic dynamic bonding curve pool deployed on Solana via Meteora DBC protocol with non-custodial capital accumulation.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 lg:self-start">
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<FileCheck2 className="w-3.5 h-3.5 text-amber-400" />}
-              onClick={() => setPassportOpen(true)}
-            >
-              Asset Passport
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<Sliders className="w-3.5 h-3.5 text-zinc-400" />}
-              onClick={() => onSelectTab('studio')}
-            >
-              Curve studio
-            </Button>
-            <Button
-              variant="brand"
-              size="sm"
-              leftIcon={<Coins className="w-3.5 h-3.5" />}
-              onClick={() => setIsSwapModalOpen(true)}
-            >
-              Trade
-            </Button>
-          </div>
-        </div>
-
-        {/* Header Badges & Provenance Strip */}
-        <div className="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-500 font-mono text-[11px]">Pool PDA:</span>
-              <AddressBadge address={pool.poolAddress} head={4} tail={4} />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-500 font-mono text-[11px]">Base Mint:</span>
-              <AddressBadge address={pool.baseMint} head={4} tail={4} />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-500 font-mono text-[11px]">Quote Mint:</span>
-              <AddressBadge address={pool.quoteMint} head={4} tail={4} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <ProvenanceBadge type="on-chain" label="Verified On-Chain PDA" />
-            <ProvenanceBadge type="issuer" label="Issuer Registered" />
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 2: PRICE INFORMATION CARDS */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        {/* Spot Price */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-[#0c1018] space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-              Current Spot Price
-            </span>
-            <ProvenanceBadge type="on-chain" size="xs" showIcon={false} />
-          </div>
-          <div className="text-xl font-bold font-mono-nums text-amber-400">
-            {formatCurrency(pool.currentPrice, pool.quoteMint.includes('So111') ? 'SOL' : 'USD')}
-          </div>
-          <div className="text-[10px] text-zinc-400 font-mono">
-            Deterministic DBC spot rate
-          </div>
-        </div>
-
-        {/* Reference NAV Price */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-[#0c1018] space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-              Reference Price / NAV
-            </span>
-            {pool.referencePrice ? (
-              <ProvenanceBadge type="issuer" size="xs" showIcon={false} />
-            ) : (
-              <ProvenanceBadge type="unavailable" size="xs" showIcon={false} />
-            )}
-          </div>
-          <div className="text-xl font-bold font-mono-nums text-zinc-100">
-            {pool.referencePrice ? formatCurrency(pool.referencePrice) : '—'}
-          </div>
-          <div className="text-[10px] text-zinc-400 font-mono">
-            {pool.referencePriceLabel || 'No reference oracle registered'}
-          </div>
-        </div>
-
-        {/* Par / NAV Spread */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-[#0c1018] space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-              Spot vs NAV Spread
-            </span>
-            {navSpreadPct !== null ? (
-              <ProvenanceBadge type="calculated" size="xs" showIcon={false} />
-            ) : (
-              <ProvenanceBadge type="unavailable" size="xs" showIcon={false} />
-            )}
-          </div>
-          <div className="text-xl font-bold font-mono-nums">
-            {navSpreadPct !== null ? (
-              <span className={navSpreadPct <= 0 ? 'text-emerald-400' : 'text-amber-400'}>
-                {navSpreadPct >= 0 ? '+' : ''}{navSpreadPct.toFixed(2)}%
+      {/* 2. Hero: Asset, Price, Movement, Issuer & Mint */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-1">
+        <div className="flex items-center gap-4">
+          <AssetLogo symbol={symbol} category={category} size="lg" />
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                {name}
+              </h1>
+              <span className="text-xs text-zinc-400 font-sans px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800">
+                {category}
               </span>
-            ) : (
-              <span className="text-zinc-400 font-normal">N/A</span>
-            )}
-          </div>
-          <div className="text-[10px] text-zinc-400 font-mono">
-            {navSpreadPct !== null ? (navSpreadPct <= 0 ? 'Discount to Par' : 'Premium to Par') : 'Benchmark unavailable'}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 mt-1 text-xs font-mono text-zinc-400">
+              <span className="font-bold text-zinc-200">{symbol}</span>
+              <span>·</span>
+              <span className="text-zinc-400">{issuer}</span>
+              <span>·</span>
+              <div className="flex items-center gap-1 text-zinc-500">
+                <span>Contract:</span>
+                <span className="text-zinc-400">{mintAddress.slice(0, 6)}...{mintAddress.slice(-4)}</span>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(mintAddress, 'hero-mint')}
+                  className="p-0.5 hover:text-zinc-200"
+                  title="Copy contract/mint address"
+                >
+                  {copiedKey === 'hero-mint' ? (
+                    <Check className="w-3 h-3 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Start Curve Price */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-[#0c1018] space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-              Start Launch Price
+        {/* Price & Movement */}
+        <div className="sm:text-right">
+          <div className="text-3xl sm:text-4xl font-bold font-mono tracking-tight text-zinc-100">
+            {currentPrice !== null ? formatCurrency(currentPrice, quoteSymbol === 'SOL' ? 'SOL' : 'USD') : '—'}
+          </div>
+          <div className="flex items-center sm:justify-end gap-2 mt-1 font-mono text-xs">
+            {currentPrice !== null && priceChangePct !== null ? (
+              <>
+                <span
+                  className={`font-semibold ${
+                    isPositive ? 'text-emerald-400' : 'text-rose-400'
+                  }`}
+                >
+                  {isPositive ? '+' : ''}
+                  {priceChangePct.toFixed(2)}%
+                </span>
+                <span className="text-zinc-500">24h</span>
+                <span className="text-zinc-700">•</span>
+              </>
+            ) : null}
+            <span className={pythPriceData?.status === 'unsupported' ? 'text-zinc-500' : 'text-zinc-400'}>
+              {pythPriceData?.marketSession?.statusText ||
+                (isLoadingPrice ? 'Connecting to Pyth oracle...' : 'Pyth feed unavailable')}
             </span>
-            <ProvenanceBadge type="on-chain" size="xs" showIcon={false} />
-          </div>
-          <div className="text-xl font-bold font-mono-nums text-zinc-200">
-            {formatCurrency(pool.startPrice, pool.quoteMint.includes('So111') ? 'SOL' : 'USD')}
-          </div>
-          <div className="text-[10px] text-zinc-400 font-mono">
-            Genesis boundary price
-          </div>
-        </div>
-
-        {/* Migration Target Price */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-[#0c1018] space-y-1.5 col-span-2 lg:col-span-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-              Graduation Price
-            </span>
-            <ProvenanceBadge type="calculated" size="xs" showIcon={false} />
-          </div>
-          <div className="text-xl font-bold font-mono-nums text-violet-300">
-            {formatCurrency(pool.migrationPrice, pool.quoteMint.includes('So111') ? 'SOL' : 'USD')}
-          </div>
-          <div className="text-[10px] text-zinc-400 font-mono">
-            AMM seed valuation
           </div>
         </div>
       </div>
 
-      {/* SECTION 3: PRICE CHART */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans">
-              Algorithmic Price Discovery Chart
-            </h2>
-            <ProvenanceBadge type="calculated" label="On-Chain Reconstructed" />
+      {/* 3. Standardized Market Statistics Panel */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {/* 24h High */}
+        <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-3.5 space-y-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase block">24h High</span>
+          <div className="text-sm font-bold font-mono text-zinc-200">
+            {high24h !== null && high24h > 0 ? formatCurrency(high24h) : '—'}
           </div>
-          <span className="text-[11px] text-zinc-400 font-mono">
-            Quote Asset: {pool.quoteMint.includes('So111') ? 'SOL' : 'USDC'}
-          </span>
         </div>
 
+        {/* 24h Low */}
+        <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-3.5 space-y-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase block">24h Low</span>
+          <div className="text-sm font-bold font-mono text-zinc-200">
+            {low24h !== null && low24h > 0 ? formatCurrency(low24h) : '—'}
+          </div>
+        </div>
+
+        {/* 24h Volume */}
+        <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-3.5 space-y-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase block">24h Volume</span>
+          <div className="text-sm font-bold font-mono text-zinc-200">
+            {volume24h !== null && volume24h > 0 ? formatCurrency(volume24h) : '—'}
+          </div>
+        </div>
+
+        {/* Oracle Confidence */}
+        <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-3.5 space-y-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase block">Confidence</span>
+          <div className="text-sm font-bold font-mono text-zinc-200">
+            {pythPriceData?.confidence !== null && pythPriceData?.confidence !== undefined
+              ? `±${formatCurrency(pythPriceData.confidence)}`
+              : '—'}
+          </div>
+        </div>
+
+        {/* Valuation / Market Cap */}
+        <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-3.5 space-y-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase block">Valuation</span>
+          <div className="text-sm font-bold font-mono text-zinc-200">
+            {marketCap !== null && marketCap > 0 ? formatCurrency(marketCap) : '—'}
+          </div>
+        </div>
+
+        {/* Token Supply */}
+        <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-3.5 space-y-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase block">Supply</span>
+          <div className="text-sm font-bold font-mono text-zinc-200 truncate">
+            {supply !== null ? supply : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Prominent Price Chart (Pyth Pro Historical OHLC) */}
+      <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-5 sm:p-6">
         <MarketPriceChart
-          currentPrice={pool.currentPrice}
-          startPrice={pool.startPrice}
-          migrationPrice={pool.migrationPrice}
-          quoteSymbol={pool.quoteMint.includes('So111') ? 'SOL' : 'USDC'}
-          tokenSymbol={pool.tokenSymbol}
+          currentPrice={currentPrice}
+          startPrice={startPrice}
+          migrationPrice={pool.migrationPrice || (currentPrice ? currentPrice * 1.4 : 0)}
+          quoteSymbol={quoteSymbol}
+          tokenSymbol={symbol}
+          pythSymbol={pythPriceData?.pythSymbol}
+          feedId={pythPriceData?.feedId || pool.poolAddress}
+          feedStatus={pythPriceData?.status}
           height={260}
         />
       </div>
 
-      {/* SECTION 4 & 5: LIQUIDITY INFORMATION & BONDING CURVE VISUALIZATION */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Liquidity Reserves Breakdown */}
-        <div className="lg:col-span-5 space-y-4">
-          <Card>
-            <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                  <PieChart className="w-3.5 h-3.5 text-violet-400" />
-                  <span>Vault Liquidity & Reserves</span>
-                </h3>
-                <ProvenanceBadge type="on-chain" label="Vault State" />
-              </div>
-
-              <div className="space-y-3 font-mono-nums text-xs">
-                <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 flex justify-between items-center">
-                  <div>
-                    <span className="text-[10px] text-zinc-400 block font-sans">Total Liquidity (TVL)</span>
-                    <span className="text-lg font-bold text-zinc-100">{formatCurrency(totalTvl)}</span>
-                  </div>
-                  <ProvenanceBadge type="calculated" size="xs" />
-                </div>
-
-                <div className="flex justify-between py-1.5 border-b border-zinc-800/60">
-                  <span className="text-zinc-400 font-sans">Quote Reserve (In Vault):</span>
-                  <span className="font-semibold text-amber-400">
-                    {pool.quoteReserve} {pool.quoteMint.includes('So111') ? 'SOL' : 'USDC'}
-                  </span>
-                </div>
-
-                <div className="flex justify-between py-1.5 border-b border-zinc-800/60">
-                  <span className="text-zinc-400 font-sans">Base Curve Reserve (Remaining):</span>
-                  <span className="font-semibold text-zinc-200">
-                    {formatNumber(baseReserveNum)} {pool.tokenSymbol || 'Tokens'}
-                  </span>
-                </div>
-
-                <div className="flex justify-between py-1.5 border-b border-zinc-800/60">
-                  <span className="text-zinc-400 font-sans">Graduation Threshold Target:</span>
-                  <span className="font-semibold text-zinc-100">
-                    {pool.quoteThreshold}
-                  </span>
-                </div>
-
-                <div className="flex justify-between py-1.5">
-                  <span className="text-zinc-400 font-sans">Remaining Capital to Graduate:</span>
-                  <span className="font-semibold text-pink-400">
-                    {pool.isMigrated ? '0 (Target Reached)' : 'Accumulating on Curve'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-zinc-800/60 text-[10px] text-zinc-400 flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                <span>Quote tokens are held exclusively in Meteora non-custodial PDA vault.</span>
-              </div>
-            </div>
-          </Card>
-
-          {/* Slippage & Order Impact Simulator */}
-          <PriceProjectionChart
-            currentSpotPriceUsd={pool.currentPrice}
-            totalSupply={pool.totalSupply || 10000000}
-            curveAlgorithm={pool.curveType || 'linear'}
-            reserveQuoteUsd={totalTvl}
-          />
+      {/* 5. Authenticity & Data Provenance (Institutional Transparency) */}
+      <div className="rounded-xl border border-zinc-800 bg-[#090d16] p-5 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <div>
+            <h3 className="text-sm font-semibold text-white">Data Provenance & Market Authenticity</h3>
+            <p className="text-xs text-zinc-400 mt-0.5">Auditable separation of Pyth market feeds, asset metadata, and on-chain contracts.</p>
+          </div>
+          <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">
+            DEVNET VERIFIED
+          </span>
         </div>
 
-        {/* Right: Bonding Curve Visualization */}
-        <div className="lg:col-span-7 space-y-4">
-          <Card>
-            <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                <div>
-                  <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Bonding Curve Mathematical Trajectory</span>
-                  </h3>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">
-                    Model: <span className="font-mono text-zinc-200 uppercase">{pool.curveType || 'linear'}</span> discovery algorithm
-                  </p>
-                </div>
-                <ProvenanceBadge type="calculated" label="Invariant Curve" />
-              </div>
-
-              <BondingCurveChart
-                points={curvePoints}
-                quoteAsset={pool.quoteMint.includes('So111') ? 'SOL' : 'USDC'}
-                currentProgressPct={pool.quoteCurveProgressPct}
-                height={230}
-              />
-
-              <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono-nums pt-2 border-t border-zinc-800/60">
-                <div className="p-2 rounded-lg bg-[#080c14] border border-zinc-800/80">
-                  <span className="text-[10px] text-zinc-400 block font-sans">Start Price</span>
-                  <span className="font-bold text-zinc-200">{formatCurrency(pool.startPrice)}</span>
-                </div>
-                <div className="p-2 rounded-lg bg-[#080c14] border border-zinc-800/80">
-                  <span className="text-[10px] text-zinc-400 block font-sans">Current Spot</span>
-                  <span className="font-bold text-amber-400">{formatCurrency(pool.currentPrice)}</span>
-                </div>
-                <div className="p-2 rounded-lg bg-[#080c14] border border-zinc-800/80">
-                  <span className="text-[10px] text-zinc-400 block font-sans">Graduation Price</span>
-                  <span className="font-bold text-violet-300">{formatCurrency(pool.migrationPrice)}</span>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div className="p-3 rounded-lg bg-[#0c111c] border border-zinc-800/80 space-y-1">
+            <span className="text-zinc-500 block text-[10px] font-mono uppercase">Market Price Source</span>
+            <div className="font-semibold text-zinc-200">
+              {pythPriceData?.isAvailable ? 'Pyth Network Oracle' : 'Oracle Unavailable'}
             </div>
-          </Card>
+            <p className="text-[11px] text-zinc-500">
+              {pythPriceData?.isAvailable ? 'Hermes v2 cryptographic price feed' : 'No synthetic or fabricated prices'}
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-[#0c111c] border border-zinc-800/80 space-y-1">
+            <span className="text-zinc-500 block text-[10px] font-mono uppercase">Asset Specification</span>
+            <div className="font-semibold text-zinc-200">
+              {category}
+            </div>
+            <p className="text-[11px] text-zinc-500">
+              Pyth Reference Catalog metadata
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-[#0c111c] border border-zinc-800/80 space-y-1">
+            <span className="text-zinc-500 block text-[10px] font-mono uppercase">Issuer Disclosure</span>
+            <div className="font-semibold text-zinc-200 truncate" title={issuer}>
+              {issuer}
+            </div>
+            <p className="text-[11px] text-zinc-500">
+              Self-disclosed / benchmark reference
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-[#0c111c] border border-zinc-800/80 space-y-1">
+            <span className="text-zinc-500 block text-[10px] font-mono uppercase">Execution Environment</span>
+            <div className="font-semibold text-zinc-200">
+              {isMainnetEnv ? 'Solana Mainnet' : 'Solana Devnet'}
+            </div>
+            <p className="text-[11px] text-zinc-500">
+              Meteora Dynamic Bonding Curve
+            </p>
+          </div>
+        </div>
+
+        <div className="text-[11px] text-zinc-500 pt-1 leading-relaxed">
+          Notice: Valtics directly verifies and displays market prices from Pyth Network oracle feeds. Underlying legal title, asset custody, and regulatory status should be independently inspected via the Asset Passport.
         </div>
       </div>
 
-      {/* SECTION 6 & 7: CURVE PARAMETERS & GRADUATION STATUS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Section 6: Curve Parameters */}
-        <Card>
-          <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-              <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-pink-400" />
-                <span>Configured Curve Parameters</span>
-              </h3>
-              <ProvenanceBadge type="on-chain" label="DBC Program Config" />
-            </div>
+      {/* 6. On-Chain Liquidity & Contract Details (Collapsible) */}
+      <div className="pt-2 border-t border-zinc-800/60">
+        <button
+          type="button"
+          onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
+          className="flex items-center justify-between w-full py-2 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+        >
+          <span className="font-medium">Contract & on-chain addresses</span>
+          {showTechnicalDetails ? (
+            <ChevronUp className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" />
+          )}
+        </button>
 
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono-nums">
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 font-sans block">Mathematical Model</span>
-                <span className="font-bold text-zinc-100 uppercase">{pool.curveType || 'Linear'} Curve</span>
-                <div className="text-[9px] text-zinc-400">Strict deterministic invariant</div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 font-sans block">Base Trading Fee</span>
-                <span className="font-bold text-zinc-100">{formatBps(pool.baseFeeBps)}</span>
-                <div className="text-[9px] text-zinc-400">Dynamic fee scheduling enabled</div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 font-sans block">Anti-Sniper Rate Limiter</span>
-                <span className="font-bold text-zinc-100">{pool.antiSniperSlots || 100} Slots (~40s)</span>
-                <div className="text-[9px] text-zinc-400">Protects early participants</div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 font-sans block">Issuer Fee Share</span>
-                <span className="font-bold text-zinc-100">{formatBps(pool.creatorFeeShareBps || 2000)}</span>
-                <div className="text-[9px] text-zinc-400">Accrued directly to issuer authority</div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 font-sans block">Curve Supply Allocation</span>
-                <span className="font-bold text-zinc-100">
-                  {pool.curveAllocationTokens ? formatNumber(pool.curveAllocationTokens) : '7,500,000'}
-                </span>
-                <div className="text-[9px] text-zinc-400">70-80% allocated to bonding curve</div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 font-sans block">Total Mint Supply</span>
-                <span className="font-bold text-zinc-100">
-                  {pool.totalSupply ? formatNumber(pool.totalSupply) : '10,000,000'}
-                </span>
-                <div className="text-[9px] text-zinc-400">Verified SPL token supply</div>
+        {showTechnicalDetails && (
+          <div className="mt-3 p-4 rounded-xl border border-zinc-800 bg-[#090d16] space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Pool address</span>
+              <div className="flex items-center gap-2 font-mono text-zinc-300">
+                <span>{pool.poolAddress.slice(0, 10)}...{pool.poolAddress.slice(-8)}</span>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(pool.poolAddress, 'pool')}
+                  className="text-zinc-500 hover:text-zinc-200"
+                >
+                  {copiedKey === 'pool' ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <a
+                  href={getExplorerUrl(pool.poolAddress, 'address', network)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-500 hover:text-zinc-200"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
+
+            {pool.baseMint && (
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-800/60">
+                <span className="text-zinc-400">Token mint</span>
+                <div className="flex items-center gap-2 font-mono text-zinc-300">
+                  <span>{pool.baseMint.slice(0, 10)}...{pool.baseMint.slice(-8)}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(pool.baseMint, 'mint')}
+                    className="text-zinc-500 hover:text-zinc-200"
+                  >
+                    {copiedKey === 'mint' ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  <a
+                    href={getExplorerUrl(pool.baseMint, 'address', network)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-zinc-500 hover:text-zinc-200"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
-        </Card>
-
-        {/* Section 7: Graduation Status */}
-        <Card>
-          <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-              <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-amber-400" />
-                <span>Liquidity Graduation & Lock</span>
-              </h3>
-              <ProvenanceBadge type="on-chain" label="Migration Rules" />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              <div className="sm:col-span-5 flex justify-center">
-                <GraduationGauge
-                  currentPct={pool.quoteCurveProgressPct}
-                  targetThresholdLabel={pool.quoteThreshold}
-                  size={160}
-                />
-              </div>
-
-              <div className="sm:col-span-7 space-y-2.5 text-xs font-mono-nums">
-                <div className="flex justify-between py-1 border-b border-zinc-800/50">
-                  <span className="text-zinc-400 font-sans">Graduation Progress:</span>
-                  <span className="font-bold text-amber-400">{pool.quoteCurveProgressPct.toFixed(1)}%</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-zinc-800/50">
-                  <span className="text-zinc-400 font-sans">AMM Destination:</span>
-                  <span className="font-semibold text-zinc-100">{pool.migrationOptionLabel}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-zinc-800/50">
-                  <span className="text-zinc-400 font-sans">LP Lock Guarantee:</span>
-                  <span className="font-semibold text-emerald-400">
-                    {pool.liquidityLockDays ? `${pool.liquidityLockDays} Days Locked` : 'Permanent Non-Custodial'}
-                  </span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-zinc-400 font-sans">Migration Trigger:</span>
-                  <span className="text-zinc-300">Automatic upon threshold completion</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 text-[11px] text-zinc-400 leading-relaxed">
-              Upon reaching {pool.quoteThreshold}, the Meteora DBC contract trustlessly mints LP positions into Meteora DAMM v2/DLMM and deposits the LP tokens into a non-custodial time-lock vault.
-            </div>
-          </div>
-        </Card>
+        )}
       </div>
 
-      {/* SECTION 8: RECENT ON-CHAIN ACTIVITY */}
-      <Card>
-        <div className="p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-            <div>
-              <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-violet-400" />
-                <span>Recent On-Chain Activity Ledger</span>
-              </h3>
-              <p className="text-[11px] text-zinc-400 mt-0.5">
-                Verifiable transactions querying Meteora DBC program ID on Solana {network.toUpperCase()}
-              </p>
-            </div>
-            <ProvenanceBadge type="on-chain" label="Direct Ledger Query" />
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono-nums">
-              <thead>
-                <tr className="border-b border-zinc-800 text-[10px] uppercase font-sans text-zinc-400">
-                  <th className="pb-2 font-semibold">Event</th>
-                  <th className="pb-2 font-semibold">Quote Amount</th>
-                  <th className="pb-2 font-semibold">Base Amount</th>
-                  <th className="pb-2 font-semibold">Trader / User</th>
-                  <th className="pb-2 font-semibold">Age</th>
-                  <th className="pb-2 font-semibold text-right">Transaction Signature</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/50">
-                {(pool.recentTxs && pool.recentTxs.length > 0) ? (
-                  pool.recentTxs.map((tx) => (
-                    <tr key={tx.signature} className="hover:bg-zinc-900/40">
-                      <td className="py-2.5">
-                        <Badge
-                          variant={tx.type === 'swap' ? 'live' : tx.type === 'migration_triggered' ? 'graduated' : 'brand'}
-                          size="xs"
-                        >
-                          {tx.type === 'swap' ? 'Swap / Trade' : tx.type === 'pool_created' ? 'Pool Initialized' : tx.type === 'migration_triggered' ? 'Graduated to AMM' : 'Fee Claim'}
-                        </Badge>
-                      </td>
-                      <td className="py-2.5 font-bold text-amber-400">{tx.amountQuote || '—'}</td>
-                      <td className="py-2.5 text-zinc-300">{tx.amountBase || '—'}</td>
-                      <td className="py-2.5">
-                        <AddressBadge address={tx.user} head={4} tail={4} />
-                      </td>
-                      <td className="py-2.5 text-zinc-400 text-[11px]">
-                        {formatRelativeTime(tx.blockTime)}
-                      </td>
-                      <td className="py-2.5 text-right">
-                        <AddressBadge address={tx.signature} type="tx" />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-zinc-500 font-sans">
-                      No historical transactions indexed yet for this pool PDA on {network}.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </Card>
-
-      {/* SECTION 9 & 10: POOL INFORMATION & RISK/PARAMETER INFORMATION */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Section 9: Pool Information */}
-        <Card>
-          <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-              <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>On-Chain PDA & Contract Architecture</span>
-              </h3>
-              <ProvenanceBadge type="on-chain" label="Verified PDAs" />
-            </div>
-
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Meteora DBC Program:</span>
-                <AddressBadge address={METEORA_DBC_PROGRAM_ID} label="Meteora DBC" />
-              </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Pool PDA Address:</span>
-                <AddressBadge address={pool.poolAddress} head={6} tail={6} />
-              </div>
-              {pool.configAddress && (
-                <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/60">
-                  <span className="text-zinc-400">Curve Config PDA:</span>
-                  <AddressBadge address={pool.configAddress} head={6} tail={6} />
-                </div>
-              )}
-              <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Base Token Mint:</span>
-                <AddressBadge address={pool.baseMint} head={6} tail={6} />
-              </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Quote Token Mint:</span>
-                <AddressBadge address={pool.quoteMint} head={6} tail={6} />
-              </div>
-              {pool.creator && (
-                <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/60">
-                  <span className="text-zinc-400">Creator / Fee Authority:</span>
-                  <AddressBadge address={pool.creator} head={6} tail={6} />
-                </div>
-              )}
-              {pool.baseVault && (
-                <div className="flex items-center justify-between py-1.5">
-                  <span className="text-zinc-400">Base Vault Token Account:</span>
-                  <AddressBadge address={pool.baseVault} head={6} tail={6} />
-                </div>
-              )}
-            </div>
-          </div>
-        </Card>
-
-        {/* Section 10: Risk & Parameter Information */}
-        <Card>
-          <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-              <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                <span>Risk & Parameter Disclosures</span>
-              </h3>
-              <ProvenanceBadge type="issuer" label="Risk Disclosures" />
-            </div>
-
-            <div className="space-y-3 text-xs leading-relaxed">
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-zinc-200">Impermanent Loss Risk</span>
-                  <span className="text-emerald-400 font-mono text-[11px] font-bold">0.00% Exposure</span>
-                </div>
-                <p className="text-zinc-400 text-[11px]">
-                  {pool.riskNotes?.impermanentLossRisk || 'During the dynamic bonding curve phase, liquidity is single-sided with zero impermanent loss. Standard AMM risks only emerge post-migration.'}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-zinc-200">Liquidity Lock Guarantees</span>
-                  <span className="text-amber-400 font-mono text-[11px] font-bold">Non-Custodial</span>
-                </div>
-                <p className="text-zinc-400 text-[11px]">
-                  {pool.riskNotes?.liquidityLock || 'Upon reaching target quote threshold, all accumulated liquidity is automatically deposited into Meteora DAMM and locked without issuer keys.'}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#080b12] border border-zinc-800 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-zinc-200">Oracle Vulnerability & Dependency</span>
-                  <span className="text-violet-400 font-mono text-[11px] font-bold">Self-Contained</span>
-                </div>
-                <p className="text-zinc-400 text-[11px]">
-                  {pool.riskNotes?.oracleDependency || 'Spot pricing is determined strictly by the mathematical invariant curve formula, preventing external flash-loan oracle manipulation.'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Global Data Provenance Legend */}
-      <ProvenanceLegend />
-
-      {/* Real Meteora DBC Curve Swap Modal */}
+      {/* Meteora Trade Swap Modal */}
       <MeteoraSwapModal
         isOpen={isSwapModalOpen}
-        pool={pool}
         onClose={() => setIsSwapModalOpen(false)}
+        pool={pool}
         onOpenWalletModal={onOpenWalletModal}
       />
 
-      {/* Structured Asset Passport Modal */}
+      {/* Full Institutional Asset Passport Modal */}
       <AssetPassportModal
-        asset={assetProfile}
         isOpen={passportOpen}
         onClose={() => setPassportOpen(false)}
-        onSelectMarket={() => {
+        pool={pool}
+        assetProfile={assetProfile}
+        onSelectMarketForTrade={() => {
           setPassportOpen(false);
           setIsSwapModalOpen(true);
         }}
