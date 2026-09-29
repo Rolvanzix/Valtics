@@ -2,6 +2,20 @@ import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
+import {
+  createDevnetMarket,
+  getDevnetMarkets
+} from './src/services/devnetMarketService';
+import {
+  processAgentChat,
+  processMarketScan
+} from './src/services/valticsAgentEngine';
+import {
+  createRateLimiter,
+  scanAndRedactCredentials,
+  safeServerLog,
+  validateDevnetClusterStrict
+} from './src/services/agentSecurityGuard';
 
 dotenv.config();
 
@@ -347,6 +361,172 @@ app.get('/api/health', (req, res) => {
     keyLength: PYTH_API_KEY.length,
     timestamp: Date.now(),
   });
+});
+
+// ==========================================
+// 1b. Devnet Market Creation & Query Endpoints
+// ==========================================
+
+// Devnet Market Creation (Frictionless, Devnet-only)
+app.post(['/api/devnet/create-market', '/api/testnet/create-market'], (req, res) => {
+  try {
+    const result = createDevnetMarket(req.body);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to create Devnet market.' });
+  }
+});
+
+// Markets List API
+app.get('/api/markets', (_req, res) => {
+  const markets = getDevnetMarkets();
+  return res.json({ markets });
+});
+
+// ==========================================
+// 1c. VALTICS Agent Intelligence Endpoints
+// Devnet-Only, Non-Custodial Intelligence Layer
+// Rate Limited & Cryptographically Protected
+// ==========================================
+
+// Rate Limiters: 20 req/min for chat, 30 req/min for scanner per client IP
+const agentChatRateLimiter = createRateLimiter({ windowMs: 60000, maxRequests: 20 });
+const agentScanRateLimiter = createRateLimiter({ windowMs: 60000, maxRequests: 30 });
+
+function getClientIdentifier(req: express.Request): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket.remoteAddress || '127.0.0.1';
+}
+
+// Agent Chat & Research Endpoint
+app.post('/api/agent/chat', async (req, res) => {
+  const clientIp = getClientIdentifier(req);
+
+  // 1. Rate Limiting Check
+  const rateLimit = agentChatRateLimiter(clientIp);
+  res.setHeader('X-RateLimit-Limit', '20');
+  res.setHeader('X-RateLimit-Remaining', rateLimit.remaining.toString());
+
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', Math.ceil(rateLimit.resetMs / 1000).toString());
+    safeServerLog('RateLimit', `Chat rate limit exceeded for client ${clientIp}`);
+    return res.status(429).json({
+      success: false,
+      error: 'Rate limit exceeded. To protect service availability, please wait a moment before sending another query.',
+      recoveryAction: 'rate_limited_wait',
+      resetSeconds: Math.ceil(rateLimit.resetMs / 1000),
+    });
+  }
+
+  try {
+    const { messages, walletContext, clientKnownMarkets } = req.body;
+
+    // 2. Strict Payload Validation
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Payload validation error: messages must be an array',
+        recoveryAction: 'check_payload',
+      });
+    }
+
+    if (messages.length > 20) {
+      return res.status(400).json({
+        success: false,
+        error: 'Payload validation error: message history cannot exceed 20 messages',
+        recoveryAction: 'clear_or_truncate',
+      });
+    }
+
+    for (const m of messages) {
+      if (!m || typeof m.content !== 'string' || !['user', 'assistant', 'system'].includes(m.role)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Payload validation error: malformed message structure',
+          recoveryAction: 'check_payload',
+        });
+      }
+      if (m.content.length > 4000) {
+        return res.status(400).json({
+          success: false,
+          error: 'Payload validation error: message text cannot exceed 4,000 characters',
+          recoveryAction: 'truncate_message',
+        });
+      }
+
+      // 3. Sensitive Credential Early Interception (zero-logging & zero-storage)
+      const credScan = scanAndRedactCredentials(m.content);
+      if (credScan.hasSensitiveData) {
+        safeServerLog('SecurityViolation', `Private key or seed phrase detected from client ${clientIp}, neutralized.`);
+        return res.json({
+          success: false,
+          message: `### ⚠️ Security Safeguard: Non-Custodial Protocol Protection\n\nVALTICS Agent intercepted sensitive data resembling a **private key or mnemonic seed phrase** in your query.\n\n#### Actions Taken:\n- **Immediate Neutralization**: The sensitive string was intercepted at the API boundary and permanently discarded.\n- **Zero-Storage Guarantee**: This data was **not sent** to any AI provider, was **not written** to disk, and will **never be stored**.\n\n#### Non-Custodial Security Policy:\n- VALTICS operates on strict non-custodial principles.\n- The Agent **NEVER** requires, requests, or processes private keys, seed phrases, or wallet passwords.\n- All blockchain operations require you to review and sign explicitly with your connected Solana Devnet wallet.\n\n*Please ensure you keep your private keys and seed phrases completely confidential at all times.*`,
+        });
+      }
+    }
+
+    // 4. Cluster Environment Verification
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+    if (!validateDevnetClusterStrict(lastUserMessage)) {
+      return res.json({
+        success: false,
+        message: `### 🛡️ Devnet Environment Enforcement Notice\n\nVALTICS Agent operates **strictly on Solana Devnet**. Requests referencing Mainnet or unsupported cluster environments are rejected to protect user assets and prevent unintended mainnet execution.`,
+      });
+    }
+
+    // 5. 15-second timeout safeguard for AI queries
+    const timeoutPromise = new Promise<{ success: false; message: string; error: string }>((_, reject) =>
+      setTimeout(() => reject(new Error('Agent query timed out after 15 seconds.')), 15000)
+    );
+
+    const agentPromise = processAgentChat({
+      messages,
+      walletContext,
+      clientKnownMarkets,
+    });
+
+    const result = await Promise.race([agentPromise, timeoutPromise]);
+    return res.json(result);
+  } catch (err: any) {
+    safeServerLog('AgentError', 'Error in /api/agent/chat: ' + (err?.message || 'Unknown error'));
+    return res.status(500).json({
+      success: false,
+      message: 'The VALTICS Agent intelligence service encountered a transient issue: ' + (err.message || 'Unknown error'),
+      error: err.message || 'Agent service error',
+      recoveryAction: 'retry_or_fallback',
+    });
+  }
+});
+
+// Agent Market Scanner Endpoint
+app.post('/api/agent/scan-markets', async (req, res) => {
+  const clientIp = getClientIdentifier(req);
+
+  // Rate Limiting Check
+  const rateLimit = agentScanRateLimiter(clientIp);
+  res.setHeader('X-RateLimit-Limit', '30');
+  res.setHeader('X-RateLimit-Remaining', rateLimit.remaining.toString());
+
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', Math.ceil(rateLimit.resetMs / 1000).toString());
+    safeServerLog('RateLimit', `Scan rate limit exceeded for client ${clientIp}`);
+    return res.status(429).json({
+      error: 'Scan rate limit exceeded. Please wait a moment before refreshing market scanner.',
+      resetSeconds: Math.ceil(rateLimit.resetMs / 1000),
+    });
+  }
+
+  try {
+    const { clientKnownMarkets } = req.body;
+    const summary = await processMarketScan(clientKnownMarkets);
+    return res.json(summary);
+  } catch (err: any) {
+    safeServerLog('ScanError', 'Error in /api/agent/scan-markets: ' + (err?.message || 'Unknown error'));
+    return res.status(500).json({ error: err.message || 'Market scan error' });
+  }
 });
 
 // ==========================================

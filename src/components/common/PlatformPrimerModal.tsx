@@ -72,6 +72,14 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
       icon: Coins,
       color: 'from-amber-500/20 to-amber-500/5 text-amber-400 border-amber-500/30',
     },
+    {
+      tab: 'agent' as NavigationTab,
+      num: '06',
+      title: 'VALTICS Agent Native Intelligence',
+      desc: 'Scan Devnet markets, evaluate bonding curve health, research tokenized subjects, and synthesize tailored curve models for your assets.',
+      icon: Sparkles,
+      color: 'from-emerald-500/20 to-emerald-500/5 text-emerald-400 border-emerald-500/30',
+    },
   ];
 
   return (
@@ -222,7 +230,7 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span><strong>Cluster Agnostic:</strong> Test safely on Devnet or Localnet before deploying on Mainnet-Beta.</span>
+              <span><strong>Solana Devnet:</strong> Deploy and test verifiable bonding curve liquidity safely on Solana Devnet.</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />

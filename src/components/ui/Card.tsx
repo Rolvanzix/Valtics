@@ -17,8 +17,8 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`rounded-xl border border-zinc-800/70 bg-[#090d15]/70 transition-all ${
-        hoverable ? 'hover:border-zinc-700/80 hover:bg-[#0c111c] cursor-pointer' : ''
+      className={`rounded-xl border border-[#670CDC]/25 bg-[#1C0142]/85 text-[#F7F3FF] transition-all ${
+        hoverable ? 'hover:border-[#670CDC]/60 hover:bg-[#26035A] cursor-pointer shadow-md shadow-[#09011B]/40' : ''
       } ${className}`}
     >
       {children}
@@ -34,18 +34,18 @@ export const CardHeader: React.FC<{
   badge?: ReactNode;
 }> = ({ title, description, action, badge, className = '' }) => {
   return (
-    <div className={`p-4 sm:p-5 border-b border-zinc-800/60 flex items-start justify-between gap-3 ${className}`}>
+    <div className={`p-4 sm:p-5 border-b border-[#670CDC]/20 flex items-start justify-between gap-3 ${className}`}>
       <div className="space-y-1 min-w-0">
         <div className="flex items-center gap-2">
           {typeof title === 'string' ? (
-            <h3 className="font-medium text-sm sm:text-base text-zinc-100 tracking-tight font-sans">{title}</h3>
+            <h3 className="font-medium text-sm sm:text-base text-[#F7F3FF] tracking-tight font-sans">{title}</h3>
           ) : (
             title
           )}
           {badge}
         </div>
         {description && (
-          <p className="text-xs text-zinc-400 font-sans leading-normal">{description}</p>
+          <p className="text-xs text-[#B8A9CC] font-sans leading-normal">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -65,7 +65,7 @@ export const CardFooter: React.FC<{ children: ReactNode; className?: string }> =
   className = '',
 }) => {
   return (
-    <div className={`p-3.5 sm:p-4 border-t border-zinc-800/60 bg-zinc-900/20 rounded-b-xl flex items-center justify-between text-xs text-zinc-400 font-sans ${className}`}>
+    <div className={`p-3.5 sm:p-4 border-t border-[#670CDC]/20 bg-[#140130]/60 rounded-b-xl flex items-center justify-between text-xs text-[#B8A9CC] font-sans ${className}`}>
       {children}
     </div>
   );
@@ -104,15 +104,15 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`rounded-xl border border-zinc-800/70 bg-[#090d15]/70 p-4 sm:p-5 flex flex-col justify-between transition-all ${
-        onClick ? 'hover:border-zinc-700 hover:bg-[#0c111c] cursor-pointer' : ''
+      className={`rounded-xl border border-[#670CDC]/25 bg-[#1C0142]/85 p-4 sm:p-5 flex flex-col justify-between transition-all ${
+        onClick ? 'hover:border-[#670CDC]/60 hover:bg-[#26035A] cursor-pointer shadow-md shadow-[#09011B]/40' : ''
       } ${className}`}
     >
-      <div className="flex items-center justify-between gap-2 text-xs text-zinc-400 mb-2">
+      <div className="flex items-center justify-between gap-2 text-xs text-[#B8A9CC] mb-2">
         <div className="flex items-center gap-1.5 font-medium font-sans">
           <span>{label}</span>
           {tooltip && (
-            <span title={tooltip} className="cursor-help text-zinc-500 hover:text-zinc-300">
+            <span title={tooltip} className="cursor-help text-[#7E6D96] hover:text-[#F7F3FF]">
               <HelpCircle className="w-3 h-3" />
             </span>
           )}
@@ -121,7 +121,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </div>
 
       <div className="space-y-1">
-        <div className="text-xl sm:text-2xl font-semibold font-sans text-zinc-100 tracking-tight">
+        <div className="text-xl sm:text-2xl font-semibold font-sans text-[#F7F3FF] tracking-tight">
           {value}
         </div>
 

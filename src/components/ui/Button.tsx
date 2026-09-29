@@ -31,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-sans font-medium rounded-lg transition-all select-none whitespace-nowrap focus:outline-hidden focus:ring-1 focus:ring-zinc-400/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99] cursor-pointer';
+      'inline-flex items-center justify-center font-sans font-medium rounded-lg transition-all select-none whitespace-nowrap focus:outline-hidden focus:ring-2 focus:ring-[#670CDC]/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99] cursor-pointer';
 
     const sizeStyles = {
       xs: 'text-[11px] px-2.5 py-1 gap-1.5 h-7 tracking-tight',
@@ -41,27 +41,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }[size];
 
     const variantStyles = {
-      // Primary: High-contrast clean accent
+      // Primary: High-visibility brand orange action with dark purple text
       primary:
-        'bg-zinc-100 hover:bg-white active:bg-zinc-200 text-zinc-950 font-semibold shadow-xs',
-      // Secondary: Deep slate container with subtle border
+        'bg-[#F99225] hover:bg-[#FFA33D] active:bg-[#E8831A] text-[#09011B] font-bold shadow-md shadow-[#F99225]/20',
+      // Secondary: Dark purple container with electric violet border
       secondary:
-        'bg-zinc-900/80 hover:bg-zinc-800 active:bg-zinc-900 text-zinc-200 border border-zinc-800 hover:border-zinc-700 shadow-xs',
-      // Outline: Transparent with subtle hairline border
+        'bg-[#1C0142] hover:bg-[#26035A] active:bg-[#1C0142] text-[#F7F3FF] border border-[#670CDC]/35 hover:border-[#670CDC]/60 shadow-xs',
+      // Outline: Transparent with subtle electric violet hairline border
       outline:
-        'bg-transparent hover:bg-zinc-800/50 active:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:text-zinc-100 hover:border-zinc-700',
+        'bg-transparent hover:bg-[#1C0142]/70 active:bg-[#1C0142] text-[#B8A9CC] border border-[#670CDC]/30 hover:text-[#F7F3FF] hover:border-[#670CDC]/60',
       // Subtle / Ghost: Clean hover state for inline actions
       subtle:
-        'bg-transparent hover:bg-zinc-800/50 active:bg-zinc-800 text-zinc-400 hover:text-zinc-200',
-      // Destructive: Controlled crimson
+        'bg-transparent hover:bg-[#1C0142]/60 active:bg-[#1C0142] text-[#B8A9CC] hover:text-[#F7F3FF]',
+      // Destructive: Controlled brand orange-red accent
       destructive:
-        'bg-rose-950/30 hover:bg-rose-900/50 active:bg-rose-950 text-rose-300 border border-rose-800/40 hover:border-rose-700/60',
-      // Accent: Violet-amber subtle transition
+        'bg-[#BA3351]/20 hover:bg-[#BA3351]/35 active:bg-[#BA3351]/40 text-[#FF9EAF] border border-[#BA3351]/50 hover:border-[#BA3351]/80',
+      // Accent: Electric violet to magenta transition
       accent:
-        'bg-gradient-to-r from-violet-600 to-amber-600 hover:opacity-90 text-white font-medium shadow-xs',
-      // Brand: Refined VALTICS gradient
+        'bg-gradient-to-r from-[#670CDC] to-[#D76EDD] hover:opacity-95 text-white font-semibold shadow-md shadow-[#670CDC]/25',
+      // Brand: Official VALTICS gradient (Electric Violet -> Magenta -> Orange/Red -> Orange)
       brand:
-        'bg-gradient-to-r from-[#7c3aed] via-[#db2777] to-[#ea580c] hover:opacity-95 text-white font-semibold shadow-xs border border-white/10',
+        'bg-gradient-to-r from-[#670CDC] via-[#D76EDD] via-[#BA3351] to-[#F99225] hover:opacity-95 text-white font-semibold shadow-md shadow-[#670CDC]/30 border border-white/10',
     }[variant];
 
     const widthStyle = fullWidth ? 'w-full' : '';

@@ -40,9 +40,7 @@ export const REFERENCE_POOLS: any[] = [];
 export function getExplorerUrl(
   addressOrTx: string,
   type: 'address' | 'tx' = 'address',
-  network: string = 'devnet'
+  _network: string = 'devnet'
 ): string {
-  const isMain = network === 'mainnet';
-  const clusterParam = isMain ? '' : '?cluster=devnet';
-  return `https://explorer.solana.com/${type}/${addressOrTx}${clusterParam}`;
+  return `https://explorer.solana.com/${type}/${addressOrTx}?cluster=devnet`;
 }

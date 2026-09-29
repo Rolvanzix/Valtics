@@ -39,7 +39,7 @@ export const ValticsMark: React.FC<{
         <div 
           className="absolute -inset-1 rounded-xl opacity-60 blur-md pointer-events-none transition-opacity duration-300 group-hover:opacity-100"
           style={{
-            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.45) 0%, rgba(249, 115, 22, 0.35) 60%, transparent 100%)',
+            background: 'radial-gradient(circle, rgba(103, 12, 220, 0.45) 0%, rgba(215, 110, 221, 0.35) 40%, rgba(249, 146, 37, 0.35) 75%, transparent 100%)',
           }}
         />
       )}
@@ -51,7 +51,7 @@ export const ValticsMark: React.FC<{
           width={dimension}
           height={dimension}
           onError={() => setImgError(true)}
-          className="relative select-none shrink-0 object-contain rounded-lg drop-shadow-[0_2px_8px_rgba(139,92,246,0.25)]"
+          className="relative select-none shrink-0 object-contain rounded-lg drop-shadow-[0_2px_10px_rgba(103,12,220,0.35)]"
         />
       ) : (
         /* Standalone Vector Fallback if SVG fails to load */
@@ -65,35 +65,29 @@ export const ValticsMark: React.FC<{
         >
           <defs>
             <linearGradient id="fallback-bg" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#07090e" />
-              <stop offset="100%" stopColor="#020305" />
+              <stop offset="0%" stopColor="#09011B" />
+              <stop offset="100%" stopColor="#1C0142" />
             </linearGradient>
             <linearGradient id="fallback-left-wing" x1="36" y1="48" x2="105" y2="155" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#C084FC" />
-              <stop offset="25%" stopColor="#A855F7" />
-              <stop offset="60%" stopColor="#8B5CF6" />
-              <stop offset="88%" stopColor="#6D28D9" />
-              <stop offset="100%" stopColor="#4C1D95" />
+              <stop offset="0%" stopColor="#D76EDD" />
+              <stop offset="40%" stopColor="#670CDC" />
+              <stop offset="100%" stopColor="#3B0489" />
             </linearGradient>
             <linearGradient id="fallback-ray-1" x1="92" y1="152" x2="142" y2="52" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#6D28D9" />
-              <stop offset="25%" stopColor="#9333EA" />
-              <stop offset="55%" stopColor="#D946EF" />
-              <stop offset="78%" stopColor="#F43F5E" />
-              <stop offset="100%" stopColor="#FB923C" />
+              <stop offset="0%" stopColor="#3B0489" />
+              <stop offset="40%" stopColor="#670CDC" />
+              <stop offset="70%" stopColor="#D76EDD" />
+              <stop offset="100%" stopColor="#BA3351" />
             </linearGradient>
             <linearGradient id="fallback-ray-2" x1="108" y1="142" x2="162" y2="48" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#9F1239" />
-              <stop offset="28%" stopColor="#E11D48" />
-              <stop offset="62%" stopColor="#F97316" />
-              <stop offset="90%" stopColor="#F59E0B" />
-              <stop offset="100%" stopColor="#FBBF24" />
+              <stop offset="0%" stopColor="#BA3351" />
+              <stop offset="60%" stopColor="#F99225" />
+              <stop offset="100%" stopColor="#FFAE52" />
             </linearGradient>
             <linearGradient id="fallback-ray-3" x1="124" y1="128" x2="178" y2="60" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#C2410C" />
-              <stop offset="35%" stopColor="#EA580C" />
-              <stop offset="70%" stopColor="#F59E0B" />
-              <stop offset="100%" stopColor="#FDE047" />
+              <stop offset="0%" stopColor="#BA3351" />
+              <stop offset="45%" stopColor="#F99225" />
+              <stop offset="100%" stopColor="#FFC27A" />
             </linearGradient>
           </defs>
           <rect width="200" height="200" rx="36" fill="url(#fallback-bg)" />

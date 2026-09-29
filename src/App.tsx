@@ -20,6 +20,7 @@ import { CreateMarketView } from './components/create/CreateMarketView';
 import { CurveStudioView } from './components/studio/CurveStudioView';
 import { MyMarketsView } from './components/myMarkets/MyMarketsView';
 import { ActivityView } from './components/activity/ActivityView';
+import { AgentWorkspace } from './components/agent/AgentWorkspace';
 import { WalletModal } from './components/common/WalletModal';
 import { PlatformPrimerModal } from './components/common/PlatformPrimerModal';
 import { CurveModelParams, DBCPoolState } from './types';
@@ -28,9 +29,28 @@ import { X, HelpCircle } from 'lucide-react';
 import { ValticsLogo } from './components/brand/ValticsLogo';
 import { BackgroundGrid } from './components/common/BackgroundGrid';
 import { EnvironmentSwitch } from './components/common/EnvironmentSwitch';
+import { LandingPageView } from './components/landing/LandingPageView';
 
 function MainAppContent() {
-  const [activeTab, setActiveTab] = useState<NavigationTab>('overview');
+  const [viewMode, setViewMode] = useState<'landing' | 'app'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.startsWith('#app') || hash.startsWith('#markets') || hash.startsWith('#create') || hash.startsWith('#agent')) {
+        return 'app';
+      }
+    }
+    return 'landing';
+  });
+
+  const [activeTab, setActiveTab] = useState<NavigationTab>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.startsWith('#agent')) return 'agent';
+      if (hash.startsWith('#markets')) return 'markets';
+      if (hash.startsWith('#create')) return 'create';
+    }
+    return 'overview';
+  });
   const [walletModalOpen, setWalletModalOpen] = useState<boolean>(false);
   const [primerModalOpen, setPrimerModalOpen] = useState<boolean>(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
@@ -84,8 +104,23 @@ function MainAppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // If in landing page mode, render public-facing landing page
+  if (viewMode === 'landing') {
+    return (
+      <LandingPageView
+        onEnterApp={(targetTab) => {
+          if (targetTab) {
+            handleSelectTab(targetTab);
+          }
+          setViewMode('app');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen flex bg-[#080c14] text-[#e2e8f0] relative overflow-x-hidden">
+    <div className="min-h-screen flex bg-[#09011B] text-[#F7F3FF] relative overflow-x-hidden">
       {/* Subtle Financial Infrastructure Background Layer */}
       <BackgroundGrid />
 
@@ -95,6 +130,10 @@ function MainAppContent() {
         onSelectTab={handleSelectTab}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onReturnToLanding={() => {
+          setViewMode('landing');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       {/* Mobile Drawer Menu */}
@@ -129,6 +168,7 @@ function MainAppContent() {
                 {[
                   { id: 'overview', label: 'Overview' },
                   { id: 'markets', label: 'Explore markets' },
+                  { id: 'agent', label: 'Valtics Agent' },
                   { id: 'create', label: 'Create market' },
                   { id: 'my-markets', label: 'Dashboard' },
                 ].map((item) => (
@@ -147,7 +187,19 @@ function MainAppContent() {
                 ))}
               </div>
 
-              <div className="pt-2 border-t border-zinc-800/80">
+              <div className="pt-2 border-t border-zinc-800/80 space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setViewMode('landing');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 text-xs font-mono"
+                >
+                  <span>← Return to Website</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -179,6 +231,10 @@ function MainAppContent() {
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
           onSearchQuery={setSearchQuery}
           onOpenPrimer={() => setPrimerModalOpen(true)}
+          onReturnToLanding={() => {
+            setViewMode('landing');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
 
         {/* Workspace + Right Contextual Panel Layout */}
@@ -243,6 +299,17 @@ function MainAppContent() {
               />
             )}
 
+            {activeTab === 'agent' && (
+              <AgentWorkspace
+                onOpenWalletModal={() => setWalletModalOpen(true)}
+                onApplyCurveToCreation={handleApplyCurveToCreation}
+                onNavigateToMarket={(poolAddress) => {
+                  setSelectedMarketAddress(poolAddress);
+                  handleSelectTab('markets');
+                }}
+              />
+            )}
+
             {activeTab === 'create' && (
               <CreateMarketView
                 initialParams={transferredCurveParams}
@@ -280,6 +347,17 @@ function MainAppContent() {
 
             {activeTab === 'activity' && (
               <ActivityView />
+            )}
+
+            {activeTab === 'agent' && (
+              <AgentWorkspace
+                onOpenWalletModal={() => setWalletModalOpen(true)}
+                onApplyCurveToCreation={handleApplyCurveToCreation}
+                onNavigateToMarket={(poolAddress) => {
+                  setSelectedMarketAddress(poolAddress);
+                  handleSelectTab('markets');
+                }}
+              />
             )}
 
             {/* Institutional Compact Footer */}

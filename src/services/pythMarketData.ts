@@ -46,7 +46,7 @@ export interface PythRealPriceResult {
     isCarriedForward: boolean;
     nextOpenTimestamp?: number | null;
   };
-  source: 'Pyth Hermes API' | 'Pyth Mainnet On-Chain Oracle' | 'Pyth API Server' | 'Unavailable';
+  source: 'Pyth Hermes API' | 'Pyth Oracle' | 'Pyth API Server' | 'Unavailable';
   isAvailable: boolean;
   reason?: string;
 }

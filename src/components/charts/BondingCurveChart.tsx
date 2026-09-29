@@ -63,39 +63,39 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
   const gradY = padding.top + chartH - ((points[points.length - 1].currentPriceUsd - minPrice) / priceRange) * chartH;
 
   return (
-    <div className="w-full bg-[#090d14] border border-zinc-800/90 rounded-xl p-4 sm:p-5 space-y-4">
+    <div className="w-full bg-[#1C0142]/85 border border-[#670CDC]/25 rounded-xl p-4 sm:p-5 space-y-4">
       {/* High-Contrast Financial Telemetry Header */}
       {showTelemetryHeader && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0d121c] p-3 rounded-lg border border-zinc-800 font-mono-nums text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#140130] p-3 rounded-lg border border-[#670CDC]/20 font-mono-nums text-xs">
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#B8A9CC] block font-medium">
               Curve Progress
             </span>
-            <span className="text-zinc-100 font-bold text-sm">
+            <span className="text-[#F7F3FF] font-bold text-sm">
               {formatPercent(activePoint.tokensSoldPct)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#B8A9CC] block font-medium">
               Spot Price ({quoteAsset})
             </span>
-            <span className="text-amber-400 font-bold text-sm">
+            <span className="text-[#F99225] font-bold text-sm">
               {formatCurrency(activePoint.currentPriceUsd)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#B8A9CC] block font-medium">
               Accumulated Quote
             </span>
-            <span className="text-zinc-100 font-bold text-sm">
+            <span className="text-[#F7F3FF] font-bold text-sm">
               {formatCurrency(activePoint.accumulatedQuoteUsd)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#B8A9CC] block font-medium">
               Implied Market Cap
             </span>
-            <span className="text-zinc-100 font-bold text-sm">
+            <span className="text-[#F7F3FF] font-bold text-sm">
               {formatCurrency(activePoint.marketCapUsd)}
             </span>
           </div>
@@ -112,21 +112,22 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
           <defs>
             {/* Signature VALTICS Brand Curve Gradient Fill */}
             <linearGradient id="curveGradientFill" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.18" />
-              <stop offset="50%" stopColor="#ec4899" stopOpacity="0.12" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.22" />
+              <stop offset="0%" stopColor="#670CDC" stopOpacity="0.25" />
+              <stop offset="45%" stopColor="#D76EDD" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#F99225" stopOpacity="0.28" />
             </linearGradient>
 
             {/* Signature VALTICS Brand Stroke Gradient */}
             <linearGradient id="curveStrokeGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#8b5cf6" />
-              <stop offset="45%" stopColor="#ec4899" />
-              <stop offset="100%" stopColor="#f59e0b" />
+              <stop offset="0%" stopColor="#670CDC" />
+              <stop offset="35%" stopColor="#D76EDD" />
+              <stop offset="70%" stopColor="#BA3351" />
+              <stop offset="100%" stopColor="#F99225" />
             </linearGradient>
 
             {/* Glowing filter for active spot */}
             <filter id="spotGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#f59e0b" floodOpacity="0.7" />
+              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#F99225" floodOpacity="0.8" />
             </filter>
           </defs>
 
@@ -141,7 +142,7 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
                   y1={y}
                   x2={padding.left + chartW}
                   y2={y}
-                  stroke="#1c2538"
+                  stroke="rgba(103, 12, 220, 0.18)"
                   strokeDasharray="3 3"
                   strokeWidth="1"
                 />
@@ -149,7 +150,7 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
                   x={padding.left - 8}
                   y={y + 3.5}
                   textAnchor="end"
-                  className="fill-zinc-400 text-[10px] font-mono select-none"
+                  className="fill-[#B8A9CC] text-[10px] font-mono select-none"
                 >
                   ${priceVal < 0.01 ? priceVal.toFixed(4) : priceVal.toFixed(2)}
                 </text>

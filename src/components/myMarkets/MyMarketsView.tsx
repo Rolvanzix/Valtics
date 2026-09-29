@@ -60,7 +60,7 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
   onSelectPoolForInspector,
 }) => {
   const { connected, publicKeyStr, signTransaction, isWrongNetwork, networkError } = useWallet();
-  const { connection, rpcConfig, network, isMainnet, environmentStatusMessage } = useNetwork();
+  const { connection, rpcConfig, network, environmentStatusMessage } = useNetwork();
 
   // Active view: 'portfolio' (MY MARKETS) or 'management' (MARKET MANAGEMENT)
   const [activeView, setActiveView] = useState<'portfolio' | 'management'>('portfolio');
@@ -308,18 +308,8 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                 <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 font-bold">
                   Issuer Control Center
                 </span>
-                <span
-                  className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 ${
-                    isMainnet
-                      ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold'
-                      : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
-                  }`}
-                >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      isMainnet ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
-                    }`}
-                  />
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 text-zinc-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                   <span>{environmentStatusMessage}</span>
                 </span>
               </div>
@@ -654,18 +644,8 @@ export const MyMarketsView: React.FC<MyMarketsViewProps> = ({
                     Created: {selectedPool.creationDate || 'Sep 16, 2026'}
                   </span>
                   <span className="text-zinc-500">·</span>
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded inline-flex items-center gap-1.5 ${
-                      isMainnet
-                        ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold'
-                        : 'bg-zinc-900 border border-zinc-800 text-zinc-400'
-                    }`}
-                  >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        isMainnet ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
-                      }`}
-                    />
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded inline-flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 text-zinc-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                     <span>{environmentStatusMessage}</span>
                   </span>
                 </div>

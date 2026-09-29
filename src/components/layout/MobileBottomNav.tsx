@@ -7,6 +7,7 @@ import {
   Coins,
   Activity,
   FileCheck2,
+  Sparkles,
 } from 'lucide-react';
 import { NavigationTab } from './Header';
 
@@ -26,6 +27,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'markets', label: 'Markets', icon: Layers },
+    { id: 'agent', label: 'Agent', icon: Sparkles },
     { id: 'create', label: 'Create', icon: PlusCircle },
     { id: 'my-markets', label: 'Dashboard', icon: Coins },
   ];

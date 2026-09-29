@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNetwork } from '../../context/NetworkContext';
 import { ValticsLogo } from '../brand/ValticsLogo';
 import { NavigationTab } from './Header';
 import { ShieldCheck, FileText, X } from 'lucide-react';
@@ -9,18 +8,17 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
-  const { isMainnet } = useNetwork();
   const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
   return (
     <>
-      <footer className="w-full border-t border-zinc-800/80 bg-[#06080e] py-6 mt-16 text-xs text-zinc-400 select-none">
+      <footer className="w-full border-t border-[#670CDC]/20 bg-[#060012] py-6 mt-16 text-xs text-[#B8A9CC] select-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Brand & Copyright */}
           <div className="flex items-center gap-3">
             <ValticsLogo size="xs" showText={true} tagline={false} />
-            <span className="text-zinc-700 hidden sm:inline">·</span>
-            <span className="text-[11px] text-zinc-500 font-mono">
+            <span className="text-[#670CDC]/40 hidden sm:inline">·</span>
+            <span className="text-[11px] text-[#7E6D96] font-mono">
               © {new Date().getFullYear()} VALTICS
             </span>
           </div>
@@ -32,47 +30,55 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
                 <button
                   type="button"
                   onClick={() => onSelectTab('overview')}
-                  className="text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+                  className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer"
                 >
                   Overview
                 </button>
                 <button
                   type="button"
                   onClick={() => onSelectTab('explore-assets')}
-                  className="text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+                  className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer"
                 >
                   Screener
                 </button>
                 <button
                   type="button"
                   onClick={() => onSelectTab('markets')}
-                  className="text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+                  className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer"
                 >
                   Markets
                 </button>
                 <button
                   type="button"
+                  onClick={() => onSelectTab('agent')}
+                  className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  <span>Agent</span>
+                  <span className="text-[9px] font-mono px-1 rounded bg-[#670CDC]/20 text-[#D76EDD] border border-[#670CDC]/30">AI</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => onSelectTab('create')}
-                  className="text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+                  className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer"
                 >
                   Create
                 </button>
-                <span className="text-zinc-700 hidden sm:inline">|</span>
+                <span className="text-[#670CDC]/40 hidden sm:inline">|</span>
               </>
             )}
 
             <button
               type="button"
               onClick={() => setLegalModal('terms')}
-              className="text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+              className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer"
             >
               Terms
             </button>
-            <span className="text-zinc-700">·</span>
+            <span className="text-[#670CDC]/40">·</span>
             <button
               type="button"
               onClick={() => setLegalModal('privacy')}
-              className="text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+              className="text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer"
             >
               Privacy
             </button>
@@ -80,22 +86,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
 
           {/* Active Network Indicator */}
           <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-zinc-500">Network:</span>
-            <span
-              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${
-                isMainnet
-                  ? 'bg-emerald-950/50 text-emerald-300 border border-emerald-500/40'
-                  : 'bg-zinc-900 text-zinc-300 border border-zinc-800'
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  isMainnet
-                    ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]'
-                    : 'bg-amber-400'
-                }`}
-              />
-              <span>{isMainnet ? 'MAINNET' : 'TESTNET'}</span>
+            <span className="text-[#7E6D96]">Network:</span>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-[#1C0142] text-[#F7F3FF] border border-[#670CDC]/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F99225]" />
+              <span>DEVNET</span>
             </span>
           </div>
         </div>
@@ -147,7 +141,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
                     Blockchain interactions (public keys, transaction signatures, and bonding curve states) are publicly verifiable records maintained on the Solana blockchain.
                   </p>
                   <p>
-                    Client-side preferences such as selected environment (Testnet vs Mainnet) are stored strictly locally in your browser session.
+                    Client-side preferences are stored strictly locally in your browser session.
                   </p>
                 </>
               )}

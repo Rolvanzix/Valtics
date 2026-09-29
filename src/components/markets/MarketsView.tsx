@@ -6,6 +6,7 @@ import { NavigationTab } from '../layout/Header';
 import { MarketScreener } from '../screener/MarketScreener';
 import { ScreenerAsset } from '../../services/screenerService';
 import { resolvePythAssetToValticsPool } from '../../services/pythReference';
+import { useNetwork } from '../../context/NetworkContext';
 
 interface MarketsViewProps {
   onSelectTab: (tab: NavigationTab) => void;
@@ -24,16 +25,18 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
   onOpenWalletModal,
   onBackToExplore,
 }) => {
-  // Real created markets on Solana Devnet
-  const [createdPools, setCreatedPools] = useState<DBCPoolState[]>(() => getCreatedMarkets());
+  const { environment } = useNetwork();
+  // Environment-aware created markets
+  const [createdPools, setCreatedPools] = useState<DBCPoolState[]>(() => getCreatedMarkets(environment));
   const [selectedScreenerAsset, setSelectedScreenerAsset] = useState<ScreenerAsset | null>(null);
 
   React.useEffect(() => {
+    setCreatedPools(getCreatedMarkets(environment));
     const unsub = onMarketCreated(() => {
-      setCreatedPools(getCreatedMarkets());
+      setCreatedPools(getCreatedMarkets(environment));
     });
     return () => unsub();
-  }, []);
+  }, [environment]);
 
   // Standard pools from created markets
   const standardPools: DBCPoolState[] = createdPools;

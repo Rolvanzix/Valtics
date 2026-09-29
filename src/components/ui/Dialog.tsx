@@ -59,26 +59,26 @@ export const Dialog: React.FC<DialogProps> = ({
       onClick={onClose}
     >
       <div
-        className={`relative w-full ${widthStyles} rounded-xl border border-zinc-800 bg-[#0d121c] text-zinc-200 shadow-2xl transition-all my-auto ${className}`}
+        className={`relative w-full ${widthStyles} rounded-xl border border-[#670CDC]/30 bg-[#160136] text-[#F7F3FF] shadow-2xl shadow-[#09011B]/90 transition-all my-auto ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         {(title || description) && (
-          <div className="p-4 sm:p-5 border-b border-zinc-800/80 flex items-start justify-between gap-3">
+          <div className="p-4 sm:p-5 border-b border-[#670CDC]/20 flex items-start justify-between gap-3">
             <div className="space-y-1 min-w-0">
               {title && (
-                <h3 className="font-semibold text-base text-zinc-100 tracking-tight">
+                <h3 className="font-semibold text-base text-[#F7F3FF] tracking-tight">
                   {title}
                 </h3>
               )}
               {description && (
-                <p className="text-xs text-zinc-400 leading-normal">{description}</p>
+                <p className="text-xs text-[#B8A9CC] leading-normal">{description}</p>
               )}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-200 p-1 rounded-md hover:bg-zinc-800/60 transition-colors"
+              className="text-[#B8A9CC] hover:text-[#F7F3FF] p-1 rounded-md hover:bg-[#1C0142] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -90,7 +90,7 @@ export const Dialog: React.FC<DialogProps> = ({
 
         {/* Modal Footer */}
         {footer && (
-          <div className="p-4 border-t border-zinc-800/80 bg-[#090d14]/60 rounded-b-xl flex items-center justify-end gap-2.5">
+          <div className="p-4 border-t border-[#670CDC]/20 bg-[#100126]/60 rounded-b-xl flex items-center justify-end gap-2.5">
             {footer}
           </div>
         )}

@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { SOLANA_DEVNET_GENESIS_HASH, SOLANA_MAINNET_GENESIS_HASH } from '../config/networks';
+import { SOLANA_DEVNET_GENESIS_HASH } from '../config/networks';
 
 export const DEVNET_RPC_ENDPOINT = 'https://api.devnet.solana.com';
 export const DEVNET_DBC_PROGRAM_ID = 'dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN';
@@ -8,9 +8,8 @@ export const MIN_DEVNET_SOL_BALANCE = 0.05; // ~0.04 - 0.065 SOL needed for DBC 
 
 export interface NetworkValidationResult {
   isDevnet: boolean;
-  isMainnet: boolean;
   genesisHash: string;
-  cluster: 'devnet' | 'mainnet-beta' | 'testnet' | 'unknown';
+  cluster: 'devnet' | 'testnet' | 'unknown';
   error: string | null;
 }
 
@@ -35,12 +34,11 @@ let lastCheckTime = 0;
 const CACHE_TTL_MS = 30000; // 30 seconds cache
 
 /**
- * Validates that the active Solana RPC connection matches the expected environment (Testnet vs Mainnet).
- * Strictly guarantees that the UI never displays Mainnet while connected to Testnet, or vice-versa.
+ * Validates that the active Solana RPC connection is strictly on Devnet.
  */
 export async function validateClusterEnvironment(
   connection: Connection,
-  expectedEnv: 'testnet' | 'mainnet' = 'testnet'
+  _expectedEnv: string = 'devnet'
 ): Promise<NetworkValidationResult> {
   try {
     const genesisHash = await connection.getGenesisHash();
@@ -48,40 +46,27 @@ export async function validateClusterEnvironment(
     lastCheckTime = Date.now();
 
     const isDevnet = genesisHash === SOLANA_DEVNET_GENESIS_HASH;
-    const isMainnet = genesisHash === SOLANA_MAINNET_GENESIS_HASH;
 
     let error: string | null = null;
-    let cluster: 'devnet' | 'mainnet-beta' | 'testnet' | 'unknown' = 'unknown';
+    let cluster: 'devnet' | 'testnet' | 'unknown' = 'unknown';
 
     if (isDevnet) {
       cluster = 'devnet';
-    } else if (isMainnet) {
-      cluster = 'mainnet-beta';
-    }
-
-    if (expectedEnv === 'mainnet') {
-      if (!isMainnet) {
-        error = `Environment mismatch: Application set to MAINNET but active RPC returned ${isDevnet ? 'Devnet' : 'unknown'} genesis hash (${genesisHash.slice(0, 8)}...).`;
-      }
     } else {
-      if (!isDevnet) {
-        error = `Environment mismatch: Application set to TESTNET but active RPC returned ${isMainnet ? 'Mainnet' : 'unknown'} genesis hash (${genesisHash.slice(0, 8)}...).`;
-      }
+      error = `Environment mismatch: Active RPC returned non-Devnet genesis hash (${genesisHash.slice(0, 8)}...). Expected Solana Devnet.`;
     }
 
     return {
       isDevnet,
-      isMainnet,
       genesisHash,
       cluster,
       error,
     };
   } catch (err: any) {
     return {
-      isDevnet: expectedEnv === 'testnet',
-      isMainnet: expectedEnv === 'mainnet',
+      isDevnet: true,
       genesisHash: cachedGenesisHash || 'Unknown',
-      cluster: expectedEnv === 'mainnet' ? 'mainnet-beta' : 'devnet',
+      cluster: 'devnet',
       error: null,
     };
   }
@@ -89,10 +74,9 @@ export async function validateClusterEnvironment(
 
 /**
  * Validates that the active Solana RPC connection is connected to Devnet.
- * Never allows operations if the RPC is connected to Mainnet-Beta.
  */
 export async function validateDevnetCluster(connection: Connection): Promise<NetworkValidationResult> {
-  return validateClusterEnvironment(connection, 'testnet');
+  return validateClusterEnvironment(connection, 'devnet');
 }
 
 /**
@@ -201,7 +185,6 @@ export async function runPreDeploymentChecks(params: {
   try {
     const lamports = await params.connection.getBalance(payerPublicKey, 'confirmed');
     walletBalanceSol = lamports / 1e9;
-    // On Solana, a fee-payer must have lamports and either be owned by SystemProgram or not be frozen
     if (walletBalanceSol > 0) {
       check5Passed = true;
       check5Detail = `Valid fee-payer account with ${walletBalanceSol.toFixed(4)} SOL`;
@@ -258,7 +241,7 @@ export async function runPreDeploymentChecks(params: {
   });
 
   // Check 9: App/Wallet/RPC/SDK cluster consistency (all Devnet)
-  const isAppDevnet = params.appNetwork === 'devnet';
+  const isAppDevnet = params.appNetwork === 'devnet' || params.appNetwork === 'testnet';
   const isRpcDevnet = check8Passed;
   const isWalletSafe = !params.isWrongNetwork;
   const check9Passed = isAppDevnet && isRpcDevnet && isWalletSafe;
@@ -314,7 +297,7 @@ export function assertDevnetTransactionSafety(params: {
     throw new Error('Transaction blocked: Wallet is not connected. Connect a Solana Devnet wallet.');
   }
 
-  if (params.appNetwork !== 'devnet') {
+  if (params.appNetwork !== 'devnet' && params.appNetwork !== 'testnet') {
     throw new Error(`Transaction blocked: Application cluster is set to "${params.appNetwork}". Only "devnet" is permitted.`);
   }
 
@@ -324,4 +307,3 @@ export function assertDevnetTransactionSafety(params: {
     );
   }
 }
-

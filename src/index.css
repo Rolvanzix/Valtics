@@ -3,33 +3,106 @@
 @theme {
   --font-mono: 'JetBrains Mono', monospace;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Syne', sans-serif;
   
-  --color-valtics-violet: #8b5cf6;
-  --color-valtics-purple: #7c3aed;
-  --color-valtics-indigo: #6366f1;
-  --color-valtics-rose: #ec4899;
-  --color-valtics-coral: #f43f5e;
-  --color-valtics-orange: #f97316;
-  --color-valtics-amber: #f59e0b;
-  --color-valtics-gold: #fbbf24;
-  --color-valtics-obsidian: #06080f;
-  --color-valtics-surface: #0b0f19;
-  --color-valtics-card: #0f1422;
-  --color-valtics-card-hover: #161e31;
-  --color-valtics-border: #1d2538;
-  --color-valtics-border-glow: #2d3954;
+  /* Centralized VALTICS Brand Color Tokens */
+  --color-brand-bg: #09011B;
+  --color-brand-dark-purple: #1C0142;
+  --color-brand-primary-purple: #3B0489;
+  --color-brand-violet: #670CDC;
+  --color-brand-magenta: #D76EDD;
+  --color-brand-orange: #F99225;
+  --color-brand-red: #BA3351;
+  --color-brand-text-primary: #F7F3FF;
+  --color-brand-text-secondary: #B8A9CC;
+  --color-brand-text-muted: #7E6D96;
+
+  /* Semantic Aliases for Components */
+  --color-valtics-bg: #09011B;
+  --color-valtics-surface: #140130;
+  --color-valtics-card: #1C0142;
+  --color-valtics-card-hover: #26035A;
+  --color-valtics-card-active: #320475;
+  --color-valtics-purple: #3B0489;
+  --color-valtics-violet: #670CDC;
+  --color-valtics-magenta: #D76EDD;
+  --color-valtics-orange: #F99225;
+  --color-valtics-coral: #BA3351;
+  --color-valtics-border: rgba(103, 12, 220, 0.28);
+  --color-valtics-border-subtle: rgba(103, 12, 220, 0.16);
+  --color-valtics-border-glow: #670CDC;
+  --color-valtics-input: #120128;
 }
 
 @layer base {
   :root {
     --font-mono: 'JetBrains Mono', monospace;
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+    /* Master Brand Color Palette (Official Brand Reference) */
+    --brand-bg: #09011B;
+    --brand-dark-purple: #1C0142;
+    --brand-primary-purple: #3B0489;
+    --brand-electric-violet: #670CDC;
+    --brand-magenta: #D76EDD;
+    --brand-orange: #F99225;
+    --brand-orange-red: #BA3351;
+    --brand-text-primary: #F7F3FF;
+    --brand-text-secondary: #B8A9CC;
+    --brand-text-muted: #7E6D96;
+
+    /* Surface & Layering Design Tokens */
+    --surface-page: #09011B;
+    --surface-header: rgba(14, 1, 34, 0.95);
+    --surface-sidebar: #0E0124;
+    --surface-panel: #140130;
+    --surface-card: #1C0142;
+    --surface-card-hover: #26035A;
+    --surface-card-active: #320475;
+    --surface-elevated: #220250;
+    --surface-modal: #160136;
+    --surface-input: #120128;
+    --surface-footer: #060012;
+
+    /* Border & Divider Tokens */
+    --border-subtle: rgba(103, 12, 220, 0.16);
+    --border-default: rgba(103, 12, 220, 0.28);
+    --border-card: rgba(103, 12, 220, 0.24);
+    --border-hover: rgba(215, 110, 221, 0.45);
+    --border-active: #F99225;
+    --border-focus: #670CDC;
+    --border-alert: #BA3351;
+
+    /* Typography Tokens */
+    --text-primary: #F7F3FF;
+    --text-secondary: #B8A9CC;
+    --text-muted: #7E6D96;
+    --text-highlight: #F99225;
+    --text-accent: #D76EDD;
+    --text-violet: #670CDC;
+
+    /* Interactive Action Tokens */
+    --action-primary-bg: #F99225;
+    --action-primary-hover: #FFA742;
+    --action-primary-text: #09011B;
+    --action-secondary-bg: #1C0142;
+    --action-secondary-hover: #2A0363;
+    --action-secondary-border: rgba(103, 12, 220, 0.4);
+    --action-secondary-text: #F7F3FF;
+
+    /* Glow & Shadow Tokens */
+    --shadow-card: 0 4px 20px -2px rgba(9, 1, 27, 0.6);
+    --shadow-modal: 0 24px 60px -12px rgba(9, 1, 27, 0.9), 0 0 30px -4px rgba(103, 12, 220, 0.2);
+    --glow-violet: 0 0 24px -2px rgba(103, 12, 220, 0.35);
+    --glow-magenta: 0 0 20px -2px rgba(215, 110, 221, 0.35);
+    --glow-orange: 0 0 20px -2px rgba(249, 146, 37, 0.35);
+    --glow-brand-multi: 0 4px 24px -2px rgba(103, 12, 220, 0.3), 0 0 16px -2px rgba(249, 146, 37, 0.25);
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #07090e;
-    color: #e2e8f0;
+    background-color: #09011B;
+    color: #F7F3FF;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -41,50 +114,54 @@
     font-feature-settings: "tnum" 1, "zero" 1;
     letter-spacing: -0.01em;
   }
+
+  .font-display {
+    font-family: 'Syne', var(--font-sans);
+  }
 }
 
-/* Restrained Valtics Brand Accent Utilities */
+/* Official Brand Accent Utilities */
 .bg-valtics-gradient {
-  background: linear-gradient(135deg, #7c3aed 0%, #db2777 55%, #ea580c 100%);
+  background: linear-gradient(135deg, #670CDC 0%, #D76EDD 40%, #BA3351 72%, #F99225 100%);
 }
 
 .bg-valtics-subtle {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(219, 39, 119, 0.05) 50%, rgba(234, 88, 12, 0.06) 100%);
+  background: linear-gradient(135deg, rgba(103, 12, 220, 0.14) 0%, rgba(215, 110, 221, 0.08) 50%, rgba(249, 146, 37, 0.08) 100%);
 }
 
 .text-valtics-gradient {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #D76EDD 0%, #F99225 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .border-valtics-gradient {
-  border-image: linear-gradient(135deg, #7c3aed, #db2777, #ea580c) 1;
+  border-image: linear-gradient(135deg, #670CDC, #D76EDD, #BA3351, #F99225) 1;
 }
 
 .valtics-glow {
-  box-shadow: 0 4px 20px -4px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 4px 24px -2px rgba(103, 12, 220, 0.35), 0 0 16px -2px rgba(249, 146, 37, 0.25);
 }
 
 .valtics-border-glow {
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 0 rgba(215, 110, 221, 0.25);
 }
 
-/* Custom refined scrollbar */
+/* Custom refined scrollbar matching brand dark purple */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #09011B;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f2430;
+  background: #26035A;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2d3444;
+  background: #670CDC;
 }

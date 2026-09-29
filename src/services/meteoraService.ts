@@ -208,7 +208,7 @@ export function parseMeteoraError(err: unknown): MeteoraIntegrationError {
     return new MeteoraIntegrationError(
       'UNSUPPORTED_NETWORK',
       'Meteora DBC is not deployed on this network cluster.',
-      'Meteora Dynamic Bonding Curve is natively deployed on Solana Devnet and Mainnet-Beta.',
+      'Meteora Dynamic Bonding Curve is natively deployed on Solana Devnet.',
       err
     );
   }

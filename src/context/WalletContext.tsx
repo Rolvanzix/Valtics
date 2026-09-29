@@ -1,5 +1,5 @@
 /**
- * VALTICS Real Solana Devnet Wallet Context
+ * VALTICS Solana Wallet Context (Devnet-Only Architecture)
  *
  * Implements real browser wallet connection using Solana Wallet Standard & Web3 standards.
  * 
@@ -7,18 +7,17 @@
  * - NO mock wallet systems or simulated connections.
  * - NO fake addresses or placeholder balances.
  * - ZERO private key or seed phrase requests/storage.
- * - Real browser wallet extensions: Phantom, Solflare, Backpack, and standard injected Solana providers.
+ * - Supports real browser wallet extensions: Phantom, Solflare, Backpack, and standard injected Solana providers.
  * - Silent reconnect when previously trusted (`onlyIfTrusted: true`).
- * - Real on-chain balance via Devnet Connection.
- * - Network verification: blocks transactions if not on Solana Devnet.
- * - Handles wallet-not-installed, user rejections, and transaction signing failures.
+ * - Real on-chain balance via active Devnet RPC Connection.
+ * - Devnet-only operations and faucet support.
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
 import { useNetwork } from './NetworkContext';
 import { isValidSolanaAddress, sanitizeErrorMessage } from '../utils/security';
-import { validateDevnetCluster, assertDevnetTransactionSafety } from '../services/networkValidator';
+import { validateClusterEnvironment } from '../services/networkValidator';
 
 export interface WalletProviderInfo {
   name: string;
@@ -47,6 +46,7 @@ export interface WalletContextType {
   refreshBalance: () => Promise<void>;
   requestDevnetAirdrop: () => Promise<boolean>;
   signTransaction: <T extends Transaction | VersionedTransaction>(tx: T) => Promise<T>;
+  signMessage: (message: Uint8Array) => Promise<Uint8Array>;
   clearError: () => void;
 }
 
@@ -63,6 +63,7 @@ export interface SolanaProvider {
   disconnect: () => Promise<void>;
   signTransaction: <T extends Transaction | VersionedTransaction>(tx: T) => Promise<T>;
   signAllTransactions?: <T extends Transaction | VersionedTransaction>(txs: T[]) => Promise<T[]>;
+  signMessage?: (message: Uint8Array, display?: string) => Promise<{ signature: Uint8Array } | Uint8Array>;
   on?: (event: string, callback: (...args: any[]) => void) => void;
   removeListener?: (event: string, callback: (...args: any[]) => void) => void;
 }
@@ -79,7 +80,7 @@ declare global {
 const STORAGE_KEY_LAST_WALLET = 'valtics_connected_wallet_adapter';
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { connection, network } = useNetwork();
+  const { connection, environment } = useNetwork();
 
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -114,12 +115,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     checkInstalledWallets();
-    // Re-check after short delay as some extensions inject slightly later
     const t = setTimeout(checkInstalledWallets, 800);
     return () => clearTimeout(t);
   }, [checkInstalledWallets]);
 
-  // Available Wallets Catalog with real install URLs
+  // Available Wallets Catalog
   const availableWallets: WalletProviderInfo[] = useMemo(() => {
     return [
       {
@@ -177,7 +177,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (window.solana?.isBackpack) return { provider: window.solana, name: 'Backpack' };
       }
 
-      // Default or generic standard provider
+      // Default fallback
       if (window.phantom?.solana) return { provider: window.phantom.solana, name: 'Phantom' };
       if (window.solflare) return { provider: window.solflare, name: 'Solflare' };
       if (window.backpack) return { provider: window.backpack, name: 'Backpack' };
@@ -198,30 +198,27 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 
   /**
-   * Validates Devnet Cluster & Checks for Wrong-Network Condition.
+   * Validates active cluster environment safety (Devnet-only).
    */
   const verifyNetworkSafety = useCallback(
     async (provider?: SolanaProvider | null) => {
       try {
-        const clusterCheck = await validateDevnetCluster(connection);
-        if (!clusterCheck.isDevnet) {
+        const clusterCheck = await validateClusterEnvironment(connection, 'devnet');
+        if (clusterCheck.error) {
           setIsWrongNetwork(true);
-          setNetworkError(clusterCheck.error || 'Connected RPC is not on Solana Devnet.');
+          setNetworkError(clusterCheck.error);
           return false;
         }
 
         // Check if provider explicitly reports network
         const providerNetwork = provider?.network || provider?.cluster;
-        if (
-          providerNetwork &&
-          providerNetwork !== 'devnet' &&
-          providerNetwork.toLowerCase().includes('mainnet')
-        ) {
-          setIsWrongNetwork(true);
-          setNetworkError(
-            'Your wallet extension is currently connected to Mainnet-Beta. Please open your wallet settings and switch the active network to Solana Devnet.'
-          );
-          return false;
+        if (providerNetwork) {
+          const isProviderDevnet = providerNetwork.toLowerCase().includes('devnet');
+          if (!isProviderDevnet) {
+            setIsWrongNetwork(true);
+            setNetworkError('Your wallet extension is not connected to Solana Devnet. Please switch your wallet to Solana Devnet.');
+            return false;
+          }
         }
 
         setIsWrongNetwork(false);
@@ -241,8 +238,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [connection, activeProvider, verifyNetworkSafety]);
 
   /**
-   * Fetches Real Native SOL Balance for the connected public key.
-   * If not connected or error, balance is null. Never uses placeholder values.
+   * Fetches Real Native SOL Balance on Devnet for the connected public key.
    */
   const refreshBalance = useCallback(async () => {
     if (!publicKey || !connection) {
@@ -255,7 +251,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setBalanceSol(lamports / 1e9);
     } catch (err) {
       console.warn('Could not fetch real SOL balance from Devnet RPC:', err);
-      // Keep null or current rather than fabricating
     } finally {
       setBalanceLoading(false);
     }
@@ -272,9 +267,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [connected, publicKey, refreshBalance]);
 
   /**
-   * Reconnect when supported:
-   * Eagerly reconnects on mount if the user was previously connected in this browser session.
-   * Uses onlyIfTrusted: true so NO unsolicited modal or popup is displayed.
+   * Reconnect when supported
    */
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -305,14 +298,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
       })
       .catch(() => {
-        // Expected when user hasn't pre-authorized this session; silent failure
+        // Silent failure if untrusted
       });
   }, [resolveProvider, verifyNetworkSafety]);
 
   /**
-   * Real Connect Wallet:
-   * Prompts user for approval via browser extension.
-   * Handles wallet not installed, rejected requests, and public key extraction.
+   * Real Connect Wallet
    */
   const connect = async (
     adapterKey: 'phantom' | 'solflare' | 'backpack' | 'standard' = 'phantom'
@@ -323,7 +314,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       const { provider, name } = resolveProvider(adapterKey);
 
-      // Handle wallet not installed condition
       if (!provider) {
         const walletLabel =
           adapterKey === 'phantom'
@@ -338,10 +328,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         );
       }
 
-      // Check Devnet network before connecting
       await verifyNetworkSafety(provider);
 
-      // Connect with browser extension (prompts extension approval popup)
       const response = await provider.connect();
       const pubStr = response?.publicKey?.toBase58
         ? response.publicKey.toBase58()
@@ -362,14 +350,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setActiveAdapterKey(adapterKey);
       setActiveProvider(provider);
 
-      // Save preference for silent reconnect
       try {
         localStorage.setItem(STORAGE_KEY_LAST_WALLET, adapterKey);
-      } catch {
-        // Ignore iframe storage restrictions
-      }
+      } catch {}
 
-      // Setup live provider event listeners (account switch, disconnect)
       if (provider.on) {
         provider.on('disconnect', () => {
           disconnect();
@@ -386,7 +370,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       return true;
     } catch (err: any) {
-      // Handle rejected wallet requests & standard errors
       let sanitized = sanitizeErrorMessage(err);
       if (err?.code === 4001 || err?.message?.includes('User rejected')) {
         sanitized = 'Connection request was cancelled or rejected in your wallet.';
@@ -399,8 +382,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   /**
-   * Real Disconnect Wallet:
-   * Informs provider, resets all state, and clears persistence.
+   * Real Disconnect Wallet
    */
   const disconnect = async () => {
     try {
@@ -412,9 +394,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } finally {
       try {
         localStorage.removeItem(STORAGE_KEY_LAST_WALLET);
-      } catch {
-        // Ignore
-      }
+      } catch {}
       setConnected(false);
       setPublicKey(null);
       setBalanceSol(null);
@@ -428,14 +408,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   /**
-   * Real Devnet Airdrop Request:
-   * Requests 1 real Devnet SOL from the official Solana Devnet validator.
+   * Real Devnet Airdrop Request
    */
   const requestDevnetAirdrop = async (): Promise<boolean> => {
     if (!publicKey || !connection) return false;
     try {
-      // Assert we are on devnet before requesting airdrop
-      if (network !== 'devnet' || isWrongNetwork) {
+      if (isWrongNetwork) {
         throw new Error('Airdrops are only available on Solana Devnet.');
       }
       const sig = await connection.requestAirdrop(publicKey, 1_000_000_000);
@@ -449,27 +427,45 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   /**
-   * Real Transaction Signing:
-   * Strictly verifies:
-   * 1. A wallet is connected.
-   * 2. The wallet is on Solana Devnet.
-   * 3. The transaction is explicitly intended for Devnet.
-   * Handles user rejections and signing errors transparently.
+   * Real Message Signing
    */
-  const signTransaction = async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
-    // Enforcement 1: Wallet connected
+  const signMessage = async (message: Uint8Array): Promise<Uint8Array> => {
     if (!connected || !publicKey || !activeProvider) {
-      throw new Error('Transaction blocked: Wallet is not connected. Connect your Solana Devnet wallet.');
+      throw new Error('Wallet is not connected. Connect your wallet to sign message.');
     }
 
-    // Enforcement 2: Solana Devnet active
-    assertDevnetTransactionSafety({
-      connected,
-      publicKeyStr: publicKey.toBase58(),
-      appNetwork: network,
-      isWrongNetwork,
-      networkError,
-    });
+    if (!activeProvider.signMessage) {
+      throw new Error(`Your wallet (${walletName || 'extension'}) does not support standard signMessage. Please use Phantom, Solflare, or Backpack.`);
+    }
+
+    try {
+      const result = await activeProvider.signMessage(message, 'utf8');
+      if (result && 'signature' in result && result.signature instanceof Uint8Array) {
+        return result.signature;
+      }
+      if (result instanceof Uint8Array) {
+        return result;
+      }
+      throw new Error('Unexpected signature structure from wallet.');
+    } catch (err: any) {
+      if (err?.code === 4001 || err?.message?.includes('User rejected')) {
+        throw new Error('Message signature was cancelled or rejected by user.');
+      }
+      throw new Error(`Wallet message signing failed: ${err?.message || 'Signing rejected'}`);
+    }
+  };
+
+  /**
+   * Real Transaction Signing
+   */
+  const signTransaction = async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
+    if (!connected || !publicKey || !activeProvider) {
+      throw new Error('Transaction blocked: Wallet is not connected.');
+    }
+
+    if (isWrongNetwork) {
+      throw new Error(`Transaction blocked: ${networkError || 'Network cluster mismatch.'}`);
+    }
 
     try {
       const signed = await activeProvider.signTransaction(tx);
@@ -482,7 +478,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const clearError = () => setError(null);
+  const clearError = () => {
+    setError(null);
+  };
 
   return (
     <WalletContext.Provider
@@ -504,6 +502,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         refreshBalance,
         requestDevnetAirdrop,
         signTransaction,
+        signMessage,
         clearError,
       }}
     >

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, AlertCircle, Lock, ShieldCheck, RefreshCw, AlertTriangle } from 'lucide-react';
+import { X, ExternalLink, AlertCircle, ShieldCheck, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useWallet } from '../../context/WalletContext';
 import { useNetwork } from '../../context/NetworkContext';
 import { AddressBadge } from './AddressBadge';
@@ -49,8 +49,6 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     }
   };
 
-  const hasAnyInstalledWallet = availableWallets.some((w) => w.installed);
-
   return (
     <div
       id="wallet-modal-overlay"
@@ -74,7 +72,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 {connected ? 'Solana Devnet Wallet' : 'Connect Devnet Wallet'}
               </h3>
               <p className="text-[11px] text-zinc-400">
-                {connected ? 'Active Session' : 'Solana Devnet (Test Cluster)'}
+                Solana Devnet (Test Cluster)
               </p>
             </div>
           </div>
@@ -95,8 +93,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           <div className="bg-rose-950/40 border border-rose-800/70 rounded-lg p-3 text-xs text-rose-200 flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
             <div>
-              <span className="font-semibold block text-rose-300">Solana Devnet Required</span>
-              <span>{networkError || 'Your wallet or RPC is not on Solana Devnet. All transactions are blocked.'}</span>
+              <span className="font-semibold block text-rose-300">
+                Solana Devnet Required
+              </span>
+              <span>
+                {networkError || 'Your wallet or RPC is not on Solana Devnet. All transactions are blocked.'}
+              </span>
             </div>
           </div>
         )}
@@ -108,9 +110,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               <div className="flex items-center justify-between text-xs text-zinc-400">
                 <span>Active Provider</span>
                 <div className="flex items-center gap-1.5 font-medium text-zinc-200">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
                   <span>{walletName || 'Solana Wallet'}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono">Devnet</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono">
+                    Devnet
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-xs text-zinc-400">
@@ -134,7 +138,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     onClick={() => refreshBalance()}
                     disabled={balanceLoading}
                     title="Refresh on-chain balance"
-                    className="text-zinc-500 hover:text-zinc-300 p-0.5 rounded transition-colors"
+                    className="text-zinc-500 hover:text-zinc-300 p-0.5 rounded transition-colors cursor-pointer"
                   >
                     <RefreshCw className={`w-3 h-3 ${balanceLoading ? 'animate-spin' : ''}`} />
                   </button>
@@ -177,7 +181,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   rel="noopener noreferrer"
                   className="text-xs text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1 transition-colors"
                 >
-                  <span>View account on Solana Explorer (Devnet)</span>
+                  <span>
+                    View account on Solana Explorer (Devnet)
+                  </span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -186,8 +192,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-lg p-3 text-xs text-emerald-300 flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
               <div>
-                <span className="font-semibold block">Non-Custodial Devnet Integration</span>
-                Valtics interfaces solely via your browser wallet extension. Private keys are never handled or stored.
+                <span className="font-semibold block">Non-Custodial Architecture</span>
+                Valtics interfaces solely via your browser wallet. Private keys are never requested or stored.
               </div>
             </div>
 
@@ -207,7 +213,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           /* Disconnected State */
           <div className="space-y-4">
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Connect a real Solana browser extension on <strong className="text-zinc-200">Devnet</strong> to create Meteora Dynamic Bonding Curves, deposit test liquidity, or claim creator revenue.
+              Connect a real Solana browser extension on{' '}
+              <strong className="text-zinc-200">Solana Devnet</strong>{' '}
+              to create Meteora Dynamic Bonding Curves and deploy verifiable liquidity.
             </p>
 
             {/* Error Display */}
@@ -230,8 +238,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   disabled={connecting}
                   onClick={async () => {
                     if (w.installed) {
-                      const success = await connect(w.adapterKey);
-                      if (success) onClose();
+                      await connect(w.adapterKey);
                     } else {
                       handleExternalLink(w.installUrl);
                     }
@@ -241,57 +248,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{w.icon}</span>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-zinc-200">{w.name}</span>
-                        {w.installed ? (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 font-medium">
-                            Detected
-                          </span>
-                        ) : (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800/60 text-zinc-500 font-medium">
-                            Not Installed
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-zinc-400">
-                        {w.description}
-                      </div>
+                      <span className="font-medium text-sm text-zinc-200 block group-hover:text-white">
+                        {w.name}
+                      </span>
+                      <span className="text-[10px] text-zinc-500">{w.description}</span>
                     </div>
                   </div>
-                  {w.installed ? (
-                    <span className="text-xs text-zinc-400 group-hover:text-zinc-200 font-medium">
-                      {connecting ? 'Connecting...' : 'Connect'}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-indigo-400 group-hover:text-indigo-300 inline-flex items-center gap-1 font-medium">
-                      Install <ExternalLink className="w-3 h-3" />
-                    </span>
-                  )}
+                  <div>
+                    {w.installed ? (
+                      <span className="text-xs font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/40">
+                        Connect
+                      </span>
+                    ) : (
+                      <span className="text-xs font-mono text-zinc-400 group-hover:text-zinc-200">
+                        Install ↗
+                      </span>
+                    )}
+                  </div>
                 </button>
               ))}
-            </div>
-
-            {/* If no wallet is installed, provide clear guidance */}
-            {!hasAnyInstalledWallet && (
-              <div className="bg-amber-950/20 border border-amber-900/30 rounded-lg p-3 text-xs text-amber-300/90 space-y-1">
-                <span className="font-semibold text-amber-200 block">No Solana Wallet Detected</span>
-                <span>
-                  Please install the <button type="button" onClick={() => handleExternalLink('https://phantom.app/')} className="underline text-amber-300 font-medium cursor-pointer">Phantom</button> or <button type="button" onClick={() => handleExternalLink('https://solflare.com/')} className="underline text-amber-300 font-medium cursor-pointer">Solflare</button> browser extension and switch the network to <strong className="text-amber-200">Devnet</strong> in extension settings.
-                </span>
-              </div>
-            )}
-
-            {/* Invariant guarantee */}
-            <div className="p-3 rounded-lg bg-zinc-950/70 border border-zinc-800 space-y-1.5 text-[11px] text-zinc-300">
-              <div className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                <Lock className="w-3.5 h-3.5" />
-                <span>VALTICS Devnet Security Guarantee</span>
-              </div>
-              <ul className="list-disc list-inside space-y-0.5 text-zinc-400 pl-0.5">
-                <li>No private keys or seed phrases are ever requested or stored.</li>
-                <li>All transactions are simulated and signed directly inside your wallet.</li>
-                <li>Devnet operations only: Mainnet transactions are strictly blocked.</li>
-              </ul>
             </div>
           </div>
         )}

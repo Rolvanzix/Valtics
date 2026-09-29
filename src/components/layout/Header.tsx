@@ -6,7 +6,7 @@ import { AddressBadge } from '../common/AddressBadge';
 import { formatCurrency } from '../../utils/format';
 import { ValticsMark } from '../brand/ValticsLogo';
 
-export type NavigationTab = 'overview' | 'explore-assets' | 'markets' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity';
+export type NavigationTab = 'overview' | 'explore-assets' | 'markets' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity' | 'agent';
 
 interface HeaderProps {
   activeTab: NavigationTab;
@@ -26,12 +26,13 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'overview', label: 'Overview' },
     { id: 'explore-assets', label: 'Explore assets' },
     { id: 'markets', label: 'Explore markets' },
+    { id: 'agent', label: 'Valtics Agent', badge: 'AI' },
     { id: 'create', label: 'Create market' },
     { id: 'my-markets', label: 'Dashboard' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-[#090d14]/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-[#670CDC]/20 bg-[#09011B]/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand & Tagline */}
         <div className="flex items-center gap-6">
@@ -43,14 +44,14 @@ export const Header: React.FC<HeaderProps> = ({
             <ValticsMark size={32} glow className="transition-transform group-hover:scale-105" />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base tracking-tight text-zinc-100 font-sans group-hover:text-white transition-colors">
+                <span className="font-extrabold text-base tracking-tight text-[#F7F3FF] font-sans group-hover:text-white transition-colors">
                   VALTICS
                 </span>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-zinc-800/80 text-amber-400 border border-amber-500/20">
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-[#1C0142] text-[#F99225] border border-[#F99225]/30">
                   DBC Core
                 </span>
               </div>
-              <p className="text-[10px] text-zinc-400 hidden sm:block tracking-tight font-medium">
+              <p className="text-[10px] text-[#B8A9CC] hidden sm:block tracking-tight font-medium">
                 Create programmable markets around tokenized assets
               </p>
             </div>
@@ -66,8 +67,8 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => onSelectTab(item.id)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                   activeTab === item.id
-                    ? 'bg-zinc-800 text-zinc-100 shadow-xs'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+                    ? 'bg-[#3B0489]/70 text-[#F7F3FF] shadow-xs border border-[#670CDC]/40'
+                    : 'text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142]/60'
                 }`}
               >
                 {item.label}

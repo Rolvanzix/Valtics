@@ -162,8 +162,6 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
 
   const mintAddress = pool.baseMint || screenerAsset?.mintAddress || pool.poolAddress;
 
-  const isMainnetEnv = network === 'mainnet';
-
   return (
     <div className="max-w-5xl mx-auto space-y-6 font-sans text-zinc-200 pb-16">
       {/* 1. Top Navigation & Primary Actions */}
@@ -379,7 +377,7 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
           <div className="p-3 rounded-lg bg-[#0c111c] border border-zinc-800/80 space-y-1">
             <span className="text-zinc-500 block text-[10px] font-mono uppercase">Execution Environment</span>
             <div className="font-semibold text-zinc-200">
-              {isMainnetEnv ? 'Solana Mainnet' : 'Solana Devnet'}
+              Solana Devnet
             </div>
             <p className="text-[11px] text-zinc-500">
               Meteora Dynamic Bonding Curve

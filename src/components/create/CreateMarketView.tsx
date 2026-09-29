@@ -17,7 +17,6 @@ import {
 import { CurveModelParams } from '../../types';
 import { useNetwork } from '../../context/NetworkContext';
 import { QUOTE_MINTS } from '../../config/constants';
-import { BlockchainContextBar } from '../common/BlockchainContextBar';
 
 interface CreateMarketViewProps {
   initialParams?: CurveModelParams | null;
@@ -27,12 +26,11 @@ interface CreateMarketViewProps {
 }
 
 export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
-  initialParams,
   onSelectTab,
   onOpenWalletModal,
   onSelectMarketDetail,
 }) => {
-  const { network, isMainnet, environmentStatusMessage } = useNetwork();
+  const { network, environmentStatusMessage } = useNetwork();
   const activeQuoteMints = QUOTE_MINTS.devnet;
 
   // 5 Workflow steps: 1: Asset, 2: Market parameters, 3: Bonding curve, 4: Review, 5: Deploy
@@ -114,28 +112,19 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
             Create Market
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Initialize dynamic bonding curve liquidity and verifiable reference benchmarks.
+            Initialize dynamic bonding curve liquidity and verifiable reference benchmarks on Solana Devnet.
           </p>
         </div>
 
-        <div
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono shrink-0 self-start sm:self-auto ${
-            isMainnet
-              ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold'
-              : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              isMainnet ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
-            }`}
-          />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono shrink-0 self-start sm:self-auto bg-zinc-900 border border-zinc-800 text-zinc-300">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           <span>{environmentStatusMessage}</span>
         </div>
       </div>
@@ -188,6 +177,10 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
           input={configInput}
           onNext={() => goToNextStep(4)}
           onBack={() => goToPrevStep(4)}
+          onEditStep={(step) => {
+            setCurrentStep(step);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
       )}
 

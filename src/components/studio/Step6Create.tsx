@@ -90,6 +90,9 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
     quoteVault: string;
     timestamp: number;
     network: string;
+    marketId?: string;
+    creator?: string;
+    environment?: string;
   } | null>(null);
 
   const [txError, setTxError] = useState<string | null>(null);
@@ -215,7 +218,7 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
     setDeploymentState('signing');
 
     try {
-      // Step A: Signing & Broadcasting
+      // Signing & Broadcasting on Solana Devnet
       const res = await executeAndConfirmPoolTransaction({
         connection,
         prepared,
@@ -234,7 +237,12 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
 
       // Step B: Persist to storage
       const poolState = createPoolStateFromDeployment(res, input, network);
-      saveCreatedMarket(poolState);
+      const testnetMarketId = 'testnet-mkt-' + Math.random().toString(36).substring(2, 10);
+      (poolState as any).marketId = testnetMarketId;
+      (poolState as any).environment = 'testnet';
+      (poolState as any).authenticatedCreatorWallet = publicKeyStr || 'testnet-creator';
+
+      saveCreatedMarket(poolState, 'testnet');
 
       setDeploymentResult({
         txSignature: res.signature,
@@ -244,6 +252,9 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
         quoteVault: res.quoteVaultAddress,
         timestamp: Date.now(),
         network,
+        marketId: testnetMarketId,
+        creator: publicKeyStr || 'testnet-creator',
+        environment: 'testnet',
       });
 
       setDeploymentState('success');
@@ -553,6 +564,48 @@ export const Step6Create: React.FC<Step6CreateProps> = ({
 
           {/* Deployment Credentials & Identifiers */}
           <div className="space-y-3 bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-5 font-mono text-xs">
+            {/* Unique Market ID */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-zinc-800/60">
+              <span className="font-sans text-zinc-400">Unique Market ID</span>
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-400 font-bold truncate max-w-[280px]">
+                  {deploymentResult.marketId || `${deploymentResult.environment || 'testnet'}-mkt-${deploymentResult.poolAddress.slice(0, 8)}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(deploymentResult.marketId || '', 'mkt_id')}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  {copiedKey === 'mkt_id' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Environment Identifier */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-zinc-800/60">
+              <span className="font-sans text-zinc-400">Target Environment</span>
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-zinc-800 text-amber-300 border border-amber-500/30">
+                SOLANA DEVNET
+              </span>
+            </div>
+
+            {/* Authenticated Creator / Controller */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-zinc-800/60">
+              <span className="font-sans text-zinc-400">Recorded Creator Wallet</span>
+              <div className="flex items-center gap-2">
+                <span className="text-white truncate max-w-[280px]">
+                  {deploymentResult.creator || publicKeyStr}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(deploymentResult.creator || publicKeyStr || '', 'creator_wallet')}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  {copiedKey === 'creator_wallet' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+            </div>
+
             {/* Transaction Signature */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-zinc-800/60">
               <span className="font-sans text-zinc-400">Transaction Signature</span>

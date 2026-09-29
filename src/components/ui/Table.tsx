@@ -42,10 +42,10 @@ export function Table<T>({
   const py = dense ? 'py-2' : 'py-3';
 
   return (
-    <div className={`w-full overflow-x-auto rounded-xl border border-zinc-800/90 bg-[#0c1018] ${className}`}>
+    <div className={`w-full overflow-x-auto rounded-xl border border-[#670CDC]/25 bg-[#140130] ${className}`}>
       <table className="w-full text-left text-xs border-collapse">
         {/* Sticky Institutional Table Header */}
-        <thead className="bg-[#090d14] border-b border-zinc-800 text-zinc-400 select-none">
+        <thead className="bg-[#100126] border-b border-[#670CDC]/25 text-[#B8A9CC] select-none">
           <tr>
             {columns.map((col) => {
               const isSorted = sortColumn === col.key;
@@ -59,20 +59,20 @@ export function Table<T>({
                 <th
                   key={col.key}
                   style={{ width: col.width }}
-                  className={`px-4 py-3 font-semibold text-[11px] uppercase tracking-wider text-zinc-400 whitespace-nowrap ${
-                    col.sortable ? 'cursor-pointer hover:text-zinc-200' : ''
+                  className={`px-4 py-3 font-semibold text-[11px] uppercase tracking-wider text-[#B8A9CC] whitespace-nowrap ${
+                    col.sortable ? 'cursor-pointer hover:text-[#F7F3FF]' : ''
                   } ${col.className || ''}`}
                   onClick={() => col.sortable && onSort?.(col.key)}
                 >
                   <div className={`inline-flex items-center gap-1.5 ${alignClass}`}>
                     <span>{col.header}</span>
                     {col.sortable && (
-                      <span className="text-zinc-500">
+                      <span className="text-[#7E6D96]">
                         {isSorted ? (
                           sortDirection === 'asc' ? (
-                            <ChevronUp className="w-3 h-3 text-amber-400" />
+                            <ChevronUp className="w-3 h-3 text-[#F99225]" />
                           ) : (
-                            <ChevronDown className="w-3 h-3 text-amber-400" />
+                            <ChevronDown className="w-3 h-3 text-[#F99225]" />
                           )
                         ) : (
                           <ChevronsUpDown className="w-3 h-3 opacity-40 hover:opacity-100" />
@@ -87,21 +87,21 @@ export function Table<T>({
         </thead>
 
         {/* Table Body */}
-        <tbody className="divide-y divide-zinc-800/60 text-zinc-200">
+        <tbody className="divide-y divide-[#670CDC]/15 text-[#F7F3FF]">
           {isLoading ? (
             // Skeleton Loader Rows
             Array.from({ length: 5 }).map((_, rIdx) => (
               <tr key={rIdx} className="animate-pulse">
                 {columns.map((col, cIdx) => (
                   <td key={cIdx} className={`px-4 ${py}`}>
-                    <Skeleton className="h-4 w-3/4 rounded" />
+                    <Skeleton className="h-4 w-3/4 rounded bg-[#1C0142]" />
                   </td>
                 ))}
               </tr>
             ))
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-12 text-center text-zinc-500">
+              <td colSpan={columns.length} className="px-4 py-12 text-center text-[#7E6D96]">
                 {emptyState || 'No records found'}
               </td>
             </tr>
@@ -112,8 +112,8 @@ export function Table<T>({
                 onClick={() => onRowClick?.(row)}
                 className={`transition-colors ${
                   onRowClick
-                    ? 'hover:bg-[#121824] cursor-pointer active:bg-[#151c2a]'
-                    : 'hover:bg-zinc-900/40'
+                    ? 'hover:bg-[#1E0247] cursor-pointer active:bg-[#250355]'
+                    : 'hover:bg-[#1A023E]/50'
                 }`}
               >
                 {columns.map((col) => {

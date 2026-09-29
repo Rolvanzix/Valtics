@@ -36,29 +36,29 @@ export const Badge: React.FC<BadgeProps> = ({
   }[size];
 
   const variantStyles = {
-    neutral: 'bg-zinc-800/60 text-zinc-300 border-zinc-800',
-    positive: 'bg-emerald-950/30 text-emerald-300 border-emerald-800/30',
-    negative: 'bg-rose-950/30 text-rose-300 border-rose-800/30',
-    warning: 'bg-amber-950/30 text-amber-300 border-amber-800/30',
-    accent: 'bg-violet-950/30 text-violet-300 border-violet-800/30',
-    brand: 'bg-violet-950/40 text-violet-200 border-violet-800/40 font-medium',
+    neutral: 'bg-[#1C0142] text-[#B8A9CC] border-[#670CDC]/25',
+    positive: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/40',
+    negative: 'bg-[#BA3351]/20 text-[#FF9EAF] border-[#BA3351]/40',
+    warning: 'bg-[#F99225]/15 text-[#F99225] border-[#F99225]/35',
+    accent: 'bg-[#D76EDD]/15 text-[#D76EDD] border-[#D76EDD]/35',
+    brand: 'bg-[#3B0489]/50 text-[#F7F3FF] border-[#670CDC]/60 font-semibold shadow-xs shadow-[#670CDC]/20',
     live: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/40 font-medium',
-    graduated: 'bg-sky-950/40 text-sky-300 border-sky-800/40 font-medium',
-    migrating: 'bg-amber-950/40 text-amber-300 border-amber-800/40 font-medium',
-    draft: 'bg-zinc-900/60 text-zinc-400 border-zinc-800/60',
+    graduated: 'bg-[#670CDC]/25 text-[#E6DCFA] border-[#670CDC]/40 font-medium',
+    migrating: 'bg-[#F99225]/20 text-[#F99225] border-[#F99225]/40 font-medium',
+    draft: 'bg-[#140130] text-[#7E6D96] border-[#670CDC]/20',
   }[variant];
 
   const dotColors = {
-    neutral: 'bg-zinc-400',
+    neutral: 'bg-[#B8A9CC]',
     positive: 'bg-emerald-400',
-    negative: 'bg-rose-400',
-    warning: 'bg-amber-400',
-    accent: 'bg-violet-400',
-    brand: 'bg-violet-400',
+    negative: 'bg-[#BA3351]',
+    warning: 'bg-[#F99225]',
+    accent: 'bg-[#D76EDD]',
+    brand: 'bg-[#670CDC]',
     live: 'bg-emerald-400',
-    graduated: 'bg-sky-400',
-    migrating: 'bg-amber-400',
-    draft: 'bg-zinc-500',
+    graduated: 'bg-[#D76EDD]',
+    migrating: 'bg-[#F99225]',
+    draft: 'bg-[#7E6D96]',
   }[variant];
 
   return (

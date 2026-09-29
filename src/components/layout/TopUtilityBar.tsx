@@ -27,6 +27,7 @@ interface TopUtilityBarProps {
   onOpenMobileMenu?: () => void;
   onSearchQuery?: (q: string) => void;
   onOpenPrimer?: () => void;
+  onReturnToLanding?: () => void;
 }
 
 export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
@@ -36,6 +37,7 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
   onOpenMobileMenu,
   onSearchQuery,
   onOpenPrimer,
+  onReturnToLanding,
 }) => {
   const { connected, publicKeyStr, balanceSol, disconnect, walletName, isWrongNetwork } = useWallet();
   const { currentNetwork, supportedNetworks, selectNetwork, latencyMs } = useNetwork();
@@ -82,7 +84,18 @@ export const TopUtilityBar: React.FC<TopUtilityBarProps> = ({
 
       {/* Right side controls: Network switcher, Latency, Wallet, Inspector Toggle */}
       <div className="flex items-center gap-1.5 sm:gap-2.5">
-        {/* Reusable Environment Switch: [ TESTNET ] [ MAINNET ] */}
+        {onReturnToLanding && (
+          <button
+            type="button"
+            onClick={onReturnToLanding}
+            title="Return to Valtics Website"
+            className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 rounded-md border border-zinc-800 transition-colors cursor-pointer"
+          >
+            <span>Website</span>
+          </button>
+        )}
+
+        {/* Devnet Cluster Indicator */}
         <EnvironmentSwitch />
 
         {/* Connected Wallet Pill or Connect Button */}
