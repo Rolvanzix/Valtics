@@ -111,53 +111,53 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-xl border border-zinc-800 bg-[#090d14]/90 p-5 space-y-3">
+      <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-5 space-y-3 shadow-md shadow-[#09011B]/60">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#100126] text-[#D76EDD] border border-[#670CDC]/30">
               GUIDED MARKET ARCHITECT
             </span>
-            <span className="text-xs text-zinc-500 font-mono">Step {currentStep} of 10</span>
+            <span className="text-xs text-[#7E6D96] font-mono">Step {currentStep} of 10</span>
           </div>
-          <span className="text-xs font-mono text-zinc-400 font-semibold">
+          <span className="text-xs font-mono text-[#EDE4FA] font-semibold">
             {STEPS[currentStep - 1]}
           </span>
         </div>
 
         {/* Step Progress Bar */}
-        <div className="w-full h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+        <div className="w-full h-1.5 rounded-full bg-[#100126] overflow-hidden border border-[#670CDC]/20">
           <div
-            className="h-full bg-linear-to-r from-emerald-500 to-cyan-400 transition-all duration-300"
+            className="h-full bg-linear-to-r from-[#670CDC] via-[#BA3351] to-[#F99225] transition-all duration-300"
             style={{ width: `${(currentStep / 10) * 100}%` }}
           />
         </div>
       </div>
 
       {/* Main Guided Step Workspace */}
-      <div className="rounded-xl border border-zinc-800 bg-[#090d14]/80 p-6 space-y-6">
+      <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-6 space-y-6 shadow-md shadow-[#09011B]/60">
         {/* Step 1: Market Idea */}
         {currentStep === 1 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">1. Market Idea & Token Asset Concept</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">1. Market Idea & Token Asset Concept</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 What asset, debt instrument, or financial utility are you introducing to the programmable market?
               </p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-mono text-zinc-400">Market Title / Project Name</label>
+              <label className="text-xs font-mono text-[#B8A9CC]">Market Title / Project Name</label>
               <input
                 type="text"
                 value={form.marketIdea}
                 onChange={(e) => setForm({ ...form, marketIdea: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 focus:border-emerald-500/50 rounded-lg p-2.5 text-xs text-zinc-100"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] placeholder-[#7E6D96] focus:outline-hidden"
                 placeholder="e.g. US Treasury 3-Month Bill Yield Token"
               />
             </div>
 
-            <div className="bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-800/80 text-xs text-zinc-400 space-y-1.5 font-sans">
-              <span className="font-semibold text-emerald-400 font-mono text-[11px] block uppercase">
+            <div className="bg-[#100126] p-3.5 rounded-lg border border-[#670CDC]/20 text-xs text-[#B8A9CC] space-y-1.5 font-sans">
+              <span className="font-semibold text-[#F99225] font-mono text-[11px] block uppercase">
                 Agent Guidance:
               </span>
               <p>
@@ -171,8 +171,8 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 2 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">2. Underlying Subject & Asset Archetype</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">2. Underlying Subject & Asset Archetype</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 Select the underlying asset class to calibrate baseline curve volatility and spread.
               </p>
             </div>
@@ -185,12 +185,12 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
                   onClick={() => setForm({ ...form, assetCategory: cat })}
                   className={`p-3 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
                     form.assetCategory === cat
-                      ? 'border-emerald-500 bg-emerald-950/20 text-white font-medium'
-                      : 'border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400'
+                      ? 'border-[#670CDC] bg-[#1C0142] text-[#F7F3FF] font-medium shadow-md shadow-[#670CDC]/20'
+                      : 'border-[#670CDC]/20 bg-[#100126] hover:border-[#670CDC]/40 text-[#B8A9CC]'
                   }`}
                 >
-                  <span className="font-semibold block text-zinc-200">{cat}</span>
-                  <span className="text-[11px] text-zinc-500 font-sans mt-0.5 block">
+                  <span className="font-semibold block text-[#F7F3FF]">{cat}</span>
+                  <span className="text-[11px] text-[#7E6D96] font-sans mt-0.5 block">
                     {cat === 'Treasuries'
                       ? 'Par NAV anchored, low fee spread'
                       : cat === 'Private Credit'
@@ -204,12 +204,12 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-zinc-400">Underlying Collateral / Entity Description</label>
+              <label className="text-xs font-mono text-[#B8A9CC]">Underlying Collateral / Entity Description</label>
               <input
                 type="text"
                 value={form.assetSubject}
                 onChange={(e) => setForm({ ...form, assetSubject: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-100"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] focus:outline-hidden"
               />
             </div>
           </div>
@@ -219,8 +219,8 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 3 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">3. Market Question & Pricing Thesis</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">3. Market Question & Pricing Thesis</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 What is the economic thesis governing this programmable bonding curve?
               </p>
             </div>
@@ -229,11 +229,11 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
               rows={3}
               value={form.marketQuestion}
               onChange={(e) => setForm({ ...form, marketQuestion: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-100 font-sans leading-relaxed"
+              className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-3 text-xs text-[#EDE4FA] font-sans leading-relaxed focus:outline-hidden"
             />
 
-            <div className="bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-800 text-xs text-zinc-400 space-y-1">
-              <span className="text-purple-400 font-mono text-[11px] font-semibold block uppercase">
+            <div className="bg-[#100126] p-3.5 rounded-lg border border-[#670CDC]/20 text-xs text-[#B8A9CC] space-y-1">
+              <span className="text-[#D76EDD] font-mono text-[11px] font-semibold block uppercase">
                 Agent Ambiguity Check:
               </span>
               <p>
@@ -247,38 +247,38 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 4 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">4. Possible Outcomes & Valuation Bounds</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">4. Possible Outcomes & Valuation Bounds</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 Define the initial spot price and target graduation market capitalization.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs text-zinc-400">Initial Spot Price ($)</label>
+                <label className="text-xs text-[#B8A9CC]">Initial Spot Price ($)</label>
                 <input
                   type="number"
                   step="0.05"
                   value={form.startPrice}
                   onChange={(e) => setForm({ ...form, startPrice: parseFloat(e.target.value) || 1.0 })}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-100 font-mono"
+                  className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] font-mono focus:outline-hidden"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs text-zinc-400">Target Graduation Market Cap ($)</label>
+                <label className="text-xs text-[#B8A9CC]">Target Graduation Market Cap ($)</label>
                 <input
                   type="number"
                   step="1000000"
                   value={form.targetGraduationCap}
                   onChange={(e) => setForm({ ...form, targetGraduationCap: parseFloat(e.target.value) || 12000000 })}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-100 font-mono"
+                  className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] font-mono focus:outline-hidden"
                 />
               </div>
             </div>
 
-            <div className="text-xs text-zinc-400 font-mono bg-zinc-950/50 p-3 rounded-lg border border-zinc-800">
-              Supply on Curve: <strong>8,000,000 tokens (80%)</strong> · Starting spot: <strong>${form.startPrice}</strong> · Target Cap: <strong>${(form.targetGraduationCap / 1_000_000).toFixed(1)}M</strong>
+            <div className="text-xs text-[#B8A9CC] font-mono bg-[#100126] p-3 rounded-lg border border-[#670CDC]/20">
+              Supply on Curve: <strong className="text-[#F7F3FF]">8,000,000 tokens (80%)</strong> · Starting spot: <strong className="text-[#F99225]">${form.startPrice}</strong> · Target Cap: <strong className="text-[#F7F3FF]">${(form.targetGraduationCap / 1_000_000).toFixed(1)}M</strong>
             </div>
           </div>
         )}
@@ -287,8 +287,8 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 5 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">5. Resolution Condition & DAMM Migration</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">5. Resolution Condition & DAMM Migration</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 What triggers the transition from bonding curve to permanent automated market maker liquidity?
               </p>
             </div>
@@ -297,7 +297,7 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
               rows={3}
               value={form.resolutionCondition}
               onChange={(e) => setForm({ ...form, resolutionCondition: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-100 font-sans leading-relaxed"
+              className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-3 text-xs text-[#EDE4FA] font-sans leading-relaxed focus:outline-hidden"
             />
           </div>
         )}
@@ -306,8 +306,8 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 6 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">6. Resolution Data Source & Oracles</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">6. Resolution Data Source & Oracles</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 On-chain authority and oracle feed verifying reserves and graduation metrics.
               </p>
             </div>
@@ -316,10 +316,10 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
               type="text"
               value={form.resolutionDataSource}
               onChange={(e) => setForm({ ...form, resolutionDataSource: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-100 font-mono"
+              className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] font-mono focus:outline-hidden"
             />
 
-            <div className="text-xs text-zinc-400 space-y-1 bg-zinc-950/50 p-3 rounded-lg border border-zinc-800">
+            <div className="text-xs text-[#B8A9CC] space-y-1 bg-[#100126] p-3 rounded-lg border border-[#670CDC]/20">
               <span className="text-emerald-400 font-mono text-[11px] font-semibold block uppercase">
                 Deterministic Settlement:
               </span>
@@ -334,33 +334,33 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 7 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">7. Time Boundary & Rate Limiting Safeguards</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">7. Time Boundary & Rate Limiting Safeguards</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 Configure anti-sniper slot protection and post-graduation liquidity vesting lock duration.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs text-zinc-400">Anti-Sniper Window (Slots)</label>
+                <label className="text-xs text-[#B8A9CC]">Anti-Sniper Window (Slots)</label>
                 <input
                   type="number"
                   value={form.antiSniperSlots}
                   onChange={(e) => setForm({ ...form, antiSniperSlots: parseInt(e.target.value, 10) || 40 })}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-100 font-mono"
+                  className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] font-mono focus:outline-hidden"
                 />
-                <span className="text-[10px] text-zinc-500 font-mono">40 slots ≈ 16 seconds of rate-limited buys</span>
+                <span className="text-[10px] text-[#7E6D96] font-mono">40 slots ≈ 16 seconds of rate-limited buys</span>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs text-zinc-400">DAMM Liquidity Lock (Days)</label>
+                <label className="text-xs text-[#B8A9CC]">DAMM Liquidity Lock (Days)</label>
                 <input
                   type="number"
                   value={form.liquidityLockDays}
                   onChange={(e) => setForm({ ...form, liquidityLockDays: parseInt(e.target.value, 10) || 90 })}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-100 font-mono"
+                  className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg p-2.5 text-xs text-[#EDE4FA] font-mono focus:outline-hidden"
                 />
-                <span className="text-[10px] text-zinc-500 font-mono">Locks LP tokens post-migration</span>
+                <span className="text-[10px] text-[#7E6D96] font-mono">Locks LP tokens post-migration</span>
               </div>
             </div>
           </div>
@@ -370,20 +370,20 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 8 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">8. Edge Cases & Ambiguity Verification</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">8. Edge Cases & Ambiguity Verification</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 The Agent has audited your market definition against common liquidity failure modes:
               </p>
             </div>
 
             <div className="space-y-3">
               {form.ambiguityChecklist.map((item, idx) => (
-                <div key={idx} className="bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-800 space-y-1.5">
+                <div key={idx} className="bg-[#100126] p-3.5 rounded-lg border border-[#670CDC]/20 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="font-semibold text-xs text-zinc-200">{item.text}</span>
+                    <span className="font-semibold text-xs text-[#F7F3FF]">{item.text}</span>
                   </div>
-                  <p className="text-[11px] text-zinc-400 pl-6 font-sans">{item.mitigation}</p>
+                  <p className="text-[11px] text-[#B8A9CC] pl-6 font-sans">{item.mitigation}</p>
                 </div>
               ))}
             </div>
@@ -394,36 +394,36 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 9 && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">9. Comprehensive Parameter Synthesis</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">9. Comprehensive Parameter Synthesis</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 Review the finalized Meteora DBC configuration before entering user approval.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono bg-zinc-950/60 p-4 rounded-xl border border-zinc-800">
+            <div className="grid grid-cols-2 gap-3 text-xs font-mono bg-[#100126] p-4 rounded-xl border border-[#670CDC]/25">
               <div>
-                <span className="text-zinc-500 text-[10px] block uppercase">Asset Concept</span>
-                <span className="text-zinc-200 font-semibold">{form.marketIdea}</span>
+                <span className="text-[#7E6D96] text-[10px] block uppercase">Asset Concept</span>
+                <span className="text-[#F7F3FF] font-semibold">{form.marketIdea}</span>
               </div>
               <div>
-                <span className="text-zinc-500 text-[10px] block uppercase">Category</span>
-                <span className="text-zinc-200 font-semibold">{form.assetCategory}</span>
+                <span className="text-[#7E6D96] text-[10px] block uppercase">Category</span>
+                <span className="text-[#F7F3FF] font-semibold">{form.assetCategory}</span>
               </div>
               <div>
-                <span className="text-zinc-500 text-[10px] block uppercase">Curve Shape</span>
-                <span className="text-emerald-400 font-semibold uppercase">{form.curveType}</span>
+                <span className="text-[#7E6D96] text-[10px] block uppercase">Curve Shape</span>
+                <span className="text-[#D76EDD] font-semibold uppercase">{form.curveType}</span>
               </div>
               <div>
-                <span className="text-zinc-500 text-[10px] block uppercase">Trading Fee</span>
-                <span className="text-zinc-200 font-semibold">{form.feeBps} bps (0.25%)</span>
+                <span className="text-[#7E6D96] text-[10px] block uppercase">Trading Fee</span>
+                <span className="text-[#F7F3FF] font-semibold">{form.feeBps} bps (0.25%)</span>
               </div>
               <div>
-                <span className="text-zinc-500 text-[10px] block uppercase">Quote Mint</span>
-                <span className="text-zinc-200 font-semibold">Devnet {form.quoteAsset}</span>
+                <span className="text-[#7E6D96] text-[10px] block uppercase">Quote Mint</span>
+                <span className="text-[#F99225] font-semibold">Devnet {form.quoteAsset}</span>
               </div>
               <div>
-                <span className="text-zinc-500 text-[10px] block uppercase">Target Cap</span>
-                <span className="text-zinc-200 font-semibold">${(form.targetGraduationCap / 1_000_000).toFixed(1)}M</span>
+                <span className="text-[#7E6D96] text-[10px] block uppercase">Target Cap</span>
+                <span className="text-[#F7F3FF] font-semibold">${(form.targetGraduationCap / 1_000_000).toFixed(1)}M</span>
               </div>
             </div>
           </div>
@@ -433,22 +433,22 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         {currentStep === 10 && (
           <div className="space-y-5 max-w-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white font-sans">10. User Approval & Non-Custodial Hand-off</h3>
-              <p className="text-xs text-zinc-400">
+              <h3 className="text-base font-bold text-[#F7F3FF] font-sans">10. User Approval & Non-Custodial Hand-off</h3>
+              <p className="text-xs text-[#B8A9CC]">
                 Verify authorization before pre-filling the native VALTICS Market Creation transaction stepper.
               </p>
             </div>
 
-            <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 space-y-3">
+            <div className="rounded-xl border border-[#670CDC]/30 bg-[#100126] p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                <div className="space-y-1 text-xs text-zinc-300">
-                  <h4 className="font-bold text-emerald-300 font-mono">NON-CUSTODIAL EXECUTION GUARANTEE</h4>
+                <div className="space-y-1 text-xs text-[#B8A9CC]">
+                  <h4 className="font-bold text-[#F7F3FF] font-mono">NON-CUSTODIAL EXECUTION GUARANTEE</h4>
                   <p>
-                    VALTICS Agent will <strong>NEVER</strong> automatically submit or broadcast a blockchain transaction.
+                    VALTICS Agent will <strong className="text-[#F7F3FF]">NEVER</strong> automatically submit or broadcast a blockchain transaction.
                   </p>
-                  <p className="text-zinc-400">
-                    By clicking <strong>Approve & Export</strong> below, these parameters will be safely passed into the native VALTICS Market Creator where you will inspect the preflight checks and approve the transaction with your own wallet.
+                  <p className="text-[#B8A9CC]">
+                    By clicking <strong className="text-[#F7F3FF]">Approve & Export</strong> below, these parameters will be safely passed into the native VALTICS Market Creator where you will inspect the preflight checks and approve the transaction with your own wallet.
                   </p>
                 </div>
               </div>
@@ -458,7 +458,7 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
               <button
                 type="button"
                 onClick={handleExport}
-                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                className="w-full py-3 px-4 rounded-xl bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#F99225]/25"
               >
                 <span>Approve & Export to Market Creator</span>
                 <ArrowRight className="w-4 h-4" />
@@ -468,12 +468,12 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
         )}
 
         {/* Stepper Navigation Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-zinc-800/80">
+        <div className="flex items-center justify-between pt-4 border-t border-[#670CDC]/20">
           <button
             type="button"
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="px-3.5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3.5 py-2 rounded-lg bg-[#1C0142] hover:bg-[#26035A] text-[#EDE4FA] border border-[#670CDC]/30 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Previous Step</span>
@@ -483,7 +483,7 @@ export const AgentMarketCreationWizard: React.FC<AgentMarketCreationWizardProps>
             <button
               type="button"
               onClick={nextStep}
-              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-4 py-2 rounded-lg bg-[#670CDC] hover:bg-[#7C18F0] text-[#F7F3FF] text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#670CDC]/30"
             >
               <span>Next: {STEPS[currentStep]}</span>
               <ArrowRight className="w-3.5 h-3.5" />

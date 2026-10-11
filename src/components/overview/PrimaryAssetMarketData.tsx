@@ -201,44 +201,44 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
                   setSelectedAssetId(e.target.value);
                   setHoveredPointIndex(null);
                 }}
-                className="bg-transparent text-sm font-semibold text-zinc-100 focus:outline-none cursor-pointer font-sans appearance-none pr-4 hover:text-white transition-colors"
+                className="bg-transparent text-sm font-semibold text-[#F7F3FF] focus:outline-none cursor-pointer font-sans appearance-none pr-4 hover:text-white transition-colors"
                 style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B8A9CC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'right center',
                 }}
               >
-                <option value="pyth:sol_usd" className="bg-[#090e18] text-zinc-200">SOL / USD · Settlement Benchmark</option>
-                <option value="pyth:btc_usd" className="bg-[#090e18] text-zinc-200">BTC / USD · Collateral Benchmark</option>
+                <option value="pyth:sol_usd" className="bg-[#140130] text-[#EDE4FA]">SOL / USD · Settlement Benchmark</option>
+                <option value="pyth:btc_usd" className="bg-[#140130] text-[#EDE4FA]">BTC / USD · Collateral Benchmark</option>
                 {markets.map((m) => (
-                  <option key={m.poolAddress} value={`pool:${m.poolAddress}`} className="bg-[#090e18] text-zinc-200">
+                  <option key={m.poolAddress} value={`pool:${m.poolAddress}`} className="bg-[#140130] text-[#EDE4FA]">
                     {m.tokenSymbol || m.symbol} · {m.tokenName || m.name}
                   </option>
                 ))}
               </select>
             ) : (
-              <span className="font-sans font-semibold text-sm text-zinc-200">
+              <span className="font-sans font-semibold text-sm text-[#F7F3FF]">
                 {asset.name}
               </span>
             )}
 
-            <span className="font-mono text-xs text-zinc-400">
+            <span className="font-mono text-xs text-[#F99225]">
               {asset.symbol}
             </span>
 
-            <span className="text-zinc-600 text-xs font-sans">·</span>
-            <span className="text-xs text-zinc-400 font-sans">
+            <span className="text-[#7E6D96] text-xs font-sans">·</span>
+            <span className="text-xs text-[#B8A9CC] font-sans">
               {asset.description}
             </span>
           </div>
 
           <div className="flex items-baseline gap-3 pt-0.5">
-            <div className="font-mono text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            <div className="font-mono text-3xl sm:text-4xl font-bold text-[#F7F3FF] tracking-tight">
               {activePrice !== null && activePrice > 0 ? formatCurrency(activePrice) : '—'}
             </div>
 
             {activeTimeLabel ? (
-              <span className="font-mono text-xs text-zinc-400">
+              <span className="font-mono text-xs text-[#B8A9CC]">
                 {activeTimeLabel}
               </span>
             ) : asset.change !== null && asset.changePct !== null ? (
@@ -249,10 +249,10 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
               >
                 <span>{isPositiveChange ? '+' : ''}{asset.change.toFixed(2)}</span>
                 <span>({isPositiveChange ? '+' : ''}{asset.changePct.toFixed(2)}%)</span>
-                <span className="text-zinc-400 font-sans ml-0.5">24h</span>
+                <span className="text-[#7E6D96] font-sans ml-0.5">24h</span>
               </div>
             ) : (
-              <span className="text-xs text-zinc-500 font-mono">—</span>
+              <span className="text-xs text-[#7E6D96] font-mono">—</span>
             )}
           </div>
         </div>
@@ -271,8 +271,8 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
                 }}
                 className={`px-2 py-0.5 text-xs font-mono rounded transition-colors cursor-pointer ${
                   isSelected
-                    ? 'text-amber-400 font-semibold bg-[#111927]'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'text-[#F99225] font-semibold bg-[#240A36] border border-[#F99225]/30'
+                    : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
                 }`}
               >
                 {tf}
@@ -286,18 +286,18 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
       <div className="relative w-full h-[150px] select-none">
         {/* Subtle Horizontal Reference Limits */}
         <div className="absolute inset-0 flex flex-col justify-between pointer-events-none py-2">
-          <div className="border-b border-[#121927]/60 w-full flex justify-end pr-1">
-            <span className="text-[10px] font-mono text-zinc-400">
+          <div className="border-b border-[#670CDC]/20 w-full flex justify-end pr-1">
+            <span className="text-[10px] font-mono text-[#7E6D96]">
               {formatCurrency(chartBounds.max)}
             </span>
           </div>
-          <div className="border-b border-[#121927]/30 w-full flex justify-end pr-1">
-            <span className="text-[10px] font-mono text-zinc-400">
+          <div className="border-b border-[#670CDC]/15 w-full flex justify-end pr-1">
+            <span className="text-[10px] font-mono text-[#7E6D96]">
               {formatCurrency((chartBounds.max + chartBounds.min) / 2)}
             </span>
           </div>
-          <div className="border-b border-[#121927]/60 w-full flex justify-end pr-1">
-            <span className="text-[10px] font-mono text-zinc-400">
+          <div className="border-b border-[#670CDC]/20 w-full flex justify-end pr-1">
+            <span className="text-[10px] font-mono text-[#7E6D96]">
               {formatCurrency(chartBounds.min)}
             </span>
           </div>
@@ -315,7 +315,7 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
             <path
               d={svgPath}
               fill="none"
-              stroke="#f59e0b"
+              stroke="#F99225"
               strokeWidth="1.25"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -329,7 +329,8 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
                 y1={paddingY}
                 x2={svgCoordinates[hoveredPointIndex].x}
                 y2={height - paddingY}
-                stroke="#334155"
+                stroke="#670CDC"
+                strokeOpacity="0.4"
                 strokeWidth="1"
                 strokeDasharray="2 2"
               />
@@ -337,8 +338,8 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
                 cx={svgCoordinates[hoveredPointIndex].x}
                 cy={svgCoordinates[hoveredPointIndex].y}
                 r="3"
-                fill="#f59e0b"
-                stroke="#070b14"
+                fill="#F99225"
+                stroke="#09011B"
                 strokeWidth="1.5"
               />
             </g>
@@ -347,31 +348,31 @@ export const PrimaryAssetMarketData: React.FC<PrimaryAssetMarketDataProps> = ({
       </div>
 
       {/* 3. Subordinated Supporting Market Information (Single Clean Row) */}
-      <div className="pt-2 border-t border-[#121a28] flex items-center justify-between text-xs text-zinc-400 font-sans">
+      <div className="pt-2 border-t border-[#670CDC]/20 flex items-center justify-between text-xs text-[#B8A9CC] font-sans">
         <div className="flex items-center gap-4">
           {asset.confidence !== undefined && (
-            <span className="font-mono text-zinc-300">
+            <span className="font-mono text-[#EDE4FA]">
               Confidence ±${asset.confidence.toFixed(3)}
             </span>
           )}
 
           {asset.referencePrice !== null && (
             <span>
-              NAV <span className="font-mono text-zinc-300">{formatCurrency(asset.referencePrice)}</span>
+              NAV <span className="font-mono text-[#EDE4FA]">{formatCurrency(asset.referencePrice)}</span>
             </span>
           )}
 
           {asset.spreadToNavPct !== null && (
             <span>
               Spread{' '}
-              <span className="font-mono text-zinc-300">
+              <span className="font-mono text-[#EDE4FA]">
                 {asset.spreadToNavPct > 0 ? '+' : ''}{asset.spreadToNavPct.toFixed(2)}%
               </span>
             </span>
           )}
         </div>
 
-        <span className="text-[11px] text-zinc-400">
+        <span className="text-[11px] text-[#7E6D96]">
           Pyth Network oracle infrastructure
         </span>
       </div>

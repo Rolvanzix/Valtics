@@ -38,7 +38,7 @@ export const PoolDetailModal: React.FC<PoolDetailModalProps> = ({
             href={getExplorerUrl(pool.poolAddress, 'address', network)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5 transition-colors"
+            className="text-xs text-[#B8A9CC] hover:text-[#F7F3FF] flex items-center gap-1.5 transition-colors font-medium"
           >
             <span>View on Solana Explorer</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -75,13 +75,13 @@ export const PoolDetailModal: React.FC<PoolDetailModalProps> = ({
               Active Dynamic Curve
             </Badge>
           )}
-          <span className="text-zinc-500 font-mono text-xs ml-auto">
+          <span className="text-[#B8A9CC] font-mono text-xs ml-auto">
             {pool.tokenSymbol || 'TKN'}
           </span>
         </div>
 
         {/* Gauge + Core Telemetry */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center bg-[#090d14] p-4 rounded-xl border border-zinc-800">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center bg-[#140130] p-4 rounded-xl border border-[#670CDC]/25">
           <div className="sm:col-span-5 flex justify-center">
             <GraduationGauge
               currentPct={pool.quoteCurveProgressPct}
@@ -90,24 +90,24 @@ export const PoolDetailModal: React.FC<PoolDetailModalProps> = ({
             />
           </div>
 
-          <div className="sm:col-span-7 space-y-2.5 text-xs font-mono-nums border-t sm:border-t-0 sm:border-l border-zinc-800/80 pt-3 sm:pt-0 sm:pl-4">
-            <div className="flex justify-between py-1 border-b border-zinc-800/40">
-              <span className="text-zinc-400 font-sans">Current Spot Price:</span>
-              <span className="font-bold text-amber-400 text-sm">
+          <div className="sm:col-span-7 space-y-2.5 text-xs font-mono-nums border-t sm:border-t-0 sm:border-l border-[#670CDC]/20 pt-3 sm:pt-0 sm:pl-4">
+            <div className="flex justify-between py-1 border-b border-[#670CDC]/15">
+              <span className="text-[#B8A9CC] font-sans">Current Spot Price:</span>
+              <span className="font-bold text-[#F99225] text-sm">
                 {formatCurrency(pool.currentPrice)}
               </span>
             </div>
-            <div className="flex justify-between py-1 border-b border-zinc-800/40">
-              <span className="text-zinc-400 font-sans">Base Trading Fee:</span>
-              <span className="text-zinc-200">{formatBps(pool.baseFeeBps)}</span>
+            <div className="flex justify-between py-1 border-b border-[#670CDC]/15">
+              <span className="text-[#B8A9CC] font-sans">Base Trading Fee:</span>
+              <span className="text-[#F7F3FF]">{formatBps(pool.baseFeeBps)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-zinc-800/40">
-              <span className="text-zinc-400 font-sans">Migration Target:</span>
-              <span className="text-zinc-200">{pool.migrationOptionLabel}</span>
+            <div className="flex justify-between py-1 border-b border-[#670CDC]/15">
+              <span className="text-[#B8A9CC] font-sans">Migration Target:</span>
+              <span className="text-[#F7F3FF]">{pool.migrationOptionLabel}</span>
             </div>
             <div className="flex justify-between py-1">
-              <span className="text-zinc-400 font-sans">AMM Status:</span>
-              <span className={pool.isMigrated ? 'text-sky-400 font-semibold' : 'text-amber-400'}>
+              <span className="text-[#B8A9CC] font-sans">AMM Status:</span>
+              <span className={pool.isMigrated ? 'text-violet-400 font-semibold' : 'text-[#F99225]'}>
                 {pool.isMigrated ? 'Graduated & Locked' : 'Accumulating Quote'}
               </span>
             </div>
@@ -115,32 +115,32 @@ export const PoolDetailModal: React.FC<PoolDetailModalProps> = ({
         </div>
 
         {/* On-Chain PDA Account Registry */}
-        <div className="rounded-xl bg-[#090d14] border border-zinc-800 p-4 space-y-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block font-sans">
+        <div className="rounded-xl bg-[#140130] border border-[#670CDC]/25 p-4 space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#B8A9CC] block font-sans">
             Verified On-Chain Accounts
           </span>
           <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-              <span className="text-zinc-400">Pool Account (PDA):</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#670CDC]/20">
+              <span className="text-[#B8A9CC]">Pool Account (PDA):</span>
               <AddressBadge address={pool.poolAddress} head={6} tail={6} />
             </div>
-            <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-              <span className="text-zinc-400">Base Asset Mint:</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#670CDC]/20">
+              <span className="text-[#B8A9CC]">Base Asset Mint:</span>
               <AddressBadge address={pool.baseMint} head={6} tail={6} />
             </div>
-            <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-              <span className="text-zinc-400">Quote Asset Mint:</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#670CDC]/20">
+              <span className="text-[#B8A9CC]">Quote Asset Mint:</span>
               <AddressBadge address={pool.quoteMint} head={6} tail={6} />
             </div>
             {pool.creator && (
-              <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Creator Authority:</span>
+              <div className="flex items-center justify-between py-1 border-b border-[#670CDC]/20">
+                <span className="text-[#B8A9CC]">Creator Authority:</span>
                 <AddressBadge address={pool.creator} head={6} tail={6} />
               </div>
             )}
             {pool.configAddress && (
               <div className="flex items-center justify-between py-1">
-                <span className="text-zinc-400">DBC Curve Config:</span>
+                <span className="text-[#B8A9CC]">DBC Curve Config:</span>
                 <AddressBadge address={pool.configAddress} head={6} tail={6} />
               </div>
             )}

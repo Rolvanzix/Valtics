@@ -63,21 +63,21 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
   ];
 
   return (
-    <div className="flex flex-col h-[720px] rounded-xl border border-zinc-800 bg-[#090d14]/80 backdrop-blur-md overflow-hidden">
+    <div className="flex flex-col h-[720px] rounded-xl border border-[#670CDC]/25 bg-[#140130] backdrop-blur-md overflow-hidden shadow-xl shadow-[#09011B]/60">
       {/* Top Bar with Clear & Status */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/80 bg-zinc-950/40 text-xs">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#670CDC]/20 bg-[#100126] text-xs">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-mono text-zinc-300 font-medium">Agent Interactive Session</span>
-          <span className="text-zinc-600">·</span>
-          <span className="text-[11px] text-zinc-500 font-mono">Model: Gemini 3.8 Flash (Devnet Core)</span>
+          <span className="font-mono text-[#F7F3FF] font-medium">Agent Interactive Session</span>
+          <span className="text-[#670CDC]/60">·</span>
+          <span className="text-[11px] text-[#7E6D96] font-mono">Model: Gemini 3.8 Flash (Devnet Core)</span>
         </div>
 
         <button
           type="button"
           onClick={clearConversation}
           title="Clear conversation history"
-          className="flex items-center gap-1.5 px-2 py-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/60 transition-colors cursor-pointer text-[11px] font-mono"
+          className="flex items-center gap-1.5 px-2 py-1 rounded text-[#7E6D96] hover:text-[#F7F3FF] hover:bg-[#1C0142] transition-colors cursor-pointer text-[11px] font-mono"
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>Clear History</span>
@@ -100,7 +100,7 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
               <div
                 className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-1 select-none ${
                   isUser
-                    ? 'bg-zinc-700 text-zinc-200'
+                    ? 'bg-[#1C0142] border border-[#670CDC]/30 text-[#EDE4FA]'
                     : 'bg-transparent'
                 }`}
               >
@@ -111,8 +111,8 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
               <div
                 className={`flex-1 min-w-0 rounded-xl px-4 py-3.5 text-xs sm:text-[13px] leading-relaxed ${
                   isUser
-                    ? 'bg-zinc-800 text-zinc-100 rounded-tr-xs border border-zinc-700/80'
-                    : 'bg-[#0f141f] text-zinc-200 rounded-tl-xs border border-zinc-800 shadow-md'
+                    ? 'bg-[#670CDC] text-[#F7F3FF] rounded-tr-xs shadow-md shadow-[#670CDC]/20'
+                    : 'bg-[#100126] text-[#EDE4FA] rounded-tl-xs border border-[#670CDC]/25 shadow-md shadow-[#09011B]/40'
                 }`}
               >
                 <div className="prose prose-invert prose-xs max-w-none space-y-2.5">
@@ -121,7 +121,7 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
 
                 {/* Structured Recommendation Action Card (if provided by agent) */}
                 {msg.recommendation && msg.recommendation.curveParams && (
-                  <div className="mt-4 pt-3 border-t border-zinc-800/80">
+                  <div className="mt-4 pt-3 border-t border-[#670CDC]/20">
                     <CurveRecommendationCard
                       recommendation={msg.recommendation}
                       onApply={() => onApplyCurveToCreation(msg.recommendation!.curveParams!)}
@@ -129,7 +129,7 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
                   </div>
                 )}
 
-                <div className="mt-2 text-[10px] text-zinc-500 font-mono text-right">
+                <div className="mt-2 text-[10px] text-[#7E6D96] font-mono text-right">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
@@ -143,7 +143,7 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
             <div className="w-7 h-7 flex items-center justify-center shrink-0 mt-1">
               <ValticsAgentAvatar size="sm" glow={true} />
             </div>
-            <div className="rounded-xl px-4 py-3 bg-[#0f141f] border border-zinc-800 text-zinc-400 text-xs flex items-center gap-2.5">
+            <div className="rounded-xl px-4 py-3 bg-[#100126] border border-[#670CDC]/25 text-[#B8A9CC] text-xs flex items-center gap-2.5">
               <RefreshCw className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
               <span>Analyzing Devnet market data & synthesizing intelligence...</span>
             </div>
@@ -154,15 +154,15 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
       </div>
 
       {/* Quick Prompts Bar */}
-      <div className="px-4 py-2 border-t border-zinc-800/60 bg-zinc-950/20 overflow-x-auto flex items-center gap-1.5 scrollbar-none select-none">
-        <span className="text-[10px] text-zinc-500 font-mono shrink-0 uppercase">Suggested:</span>
+      <div className="px-4 py-2 border-t border-[#670CDC]/20 bg-[#100126] overflow-x-auto flex items-center gap-1.5 scrollbar-none select-none">
+        <span className="text-[10px] text-[#7E6D96] font-mono shrink-0 uppercase">Suggested:</span>
         {quickPrompts.map((prompt, idx) => (
           <button
             key={idx}
             type="button"
             onClick={() => sendMessage(prompt)}
             disabled={isLoading}
-            className="shrink-0 px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 text-[11px] font-sans border border-zinc-800 transition-colors cursor-pointer hover:border-zinc-700 disabled:opacity-50"
+            className="shrink-0 px-2.5 py-1 rounded-full bg-[#140130] hover:bg-[#1C0142] text-[#B8A9CC] hover:text-[#F7F3FF] text-[11px] font-sans border border-[#670CDC]/25 transition-colors cursor-pointer hover:border-[#670CDC]/50 disabled:opacity-50"
           >
             {prompt}
           </button>
@@ -170,12 +170,12 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
       </div>
 
       {/* Input Bar */}
-      <div className="p-3 sm:p-4 border-t border-zinc-800 bg-[#070a10]">
+      <div className="p-3 sm:p-4 border-t border-[#670CDC]/20 bg-[#100126]">
         {/* Error Recovery State */}
         {error && (
-          <div className="mb-3 p-2.5 rounded-lg bg-rose-950/40 border border-rose-800/60 flex items-center justify-between text-xs text-rose-300">
+          <div className="mb-3 p-2.5 rounded-lg bg-[#BA3351]/20 border border-[#BA3351]/40 flex items-center justify-between text-xs text-[#FF9EAF]">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-[#BA3351] shrink-0" />
               <span>{error}</span>
             </div>
             <button
@@ -184,7 +184,7 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
                 const lastUser = [...messages].reverse().find((m) => m.role === 'user');
                 if (lastUser) sendMessage(lastUser.content);
               }}
-              className="px-2.5 py-1 rounded bg-rose-900/60 hover:bg-rose-800 text-rose-100 font-mono text-[11px] cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded bg-[#BA3351]/30 hover:bg-[#BA3351]/50 text-[#F7F3FF] font-mono text-[11px] cursor-pointer transition-colors"
             >
               Retry Query
             </button>
@@ -199,21 +199,21 @@ export const AgentChatView: React.FC<AgentChatViewProps> = ({ onApplyCurveToCrea
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask VALTICS Agent about Devnet markets, bonding curves, or market creation parameters..."
-            className="w-full resize-none bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/50 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden transition-all font-sans max-h-32"
+            className="w-full resize-none bg-[#140130] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-xl px-4 py-2.5 text-xs text-[#EDE4FA] placeholder-[#7E6D96] focus:outline-hidden transition-all font-sans max-h-32"
           />
 
           <button
             type="submit"
             disabled={!inputText.trim() || isLoading}
             aria-label="Send message to VALTICS Agent"
-            className="px-4 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold shrink-0 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 shadow-sm"
+            className="px-4 py-2.5 rounded-xl bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] text-xs font-bold shrink-0 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 shadow-md shadow-[#F99225]/20"
           >
             <Send className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Send</span>
           </button>
         </form>
 
-        <div className="mt-1.5 px-1 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+        <div className="mt-1.5 px-1 flex items-center justify-between text-[10px] text-[#7E6D96] font-mono">
           <span>Non-Custodial Intelligence · Human Approval Required for All On-Chain Actions</span>
           <span className="hidden sm:inline">Press Enter ↵ to send</span>
         </div>
@@ -233,53 +233,53 @@ const CurveRecommendationCard: React.FC<{
   if (!p) return null;
 
   return (
-    <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/20 p-3.5 space-y-3">
+    <div className="rounded-lg border border-[#670CDC]/30 bg-[#140130] p-3.5 space-y-3 shadow-md shadow-[#09011B]/60">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded bg-emerald-500/20 text-emerald-400">
+          <div className="p-1 rounded bg-[#670CDC]/20 text-[#D76EDD]">
             <Sliders className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-emerald-200">{recommendation.title}</h4>
-            <p className="text-[11px] text-emerald-400/80">{recommendation.summary}</p>
+            <h4 className="text-xs font-semibold text-[#F7F3FF]">{recommendation.title}</h4>
+            <p className="text-[11px] text-[#B8A9CC]">{recommendation.summary}</p>
           </div>
         </div>
 
-        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono uppercase">
+        <span className="px-2 py-0.5 rounded bg-[#100126] border border-[#670CDC]/30 text-[#D76EDD] text-[10px] font-mono uppercase font-semibold">
           {p.curveType} curve
         </span>
       </div>
 
       {/* Key Metric Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono bg-zinc-950/60 p-2.5 rounded border border-emerald-900/30">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono bg-[#100126] p-2.5 rounded border border-[#670CDC]/20">
         <div>
-          <span className="text-zinc-500 block text-[9px] uppercase">Start Price</span>
-          <span className="text-zinc-200 font-semibold">${p.startPriceUsd} {p.quoteAsset}</span>
+          <span className="text-[#7E6D96] block text-[9px] uppercase">Start Price</span>
+          <span className="text-[#F7F3FF] font-semibold">${p.startPriceUsd} {p.quoteAsset}</span>
         </div>
         <div>
-          <span className="text-zinc-500 block text-[9px] uppercase">Target Cap</span>
-          <span className="text-zinc-200 font-semibold">${(p.migrationMarketCapUsd / 1_000_000).toFixed(1)}M</span>
+          <span className="text-[#7E6D96] block text-[9px] uppercase">Target Cap</span>
+          <span className="text-[#F7F3FF] font-semibold">${(p.migrationMarketCapUsd / 1_000_000).toFixed(1)}M</span>
         </div>
         <div>
-          <span className="text-zinc-500 block text-[9px] uppercase">Trading Fee</span>
-          <span className="text-zinc-200 font-semibold">{p.feeBps} bps</span>
+          <span className="text-[#7E6D96] block text-[9px] uppercase">Trading Fee</span>
+          <span className="text-[#F7F3FF] font-semibold">{p.feeBps} bps</span>
         </div>
         <div>
-          <span className="text-zinc-500 block text-[9px] uppercase">Anti-Sniper</span>
-          <span className="text-zinc-200 font-semibold">{p.antiSniperSlots} slots</span>
+          <span className="text-[#7E6D96] block text-[9px] uppercase">Anti-Sniper</span>
+          <span className="text-[#F7F3FF] font-semibold">{p.antiSniperSlots} slots</span>
         </div>
       </div>
 
       {/* Action CTA */}
       <div className="flex items-center justify-between pt-1">
-        <span className="text-[10px] text-zinc-400 font-mono">
+        <span className="text-[10px] text-[#7E6D96] font-mono">
           Ready for Meteora DBC deployment on Devnet
         </span>
 
         <button
           type="button"
           onClick={onApply}
-          className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+          className="px-3 py-1.5 rounded-lg bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-[#F99225]/20"
         >
           <span>Export to Market Creator</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -307,7 +307,7 @@ function renderFormattedContent(text: string) {
         elements.push(
           <pre
             key={`code-${idx}`}
-            className="bg-black/60 border border-zinc-800 rounded p-2.5 font-mono text-[11px] text-zinc-300 overflow-x-auto my-2"
+            className="bg-[#09011B] border border-[#670CDC]/25 rounded p-2.5 font-mono text-[11px] text-[#EDE4FA] overflow-x-auto my-2"
           >
             {codeBuffer.join('\n')}
           </pre>
@@ -328,7 +328,7 @@ function renderFormattedContent(text: string) {
     // Markdown Headers
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={idx} className="font-bold text-sm text-zinc-100 mt-2 mb-1">
+        <h3 key={idx} className="font-bold text-sm text-[#F7F3FF] mt-2 mb-1">
           {line.replace('### ', '')}
         </h3>
       );
@@ -336,7 +336,7 @@ function renderFormattedContent(text: string) {
     }
     if (line.startsWith('#### ')) {
       elements.push(
-        <h4 key={idx} className="font-semibold text-xs text-zinc-200 mt-2 mb-0.5">
+        <h4 key={idx} className="font-semibold text-xs text-[#EDE4FA] mt-2 mb-0.5">
           {line.replace('#### ', '')}
         </h4>
       );
@@ -347,8 +347,8 @@ function renderFormattedContent(text: string) {
     if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
       elements.push(
         <div key={idx} className="flex items-start gap-2 pl-2">
-          <span className="text-emerald-400 shrink-0 mt-1">•</span>
-          <span className="text-zinc-300">{formatInlineMarkdown(line.trim().substring(2))}</span>
+          <span className="text-[#F99225] shrink-0 mt-1">•</span>
+          <span className="text-[#EDE4FA]">{formatInlineMarkdown(line.trim().substring(2))}</span>
         </div>
       );
       return;
@@ -359,8 +359,8 @@ function renderFormattedContent(text: string) {
     if (numMatch) {
       elements.push(
         <div key={idx} className="flex items-start gap-2 pl-2">
-          <span className="font-mono text-zinc-500 shrink-0">{numMatch[1]}.</span>
-          <span className="text-zinc-300">{formatInlineMarkdown(numMatch[2])}</span>
+          <span className="font-mono text-[#7E6D96] shrink-0">{numMatch[1]}.</span>
+          <span className="text-[#EDE4FA]">{formatInlineMarkdown(numMatch[2])}</span>
         </div>
       );
       return;
@@ -369,7 +369,7 @@ function renderFormattedContent(text: string) {
     // Paragraph
     if (line.trim()) {
       elements.push(
-        <p key={idx} className="text-zinc-300">
+        <p key={idx} className="text-[#EDE4FA]">
           {formatInlineMarkdown(line)}
         </p>
       );
@@ -386,14 +386,14 @@ function formatInlineMarkdown(text: string): React.ReactNode {
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={i} className="text-white font-semibold">
+        <strong key={i} className="text-[#F7F3FF] font-semibold">
           {part.slice(2, -2)}
         </strong>
       );
     }
     if (part.startsWith('`') && part.endsWith('`')) {
       return (
-        <code key={i} className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-200 font-mono text-[11px]">
+        <code key={i} className="px-1 py-0.5 rounded bg-[#1C0142] text-[#D76EDD] font-mono text-[11px] border border-[#670CDC]/20">
           {part.slice(1, -1)}
         </code>
       );

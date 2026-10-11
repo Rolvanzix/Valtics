@@ -53,10 +53,10 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
     },
     'unavailable': {
       text: label || 'Unavailable',
-      bg: 'bg-zinc-900/40',
-      textCol: 'text-zinc-400',
-      border: 'border-zinc-800',
-      icon: <AlertCircle className="w-3 h-3 text-zinc-500 shrink-0" />,
+      bg: 'bg-[#100126]',
+      textCol: 'text-[#B8A9CC]',
+      border: 'border-[#670CDC]/20',
+      icon: <AlertCircle className="w-3 h-3 text-[#7E6D96] shrink-0" />,
       tooltip: 'Data is unavailable or no verified external oracle is connected',
     },
   };
@@ -77,28 +77,28 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
 
 export const ProvenanceLegend: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
-    <div className={`py-4 px-5 rounded-xl border border-zinc-800/60 bg-[#090d15]/50 space-y-2 text-xs ${className}`}>
-      <div className="flex items-center gap-2 font-medium text-zinc-300 font-sans">
-        <Info className="w-3.5 h-3.5 text-zinc-400" />
+    <div className={`py-4 px-5 rounded-xl border border-[#670CDC]/25 bg-[#140130]/70 space-y-2 text-xs ${className}`}>
+      <div className="flex items-center gap-2 font-medium text-[#F7F3FF] font-sans">
+        <Info className="w-3.5 h-3.5 text-[#D76EDD]" />
         <span>Data Provenance Standard</span>
-        <span className="text-zinc-500 font-normal">· Every metric is segregated into four verifiable tiers</span>
+        <span className="text-[#B8A9CC] font-normal">· Every metric is segregated into four verifiable tiers</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-[11px]">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-          <span className="text-zinc-400 font-sans">1. On-chain state from Solana RPC</span>
+          <span className="text-[#B8A9CC] font-sans">1. On-chain state from Solana RPC</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-          <span className="text-zinc-400 font-sans">2. Independent reference NAV</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D76EDD] shrink-0" />
+          <span className="text-[#B8A9CC] font-sans">2. Independent reference NAV</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0" />
-          <span className="text-zinc-400 font-sans">3. Issuer registration disclosure</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#670CDC] shrink-0" />
+          <span className="text-[#B8A9CC] font-sans">3. Issuer registration disclosure</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-          <span className="text-zinc-400 font-sans">4. Mathematical DBC calculations</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F99225] shrink-0" />
+          <span className="text-[#B8A9CC] font-sans">4. Mathematical DBC calculations</span>
         </div>
       </div>
     </div>

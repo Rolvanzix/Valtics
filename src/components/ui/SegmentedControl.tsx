@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string = string>({
 
   return (
     <div
-      className={`inline-flex items-center rounded-lg border border-zinc-800 bg-[#090d14] ${sizeStyles} ${
+      className={`inline-flex items-center rounded-lg border border-[#670CDC]/25 bg-[#140130] ${sizeStyles} ${
         fullWidth ? 'w-full flex' : ''
       } ${className}`}
     >
@@ -47,20 +47,20 @@ export function SegmentedControl<T extends string = string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`relative flex items-center justify-center gap-1.5 rounded-md font-medium transition-all ${itemSizeStyles} ${
+            className={`relative flex items-center justify-center gap-1.5 rounded-md font-medium transition-all cursor-pointer ${itemSizeStyles} ${
               fullWidth ? 'flex-1' : ''
             } ${
               isSelected
-                ? 'bg-[#182030] text-zinc-100 shadow-xs border border-zinc-700/80 font-semibold'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
+                ? 'bg-[#3B0489] text-[#F7F3FF] shadow-xs border border-[#670CDC]/50 font-semibold'
+                : 'text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142]/60'
             }`}
           >
             {opt.icon && <span className="shrink-0">{opt.icon}</span>}
             <span className="truncate">{opt.label}</span>
             {opt.badge !== undefined && (
               <span
-                className={`text-[10px] font-mono px-1 py-0.1 rounded ${
-                  isSelected ? 'bg-amber-500/20 text-amber-300' : 'bg-zinc-800 text-zinc-400'
+                className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                  isSelected ? 'bg-[#F99225]/20 text-[#F99225]' : 'bg-[#1C0142] text-[#B8A9CC]'
                 }`}
               >
                 {opt.badge}

@@ -142,20 +142,20 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
   return (
     <div className="space-y-6 max-w-6xl mx-auto font-sans">
       {/* Header Banner */}
-      <div className="border border-zinc-800/80 bg-[#090d15] rounded-xl p-5 sm:p-6 relative overflow-hidden">
+      <div className="border border-[#670CDC]/30 bg-[#140130] rounded-xl p-5 sm:p-6 relative overflow-hidden shadow-xl shadow-[#09011B]/60">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-4 max-w-2xl">
             <ValticsMark size={44} className="shrink-0 hidden sm:inline-flex" />
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400 font-sans">Meteora Dynamic Bonding Curve</span>
-                <span className="text-zinc-600 text-xs">•</span>
-                <span className="text-zinc-400 text-xs font-mono">Solana Devnet</span>
+                <span className="text-xs text-[#B8A9CC] font-sans">Meteora Dynamic Bonding Curve</span>
+                <span className="text-[#670CDC]/40 text-xs">•</span>
+                <span className="text-[#B8A9CC] text-xs font-mono">Solana Devnet</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#F7F3FF] tracking-tight font-sans">
                 Curve Studio
               </h1>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[#B8A9CC] leading-relaxed">
                 Design and simulate dynamic bonding curve models for tokenized assets with deterministic pricing and migration thresholds.
               </p>
             </div>
@@ -165,9 +165,9 @@ export const CurveStudioView: React.FC<CurveStudioViewProps> = ({
             <button
               type="button"
               onClick={handleReset}
-              className="py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="py-2 px-3 rounded-lg bg-[#1E0148] hover:bg-[#280261] border border-[#670CDC]/30 text-[#EDE4FA] text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#B8A9CC]" />
               <span>Reset parameters</span>
             </button>
           </div>

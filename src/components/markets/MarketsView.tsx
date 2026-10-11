@@ -7,6 +7,10 @@ import { MarketScreener } from '../screener/MarketScreener';
 import { ScreenerAsset } from '../../services/screenerService';
 import { resolvePythAssetToValticsPool } from '../../services/pythReference';
 import { useNetwork } from '../../context/NetworkContext';
+import { PantaMarketsSection } from './PantaMarketsSection';
+import { PantaMarketDetailView } from './PantaMarketDetailView';
+import { ValticsPredictionMarket } from '../../types/panta';
+import { Layers, Compass, TrendingUp, Sparkles } from 'lucide-react';
 
 interface MarketsViewProps {
   onSelectTab: (tab: NavigationTab) => void;
@@ -29,6 +33,12 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
   // Environment-aware created markets
   const [createdPools, setCreatedPools] = useState<DBCPoolState[]>(() => getCreatedMarkets(environment));
   const [selectedScreenerAsset, setSelectedScreenerAsset] = useState<ScreenerAsset | null>(null);
+  
+  // Active market view mode: Prediction Markets (Panta) vs Tokenized Asset Screener (Core)
+  const [activeMarketMode, setActiveMarketMode] = useState<'predictions' | 'screener'>('predictions');
+
+  // Selected Panta prediction market for dedicated detail page
+  const [selectedPantaMarket, setSelectedPantaMarket] = useState<ValticsPredictionMarket | null>(null);
 
   React.useEffect(() => {
     setCreatedPools(getCreatedMarkets(environment));
@@ -123,7 +133,19 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
     if (onSelectPoolForInspector) onSelectPoolForInspector(fallbackPool);
   };
 
-  // If a pool detail terminal is active, render the full MarketDetailView
+  // 1. If a Panta prediction market detail view is active, render full-page PantaMarketDetailView
+  if (selectedPantaMarket) {
+    return (
+      <PantaMarketDetailView
+        market={selectedPantaMarket}
+        onBack={() => setSelectedPantaMarket(null)}
+        onSelectTab={onSelectTab}
+        onOpenWalletModal={onOpenWalletModal}
+      />
+    );
+  }
+
+  // 2. If a tokenized asset DBC pool detail terminal is active, render the full MarketDetailView
   if (activeDetailPool) {
     return (
       <MarketDetailView
@@ -144,10 +166,63 @@ export const MarketsView: React.FC<MarketsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <MarketScreener
-        onSelectAsset={handleSelectScreenerAsset}
-        onSelectTab={onSelectTab}
-      />
+      {/* Institutional Top Control Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#05051a] border border-[rgba(138,32,255,0.2)]">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl font-bold text-[#F5F5F7] tracking-tight font-sans">
+              Valtics Markets
+            </h1>
+            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#100126] text-[#D4A5FF] border border-[#8A20FF]/30">
+              Programmable Architecture
+            </span>
+          </div>
+          <p className="text-xs text-[#A7A7B8] mt-0.5">
+            Tokenized assets core layer with integrated Panta prediction-market forecasting and hedging on Solana.
+          </p>
+        </div>
+
+        {/* View Switcher: Prediction Markets (Panta) vs Tokenized Assets Screener */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#000010] border border-[rgba(138,32,255,0.25)] rounded-lg shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveMarketMode('predictions')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-colors cursor-pointer ${
+              activeMarketMode === 'predictions'
+                ? 'bg-[#8A20FF] text-white shadow-xs'
+                : 'text-[#A7A7B8] hover:text-[#F5F5F7]'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>Prediction Markets</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveMarketMode('screener')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-colors cursor-pointer ${
+              activeMarketMode === 'screener'
+                ? 'bg-[#8A20FF] text-white shadow-xs'
+                : 'text-[#A7A7B8] hover:text-[#F5F5F7]'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>Asset Screener</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main View Display */}
+      {activeMarketMode === 'predictions' ? (
+        <PantaMarketsSection
+          onSelectMarket={(market) => setSelectedPantaMarket(market)}
+        />
+      ) : (
+        <MarketScreener
+          onSelectAsset={handleSelectScreenerAsset}
+          onSelectTab={onSelectTab}
+        />
+      )}
     </div>
   );
 };

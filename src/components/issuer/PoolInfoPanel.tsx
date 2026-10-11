@@ -81,18 +81,18 @@ export const PoolInfoPanel: React.FC<PoolInfoPanelProps> = ({ pool }) => {
   ];
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-[#0c1018] p-5 sm:p-6 space-y-5">
+    <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-5 sm:p-6 space-y-5 shadow-xl shadow-[#09011B]/60">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
+      <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-4">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-zinc-800 text-zinc-300">
-            <Database className="w-4 h-4" />
+          <div className="p-1.5 rounded-lg bg-[#670CDC]/20 border border-[#670CDC]/40 text-[#EDE4FA]">
+            <Database className="w-4 h-4 text-[#F99225]" />
           </div>
-          <h3 className="text-sm sm:text-base font-bold text-zinc-100 font-sans tracking-tight">
+          <h3 className="text-sm sm:text-base font-bold text-[#F7F3FF] font-sans tracking-tight">
             Cryptographic Pool Architecture & PDAs
           </h3>
         </div>
-        <span className="text-[11px] font-mono text-zinc-400">
+        <span className="text-[11px] font-mono text-[#B8A9CC]">
           Solana {network.toUpperCase()}
         </span>
       </div>
@@ -101,19 +101,19 @@ export const PoolInfoPanel: React.FC<PoolInfoPanelProps> = ({ pool }) => {
         {accountRows.map((row) => (
           <div
             key={row.key}
-            className="p-3.5 rounded-lg bg-[#0e1422] border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs"
+            className="p-3.5 rounded-lg bg-[#100126] border border-[#670CDC]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs"
           >
             <div className="space-y-0.5">
-              <span className="font-semibold text-zinc-200 block font-sans">
+              <span className="font-semibold text-[#EDE4FA] block font-sans">
                 {row.label}
               </span>
-              <p className="text-[11px] text-zinc-400 max-w-xl font-normal">
+              <p className="text-[11px] text-[#B8A9CC] max-w-xl font-normal">
                 {row.description}
               </p>
             </div>
 
-            <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-800/40">
-              <span className="font-mono text-xs text-zinc-300 bg-zinc-900 px-2 py-1 rounded border border-zinc-800">
+            <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#670CDC]/20">
+              <span className="font-mono text-xs text-[#EDE4FA] bg-[#1E0148] px-2 py-1 rounded border border-[#670CDC]/25">
                 {row.address.slice(0, 6)}...{row.address.slice(-6)}
               </span>
 
@@ -121,7 +121,7 @@ export const PoolInfoPanel: React.FC<PoolInfoPanelProps> = ({ pool }) => {
                 <button
                   type="button"
                   onClick={() => handleCopy(row.address, row.key)}
-                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded bg-[#1E0148] hover:bg-[#280261] text-[#B8A9CC] hover:text-[#F7F3FF] border border-[#670CDC]/30 transition-colors cursor-pointer"
                   title="Copy address"
                   aria-label={`Copy ${row.label}`}
                 >
@@ -136,7 +136,7 @@ export const PoolInfoPanel: React.FC<PoolInfoPanelProps> = ({ pool }) => {
                   href={getExplorerUrl(row.address, 'address', network as any)}
                   target="_blank"
                   rel="noreferrer"
-                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded bg-zinc-800 hover:bg-zinc-700 text-amber-400 hover:text-amber-300 transition-colors"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded bg-[#1E0148] hover:bg-[#280261] text-[#F99225] hover:text-[#ff9f3b] border border-[#670CDC]/30 transition-colors"
                   title="View in Solana Explorer"
                   aria-label={`View ${row.label} in Solana Explorer`}
                 >

@@ -15,10 +15,12 @@ import { Footer } from './components/layout/Footer';
 import { OverviewView } from './components/overview/OverviewView';
 import { ExploreAssetsView } from './components/assets/ExploreAssetsView';
 import { MarketsView } from './components/markets/MarketsView';
+import { PredictionsView } from './components/predictions/PredictionsView';
 import { AssetPassportView } from './components/passport/AssetPassportView';
 import { CreateMarketView } from './components/create/CreateMarketView';
 import { CurveStudioView } from './components/studio/CurveStudioView';
 import { MyMarketsView } from './components/myMarkets/MyMarketsView';
+import { ValticsPortfolioView } from './components/portfolio/ValticsPortfolioView';
 import { ActivityView } from './components/activity/ActivityView';
 import { AgentWorkspace } from './components/agent/AgentWorkspace';
 import { WalletModal } from './components/common/WalletModal';
@@ -35,7 +37,19 @@ function MainAppContent() {
   const [viewMode, setViewMode] = useState<'landing' | 'app'>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase();
-      if (hash.startsWith('#app') || hash.startsWith('#markets') || hash.startsWith('#create') || hash.startsWith('#agent')) {
+      const params = new URLSearchParams(window.location.search);
+      const saved = localStorage.getItem('valtics_view_mode');
+      if (
+        params.get('view') === 'app' ||
+        params.get('tab') ||
+        saved === 'app' ||
+        hash.startsWith('#app') ||
+        hash.startsWith('#overview') ||
+        hash.startsWith('#markets') ||
+        hash.startsWith('#predictions') ||
+        hash.startsWith('#create') ||
+        hash.startsWith('#agent')
+      ) {
         return 'app';
       }
     }
@@ -45,7 +59,11 @@ function MainAppContent() {
   const [activeTab, setActiveTab] = useState<NavigationTab>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as NavigationTab | null;
+      if (tabParam) return tabParam;
       if (hash.startsWith('#agent')) return 'agent';
+      if (hash.startsWith('#predictions')) return 'predictions';
       if (hash.startsWith('#markets')) return 'markets';
       if (hash.startsWith('#create')) return 'create';
     }
@@ -107,20 +125,45 @@ function MainAppContent() {
   // If in landing page mode, render public-facing landing page
   if (viewMode === 'landing') {
     return (
-      <LandingPageView
-        onEnterApp={(targetTab) => {
-          if (targetTab) {
-            handleSelectTab(targetTab);
-          }
-          setViewMode('app');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      />
+      <div className="relative">
+        <LandingPageView
+          onEnterApp={(targetTab) => {
+            if (targetTab) {
+              handleSelectTab(targetTab);
+            }
+            try {
+              localStorage.setItem('valtics_view_mode', 'app');
+            } catch {}
+            setViewMode('app');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+
+        {/* Floating Quick Action Launcher */}
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-[#05051a]/90 border border-[rgba(138,32,255,0.4)] backdrop-blur-md rounded-full px-4 py-2 shadow-2xl">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[11px] font-mono text-[#A7A7B8] hidden sm:inline">Live App Engine</span>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                localStorage.setItem('valtics_view_mode', 'app');
+              } catch {}
+              setViewMode('app');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="valtics-button text-xs font-semibold px-3.5 py-1.5 flex items-center gap-1.5 cursor-pointer shadow-md"
+          >
+            <span>Open Application</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex bg-[#09011B] text-[#F7F3FF] relative overflow-x-hidden">
+    <div className="min-h-screen flex bg-[#000010] text-[#F5F5F7] relative overflow-x-hidden">
       {/* Subtle Financial Infrastructure Background Layer */}
       <BackgroundGrid />
 
@@ -131,6 +174,9 @@ function MainAppContent() {
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         onReturnToLanding={() => {
+          try {
+            localStorage.setItem('valtics_view_mode', 'landing');
+          } catch {}
           setViewMode('landing');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
@@ -143,22 +189,22 @@ function MainAppContent() {
             className="fixed inset-0 bg-black/80 backdrop-blur-xs"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="relative z-10 w-72 bg-[#090d14] border-r border-zinc-800 p-4 flex flex-col justify-between h-full">
+          <div className="relative z-10 w-72 bg-[#0E0124] border-r border-[#670CDC]/20 p-4 flex flex-col justify-between h-full font-sans">
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="flex items-center justify-between pb-3 border-b border-[#670CDC]/20">
                 <ValticsLogo size="sm" showText={true} />
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 rounded text-zinc-400 hover:text-zinc-200"
+                  className="p-1 rounded-lg text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Mobile Environment Selector */}
-              <div className="py-2 border-b border-zinc-800/80">
-                <span className="text-[10px] uppercase font-mono text-zinc-500 mb-1.5 block">
+              <div className="py-2 border-b border-[#670CDC]/20">
+                <span className="text-[10px] uppercase font-mono text-[#7E6D96] mb-1.5 block">
                   Cluster Environment
                 </span>
                 <EnvironmentSwitch showStatusTip compact={true} />
@@ -167,7 +213,9 @@ function MainAppContent() {
               <div className="space-y-1">
                 {[
                   { id: 'overview', label: 'Overview' },
+                  { id: 'explore-assets', label: 'Asset Screener' },
                   { id: 'markets', label: 'Explore markets' },
+                  { id: 'predictions', label: 'Predictions' },
                   { id: 'agent', label: 'Valtics Agent' },
                   { id: 'create', label: 'Create market' },
                   { id: 'my-markets', label: 'Dashboard' },
@@ -178,8 +226,8 @@ function MainAppContent() {
                     onClick={() => handleSelectTab(item.id as NavigationTab)}
                     className={`w-full text-left px-3.5 py-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-colors flex items-center ${
                       activeTab === item.id
-                        ? 'bg-[#121824] text-zinc-100 font-semibold border border-zinc-700'
-                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
+                        ? 'bg-[#3B0489] text-[#F7F3FF] font-semibold border border-[#670CDC]/50 shadow-xs'
+                        : 'text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142]/60'
                     }`}
                   >
                     {item.label}
@@ -187,7 +235,7 @@ function MainAppContent() {
                 ))}
               </div>
 
-              <div className="pt-2 border-t border-zinc-800/80 space-y-1">
+              <div className="pt-2 border-t border-[#670CDC]/20 space-y-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -195,7 +243,7 @@ function MainAppContent() {
                     setViewMode('landing');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 text-xs font-mono"
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142]/60 text-xs font-mono"
                 >
                   <span>← Return to Website</span>
                 </button>
@@ -206,15 +254,15 @@ function MainAppContent() {
                     setMobileMenuOpen(false);
                     setPrimerModalOpen(true);
                   }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg bg-violet-950/30 text-violet-300 border border-violet-800/40 text-xs font-medium"
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg bg-[#1C0142] text-[#D76EDD] border border-[#670CDC]/30 text-xs font-medium"
                 >
-                  <HelpCircle className="w-3.5 h-3.5 text-violet-400" />
+                  <HelpCircle className="w-3.5 h-3.5 text-[#D76EDD]" />
                   <span>Platform Guide (How it works)</span>
                 </button>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-zinc-800 text-[10px] text-zinc-500 font-mono">
+            <div className="pt-4 border-t border-[#670CDC]/20 text-[10px] text-[#7E6D96] font-mono">
               VALTICS INFRASTRUCTURE · SOLANA
             </div>
           </div>
@@ -288,6 +336,13 @@ function MainAppContent() {
               />
             )}
 
+            {activeTab === 'predictions' && (
+              <PredictionsView
+                onSelectTab={handleSelectTab}
+                onOpenWalletModal={() => setWalletModalOpen(true)}
+              />
+            )}
+
             {activeTab === 'passport' && (
               <AssetPassportView
                 onSelectTab={handleSelectTab}
@@ -330,6 +385,17 @@ function MainAppContent() {
                 onSelectMarketDetail={(poolAddress) => {
                   setSelectedMarketAddress(poolAddress);
                   handleSelectTab('markets');
+                }}
+              />
+            )}
+
+            {activeTab === 'portfolio' && (
+              <ValticsPortfolioView
+                onSelectTab={handleSelectTab}
+                onOpenWalletModal={() => setWalletModalOpen(true)}
+                onSelectMarketDetail={(marketId) => {
+                  setSelectedMarketAddress(marketId);
+                  handleSelectTab('predictions');
                 }}
               />
             )}

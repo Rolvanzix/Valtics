@@ -40,15 +40,15 @@ export const AddressBadge: React.FC<AddressBadgeProps> = ({
     }
   };
 
-  if (!address) return <span className="text-zinc-600 font-mono text-xs">None</span>;
+  if (!address) return <span className="text-[#7E6D96] font-mono text-xs">None</span>;
 
   return (
     <div
       id={`address-badge-${address.slice(0, 8)}`}
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/80 text-zinc-300 font-mono-nums text-xs ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#670CDC]/25 bg-[#100126] text-[#EDE4FA] font-mono-nums text-xs ${className}`}
     >
-      {label && <span className="text-zinc-400 mr-1 font-sans text-[11px]">{label}:</span>}
-      <span title={address} className="tracking-tight text-zinc-200">
+      {label && <span className="text-[#7E6D96] mr-1 font-sans text-[11px]">{label}:</span>}
+      <span title={address} className="tracking-tight text-[#EDE4FA]">
         {formatPubkey(address, head, tail)}
       </span>
 
@@ -58,7 +58,7 @@ export const AddressBadge: React.FC<AddressBadgeProps> = ({
           type="button"
           onClick={handleCopy}
           title="Copy full address"
-          className="text-zinc-400 hover:text-zinc-200 transition-colors p-0.5 rounded hover:bg-zinc-800"
+          className="text-[#7E6D96] hover:text-[#EDE4FA] transition-colors p-0.5 rounded hover:bg-[#140130]"
         >
           {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
         </button>
@@ -71,7 +71,7 @@ export const AddressBadge: React.FC<AddressBadgeProps> = ({
           target="_blank"
           rel="noopener noreferrer"
           title="View on Solana Explorer"
-          className="text-zinc-400 hover:text-zinc-200 transition-colors p-0.5 rounded hover:bg-zinc-800"
+          className="text-[#7E6D96] hover:text-[#EDE4FA] transition-colors p-0.5 rounded hover:bg-[#140130]"
           onClick={(e) => e.stopPropagation()}
         >
           <ExternalLink className="w-3 h-3" />

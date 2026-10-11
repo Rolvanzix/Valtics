@@ -134,42 +134,42 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-zinc-800/80 pb-4">
-        <h2 className="text-xl font-bold text-white tracking-tight">Step 4 — Curve Mathematical Visualization</h2>
-        <p className="text-xs text-zinc-400 mt-1">
+      <div className="border-b border-[#670CDC]/20 pb-4">
+        <h2 className="text-xl font-bold text-[#F7F3FF] tracking-tight">Step 4 — Curve Mathematical Visualization</h2>
+        <p className="text-xs text-[#B8A9CC] mt-1">
           Simulate the deterministic price curve invariant, capital vault accumulation, and DLMM graduation threshold.
         </p>
       </div>
 
       {/* Mandatory Disclaimer Banner */}
-      <div className="bg-zinc-900/90 border border-zinc-700/80 rounded-xl p-4 text-xs text-zinc-300 flex items-start gap-3">
-        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+      <div className="bg-[#100126] border border-[#670CDC]/25 rounded-xl p-4 text-xs text-[#B8A9CC] flex items-start gap-3 shadow-md shadow-[#09011B]/40">
+        <AlertTriangle className="w-4 h-4 text-[#F99225] shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <span className="font-semibold text-zinc-100 block text-xs uppercase tracking-wide">
+          <span className="font-semibold text-[#F7F3FF] block text-xs uppercase tracking-wide">
             Model & Projection Notice
           </span>
-          <p className="text-[11px] leading-relaxed text-zinc-400">
+          <p className="text-[11px] leading-relaxed text-[#B8A9CC]">
             This visualization is a deterministic simulation of the bonding curve algorithm and invariant equations configured in the smart contract. It illustrates mathematical trajectory based on tokens sold; it does <strong>not</strong> predict future secondary market prices, trading volume, or guarantee liquidity demand.
           </p>
         </div>
       </div>
 
       {/* Chart Telemetry Display */}
-      <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#670CDC]/20 pb-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-white font-sans">Interactive Invariant Simulation</span>
-            <span className="text-[11px] text-zinc-400">
+            <span className="text-sm font-bold text-[#F7F3FF] font-sans">Interactive Invariant Simulation</span>
+            <span className="text-[11px] text-[#B8A9CC]">
               (Hover across chart to inspect mathematical step)
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-zinc-900/80 p-1 rounded-lg border border-zinc-800 text-xs">
+          <div className="flex items-center gap-1.5 bg-[#100126] p-1 rounded-lg border border-[#670CDC]/25 text-xs">
             <button
               type="button"
               onClick={() => setChartMode('curve')}
               className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${
-                chartMode === 'curve' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400 hover:text-white'
+                chartMode === 'curve' ? 'bg-[#F99225] text-[#09011B] font-semibold' : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
               }`}
             >
               Spot Price Trajectory
@@ -178,7 +178,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
               type="button"
               onClick={() => setChartMode('vault')}
               className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${
-                chartMode === 'vault' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400 hover:text-white'
+                chartMode === 'vault' ? 'bg-[#F99225] text-[#09011B] font-semibold' : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
               }`}
             >
               Quote Vault Reserve
@@ -187,7 +187,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
               type="button"
               onClick={() => setChartMode('concentration')}
               className={`px-3 py-1 rounded text-xs font-medium cursor-pointer transition-colors ${
-                chartMode === 'concentration' ? 'bg-amber-500 text-zinc-950 font-semibold' : 'text-zinc-400 hover:text-white'
+                chartMode === 'concentration' ? 'bg-[#F99225] text-[#09011B] font-semibold' : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
               }`}
             >
               DLMM Bin Concentration
@@ -196,41 +196,41 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
         </div>
 
         {/* Live Hover Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-zinc-950/80 p-3.5 rounded-lg border border-zinc-800/80 font-mono-nums text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#100126] p-3.5 rounded-lg border border-[#670CDC]/20 font-mono-nums text-xs">
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">Curve Sold</span>
-            <span className="text-zinc-100 font-bold text-sm">
+            <span className="text-[10px] uppercase font-sans text-[#7E6D96] block font-medium">Curve Sold</span>
+            <span className="text-[#F7F3FF] font-bold text-sm">
               {activePoint.percent.toFixed(1)}% ({formatNumber(activePoint.tokensSold)})
             </span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#7E6D96] block font-medium">
               Spot Price ({input.quoteSymbol})
             </span>
-            <span className="text-amber-400 font-bold text-sm">
+            <span className="text-[#F99225] font-bold text-sm">
               {formatCurrency(activePoint.spotPrice, input.quoteSymbol)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#7E6D96] block font-medium">
               Vault Reserve ({input.quoteSymbol})
             </span>
-            <span className="text-zinc-100 font-bold text-sm">
+            <span className="text-[#F7F3FF] font-bold text-sm">
               {formatCurrency(activePoint.accumulatedQuote, input.quoteSymbol)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-sans text-zinc-400 block font-medium">
+            <span className="text-[10px] uppercase font-sans text-[#7E6D96] block font-medium">
               Implied Market Cap
             </span>
-            <span className="text-zinc-100 font-bold text-sm">
+            <span className="text-[#F7F3FF] font-bold text-sm">
               {formatCurrency(activePoint.marketCap, input.quoteSymbol)}
             </span>
           </div>
         </div>
 
         {/* SVG Visualization Area */}
-        <div className="relative w-full overflow-hidden bg-zinc-950/60 rounded-lg border border-zinc-800/60 p-2">
+        <div className="relative w-full overflow-hidden bg-[#100126] rounded-lg border border-[#670CDC]/20 p-2">
           <svg
             viewBox={`0 0 ${width} ${height}`}
             className="w-full h-auto select-none"
@@ -257,7 +257,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
                   y1={y}
                   x2={padding.left + chartW}
                   y2={y}
-                  stroke="#27272a"
+                  stroke="rgba(103, 12, 220, 0.25)"
                   strokeDasharray="3 3"
                 />
               );
@@ -376,8 +376,8 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
               cx={padding.left}
               cy={padding.top + chartH - ((points[0].spotPrice - minPrice) / priceRange) * chartH}
               r="4.5"
-              fill="#f59e0b"
-              stroke="#090d14"
+              fill="#F99225"
+              stroke="#140130"
               strokeWidth="2"
             />
             <text
@@ -440,7 +440,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
                   key={pct}
                   x={x}
                   y={padding.top + chartH + 18}
-                  fill="#71717a"
+                  fill="#7E6D96"
                   fontSize="10"
                   textAnchor="middle"
                   fontFamily="monospace"
@@ -452,7 +452,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
             <text
               x={padding.left + chartW / 2}
               y={padding.top + chartH + 34}
-              fill="#a1a1aa"
+              fill="#B8A9CC"
               fontSize="10"
               textAnchor="middle"
             >
@@ -463,8 +463,8 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
       </div>
 
       {/* Graduation Milestone Ledger */}
-      <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-bold text-white">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-3">
+        <div className="flex items-center gap-2 text-sm font-bold text-[#F7F3FF]">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>Deterministic Graduation Milestones</span>
         </div>
@@ -472,7 +472,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
             <thead>
-              <tr className="border-b border-zinc-800 text-zinc-400 font-sans uppercase text-[10px]">
+              <tr className="border-b border-[#670CDC]/20 text-[#7E6D96] font-sans uppercase text-[10px]">
                 <th className="py-2 px-3">Stage</th>
                 <th className="py-2 px-3 text-right">Tokens Sold</th>
                 <th className="py-2 px-3 text-right">Spot Price ({input.quoteSymbol})</th>
@@ -481,24 +481,24 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
                 <th className="py-2 px-3 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/60 font-mono-nums">
+            <tbody className="divide-y divide-[#670CDC]/15 font-mono-nums">
               {milestones.map((m, idx) => (
-                <tr key={idx} className="hover:bg-zinc-900/40 transition-colors">
-                  <td className="py-2.5 px-3 font-sans font-medium text-zinc-200">
+                <tr key={idx} className="hover:bg-[#1C0142]/40 transition-colors">
+                  <td className="py-2.5 px-3 font-sans font-medium text-[#EDE4FA]">
                     {idx === 0
                       ? '0% (Genesis Launch)'
                       : idx === 4
                       ? '100% (DAMM v2 Graduation)'
                       : `${m.percent.toFixed(0)}% Progress`}
                   </td>
-                  <td className="py-2.5 px-3 text-right text-zinc-300">{formatNumber(m.tokensSold)}</td>
-                  <td className="py-2.5 px-3 text-right text-amber-400 font-semibold">
+                  <td className="py-2.5 px-3 text-right text-[#B8A9CC]">{formatNumber(m.tokensSold)}</td>
+                  <td className="py-2.5 px-3 text-right text-[#F99225] font-semibold">
                     {formatCurrency(m.spotPrice, input.quoteSymbol)}
                   </td>
-                  <td className="py-2.5 px-3 text-right text-zinc-200">
+                  <td className="py-2.5 px-3 text-right text-[#EDE4FA]">
                     {formatCurrency(m.accumulatedQuote, input.quoteSymbol)}
                   </td>
-                  <td className="py-2.5 px-3 text-right text-zinc-300">
+                  <td className="py-2.5 px-3 text-right text-[#B8A9CC]">
                     {formatCurrency(m.marketCap, input.quoteSymbol)}
                   </td>
                   <td className="py-2.5 px-3 text-center font-sans">
@@ -507,7 +507,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
                         Migrates to DAMM v2
                       </span>
                     ) : (
-                      <span className="text-zinc-400 text-[11px]">Bonding Phase</span>
+                      <span className="text-[#7E6D96] text-[11px]">Bonding Phase</span>
                     )}
                   </td>
                 </tr>
@@ -518,11 +518,11 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+      <div className="flex items-center justify-between pt-4 border-t border-[#670CDC]/20">
         <button
           type="button"
           onClick={onBack}
-          className="py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-2 cursor-pointer"
+          className="py-2.5 px-4 rounded-lg bg-[#1C0142] hover:bg-[#26035A] text-[#EDE4FA] font-medium text-xs transition-colors flex items-center gap-2 border border-[#670CDC]/30 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
@@ -531,7 +531,7 @@ export const Step4Visualization: React.FC<Step4VisualizationProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-xs shadow-amber-500/20"
+          className="py-2.5 px-6 rounded-lg bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] font-bold text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-md shadow-[#F99225]/20"
         >
           <span>Continue</span>
           <ArrowRight className="w-4 h-4" />

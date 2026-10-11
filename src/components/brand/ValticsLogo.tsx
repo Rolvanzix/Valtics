@@ -126,17 +126,14 @@ export const ValticsLogo: React.FC<ValticsLogoProps> = ({
 
       {showText && (
         <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-1.5">
-            <span className="font-extrabold text-sm sm:text-base tracking-tight text-white font-sans leading-none flex items-center">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm sm:text-base tracking-[0.22em] text-[#F5F5F7] font-sans leading-none">
               VALTICS
-            </span>
-            <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded-md bg-gradient-to-r from-violet-500/20 via-pink-500/20 to-amber-500/20 text-amber-300 border border-amber-500/30 font-bold tracking-wider leading-none">
-              DBC
             </span>
           </div>
           {tagline && (
-            <span className="text-[10px] text-zinc-400 font-medium tracking-tight mt-0.5">
-              Meteora Dynamic Bonding Curves on Solana
+            <span className="text-[10px] text-[#A7A7B8] font-medium tracking-tight mt-1">
+              Markets Reimagined
             </span>
           )}
         </div>

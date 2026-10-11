@@ -10,7 +10,7 @@ export const TechnicalConceptsBar: React.FC = () => {
       title: 'Dynamic bonding curves',
       tagline: 'Deterministic pricing',
       icon: Zap,
-      accent: 'text-amber-400',
+      accent: 'text-[#F99225]',
       description:
         'Continuous algorithmic price curve executing directly on Solana via Meteora DBC. Zero liquidation risk, mathematically bounded slippage, and instant trading liquidity.',
       bullet: 'Mathematical invariant with custom starting and migration target price bands.',
@@ -20,7 +20,7 @@ export const TechnicalConceptsBar: React.FC = () => {
       title: 'Reference NAV',
       tagline: 'Audited par benchmarks',
       icon: Radio,
-      accent: 'text-violet-400',
+      accent: 'text-[#D76EDD]',
       description:
         'Real-world asset appraisal benchmarks provided by accredited issuers, independent oracles, or off-chain fund administrators to monitor market premium/discount.',
       bullet: 'Enables institutional tracking of market-to-NAV spread in real time.',
@@ -30,7 +30,7 @@ export const TechnicalConceptsBar: React.FC = () => {
       title: 'Liquidity migration',
       tagline: 'Automated DAMM v2 graduation',
       icon: Layers,
-      accent: 'text-pink-400',
+      accent: 'text-[#F99225]',
       description:
         'Once bonding curve reserves satisfy target quote thresholds (e.g. 85 SOL or 10,000 USDC), liquidity automatically migrates to Meteora DAMM v2 with permanently locked LP tokens.',
       bullet: 'Non-custodial, deterministic graduation without developer intervention.',
@@ -48,9 +48,9 @@ export const TechnicalConceptsBar: React.FC = () => {
   ];
 
   return (
-    <div className="rounded-xl border border-[#162033] bg-[#070b15]/70 overflow-hidden">
+    <div className="rounded-xl border border-[#670CDC]/30 bg-[#140130] overflow-hidden shadow-xl shadow-[#09011B]/60">
       {/* 4 Compact Columns */}
-      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#162033]">
+      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#670CDC]/20">
         {concepts.map((c) => {
           const Icon = c.icon;
           const isExpanded = expandedConcept === c.id;
@@ -60,21 +60,21 @@ export const TechnicalConceptsBar: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Icon className={`w-3.5 h-3.5 ${c.accent}`} />
-                  <span className="text-xs font-semibold text-zinc-200 font-sans">
+                  <span className="text-xs font-semibold text-[#EDE4FA] font-sans">
                     {c.title}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-zinc-400 font-sans">
+                <span className="text-[11px] text-[#B8A9CC] font-sans">
                   {c.tagline}
                 </span>
 
                 <button
                   type="button"
                   onClick={() => setExpandedConcept(isExpanded ? null : c.id)}
-                  className="text-[10px] font-sans text-amber-400/90 hover:text-amber-300 transition-colors flex items-center gap-0.5 cursor-pointer ml-1"
+                  className="text-[10px] font-sans text-[#F99225] hover:text-[#FFA640] transition-colors flex items-center gap-0.5 cursor-pointer ml-1"
                 >
                   <span>{isExpanded ? 'Less' : 'Learn more'}</span>
                   {isExpanded ? (
@@ -87,11 +87,11 @@ export const TechnicalConceptsBar: React.FC = () => {
 
               {/* Collapsible deeper explanation (Progressive Disclosure) */}
               {isExpanded && (
-                <div className="pt-2 mt-1 border-t border-[#182438] text-[11px] text-zinc-300 space-y-1.5 animate-fadeIn">
-                  <p className="leading-relaxed font-sans text-zinc-300">
+                <div className="pt-2 mt-1 border-t border-[#670CDC]/20 text-[11px] text-[#EDE4FA] space-y-1.5 animate-fadeIn">
+                  <p className="leading-relaxed font-sans text-[#EDE4FA]">
                     {c.description}
                   </p>
-                  <p className="text-[10px] font-mono text-zinc-400 pt-0.5">
+                  <p className="text-[10px] font-mono text-[#B8A9CC] pt-0.5">
                     • {c.bullet}
                   </p>
                 </div>

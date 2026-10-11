@@ -1,19 +1,21 @@
 import React from 'react';
 import { LandingNav } from './LandingNav';
-import { HeroVisual } from './HeroVisual';
-import { AssetToMarketVisual } from './AssetToMarketVisual';
-import { InfrastructureSystemDiagram } from './InfrastructureSystemDiagram';
+import { MasterHeroEmblem } from './MasterHeroEmblem';
+import { MasterFeatureTrio } from './MasterFeatureTrio';
 import { ProductPreviewFrame } from './ProductPreviewFrame';
-import { LandingFooter } from './LandingFooter';
 import { NavigationTab } from '../layout/Header';
-import { ArrowRight, ArrowDown } from 'lucide-react';
-import { BackgroundGrid } from '../common/BackgroundGrid';
+import { ArrowRight, Layers, Sparkles, TrendingUp, ShieldCheck } from 'lucide-react';
+import { ValticsLogo } from '../brand/ValticsLogo';
 
 interface LandingPageViewProps {
   onEnterApp: (targetTab?: NavigationTab) => void;
+  onOpenWalletModal?: () => void;
 }
 
-export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp }) => {
+export const LandingPageView: React.FC<LandingPageViewProps> = ({ 
+  onEnterApp,
+  onOpenWalletModal 
+}) => {
   const handleScrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -22,127 +24,121 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp }) 
   };
 
   return (
-    <div className="min-h-screen bg-[#09011B] text-[#F7F3FF] relative overflow-x-hidden selection:bg-[#670CDC]/30 selection:text-[#F7F3FF]">
-      {/* Precision Financial Infrastructure Background */}
-      <BackgroundGrid />
-
-      {/* 1. Minimal Pristine Navigation */}
+    <div className="min-h-screen bg-[#000010] text-[#F5F5F7] relative overflow-x-hidden selection:bg-[#8A20FF]/30 selection:text-white font-sans">
+      {/* 1. Master Top Navigation */}
       <LandingNav
         onEnterApp={onEnterApp}
         onNavigateSection={handleScrollToSection}
+        onOpenWalletModal={onOpenWalletModal}
       />
 
       <main className="relative z-10">
-        {/* ACT I: HERO — MARKETS */}
-        <section className="relative pt-32 pb-16 sm:pt-44 sm:pb-24 lg:pt-52 lg:pb-28">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 text-center">
-            {/* Minimal Operational Marker */}
-            <div className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-mono tracking-widest uppercase text-zinc-400 mb-6 sm:mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Autonomous Liquidity Infrastructure on Solana</span>
+        {/* ======================================================== */}
+        {/* HERO SECTION — EXACT MASTER REFERENCE SCREENSHOT        */}
+        {/* ======================================================== */}
+        <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-20 lg:pt-44 lg:pb-24">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+              {/* Left Column: Eyebrow + Huge Heading + Paragraph + Button */}
+              <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
+                {/* Eyebrow */}
+                <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-mono font-medium tracking-[0.24em] uppercase text-[#A7A7B8]">
+                  <span>TOKENIZED ASSETS</span>
+                  <span className="text-[#6010F0]">×</span>
+                  <span>AI AGENTS</span>
+                  <span className="text-[#D82AA8]">×</span>
+                  <span>PREDICTION MARKETS</span>
+                </div>
+
+                {/* Main Heading: "Markets Reimagined." */}
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight text-[#F5F5F7] leading-[1.02] font-sans">
+                  Markets <br className="hidden sm:inline" />
+                  <span className="valtics-gradient-text">Reimagined.</span>
+                </h1>
+
+                {/* Subtitle / Description */}
+                <p className="text-base sm:text-lg text-[#A7A7B8] max-w-[500px] leading-relaxed font-normal">
+                  Programmable markets for tokenized assets, powered by AI agents and prediction markets.
+                </p>
+
+                {/* CTA Button: "Get Started →" */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => onEnterApp('overview')}
+                    className="valtics-button text-sm sm:text-base font-semibold px-8 py-3.5"
+                  >
+                    <span>Get Started</span>
+                    <ArrowRight className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Luminous 3D Ribbon "V" Emblem over Horizon Arc */}
+              <div className="lg:col-span-5 flex justify-center items-center">
+                <MasterHeroEmblem className="w-full" />
+              </div>
             </div>
 
-            {/* Single Dominant Syne Headline (Responsive & No Clipping) */}
-            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white font-display max-w-5xl mx-auto leading-[0.94] mb-6 sm:mb-8 [text-wrap:balance]">
-              Markets, reimagined.
-            </h1>
-
-            {/* Exact Preferred Supporting Message */}
-            <p className="text-base sm:text-lg lg:text-xl text-zinc-400 font-light max-w-lg mx-auto mb-8 sm:mb-12 leading-relaxed [text-wrap:balance]">
-              Dynamic market infrastructure for tokenized assets.
-            </p>
-
-            {/* Architectural CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16">
-              <button
-                type="button"
-                onClick={() => onEnterApp('overview')}
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 text-xs font-mono tracking-wider uppercase text-zinc-950 bg-white hover:bg-zinc-200 rounded-md transition-all cursor-pointer active:scale-[0.98]"
-              >
-                <span>Enter Valtics</span>
-                <ArrowRight className="w-3.5 h-3.5 text-zinc-950 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleScrollToSection('transformation')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-xs font-mono tracking-wider uppercase text-zinc-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <span>Explore the system</span>
-                <ArrowDown className="w-3.5 h-3.5 text-zinc-500" />
-              </button>
+            {/* ======================================================== */}
+            {/* THREE MASTER FEATURE CARDS TRIO                         */}
+            {/* Programmable Markets | AI Agents | Prediction Markets    */}
+            {/* ======================================================== */}
+            <div className="mt-16 sm:mt-24 lg:mt-32">
+              <MasterFeatureTrio onEnterApp={onEnterApp} />
             </div>
 
-            {/* The Main Hero Living Market Visualization */}
-            <HeroVisual />
+            {/* ======================================================== */}
+            {/* SUBTLE BRAND DIVIDER FROM SCREENSHOT                    */}
+            {/* "BUILT FOR A MORE OPEN FINANCIAL FUTURE"                 */}
+            {/* ======================================================== */}
+            <div className="mt-24 sm:mt-32 mb-12 flex items-center justify-center gap-4">
+              <div className="h-[1px] flex-1 max-w-[200px] sm:max-w-[320px] bg-white/[0.07]" />
+              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.28em] text-[#66667A] uppercase text-center whitespace-nowrap">
+                BUILT FOR A MORE OPEN FINANCIAL FUTURE
+              </span>
+              <div className="h-[1px] flex-1 max-w-[200px] sm:max-w-[320px] bg-white/[0.07]" />
+            </div>
           </div>
         </section>
 
-        {/* Narrative Flow Axis Divider: MARKETS → ASSETS */}
-        <div className="w-full flex flex-col items-center justify-center py-4 select-none">
-          <div className="text-[10px] font-mono tracking-widest text-zinc-600 uppercase mb-2">
-            MARKETS → ASSETS
-          </div>
-          <div className="w-[1px] h-16 sm:h-20 bg-gradient-to-b from-white/[0.12] to-transparent" />
-        </div>
+        {/* ======================================================== */}
+        {/* INTERACTIVE APP PREVIEW (Full Stack Showcase)           */}
+        {/* ======================================================== */}
+        <section id="system" className="relative py-12">
+          <ProductPreviewFrame onEnterApp={onEnterApp} />
+        </section>
 
-        {/* ACT II: ASSETS & TRANSFORMATION — From Asset to Market */}
-        <AssetToMarketVisual />
-
-        {/* Narrative Flow Axis Divider: RULES → LIQUIDITY */}
-        <div className="w-full flex flex-col items-center justify-center py-4 select-none">
-          <div className="text-[10px] font-mono tracking-widest text-zinc-600 uppercase mb-2">
-            RULES → LIQUIDITY
-          </div>
-          <div className="w-[1px] h-16 sm:h-20 bg-gradient-to-b from-white/[0.12] to-transparent" />
-        </div>
-
-        {/* ACT III: LIQUIDITY & SYSTEM PIPELINE */}
-        <InfrastructureSystemDiagram />
-
-        {/* Narrative Flow Axis Divider: LIQUIDITY → VALUE → VALTICS */}
-        <div className="w-full flex flex-col items-center justify-center py-4 select-none">
-          <div className="text-[10px] font-mono tracking-widest text-zinc-600 uppercase mb-2">
-            LIQUIDITY → VALUE → VALTICS
-          </div>
-          <div className="w-[1px] h-16 sm:h-20 bg-gradient-to-b from-white/[0.12] to-transparent" />
-        </div>
-
-        {/* ACT IV: VALUE & FUNCTIONING MARKET SYSTEMS */}
-        <ProductPreviewFrame onEnterApp={onEnterApp} />
-
-        {/* ACT V: FINAL STATEMENT & DESTINATION */}
-        <section className="py-36 sm:py-48 lg:py-56 relative text-center">
-          <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-12">
-            <span className="text-[11px] font-mono tracking-widest uppercase text-emerald-400 block mb-6">
-              THE PLATFORM
-            </span>
-
-            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tighter text-white font-display mb-6 [text-wrap:balance] leading-[1.02]">
-              Build the next generation of markets.
+        {/* ======================================================== */}
+        {/* BOTTOM CALL TO ACTION                                    */}
+        {/* ======================================================== */}
+        <section className="py-24 sm:py-32 relative text-center">
+          <div className="max-w-4xl mx-auto px-6 sm:px-8">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#F5F5F7] mb-4">
+              Build and trade on the <span className="valtics-gradient-text">next generation</span> of markets.
             </h2>
-
-            <p className="text-base sm:text-lg text-zinc-400 font-light max-w-lg mx-auto mb-10 sm:mb-12 leading-relaxed">
-              Deploy deterministic bonding curves, link live oracle benchmarks, and launch counterparty-free markets in seconds.
+            <p className="text-sm sm:text-base text-[#A7A7B8] max-w-lg mx-auto mb-8 leading-relaxed">
+              Explore live tokenized assets, run AI agent workflows, and discover Solana prediction markets.
             </p>
-
             <button
               type="button"
               onClick={() => onEnterApp('overview')}
-              className="inline-flex items-center gap-3 px-8 py-3.5 text-xs font-mono tracking-wider uppercase text-zinc-950 bg-white hover:bg-zinc-200 rounded-md transition-all cursor-pointer shadow-xl active:scale-[0.98]"
+              className="valtics-button px-8 py-3.5 text-sm font-semibold"
             >
-              <span>Enter Valtics</span>
-              <ArrowRight className="w-4 h-4 text-zinc-950" />
+              <span>Launch Valtics</span>
+              <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </div>
         </section>
       </main>
 
-      {/* ACT VI: Minimal Footer */}
-      <LandingFooter
-        onEnterApp={onEnterApp}
-        onNavigateSection={handleScrollToSection}
-      />
+      {/* Footer */}
+      <footer className="border-t border-[rgba(138,32,255,0.18)] bg-[#000008] py-8 text-center text-xs font-mono text-[#66667A]">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <ValticsLogo size="sm" showText={true} />
+          <span>© 2026 VALTICS. Markets Reimagined. Solana Devnet.</span>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -117,7 +117,7 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
     <div className="space-y-6">
       {/* Archetype Selector Cards */}
       <div className="space-y-2">
-        <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider block">
+        <label className="text-xs font-mono text-[#B8A9CC] uppercase tracking-wider block">
           Select Asset Archetype Preset
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -153,20 +153,20 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
               onClick={() => applyArchetype(item.id as AssetArchetype)}
               className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer relative ${
                 archetype === item.id
-                  ? 'border-emerald-500 bg-emerald-950/20 text-white shadow-md'
-                  : 'border-zinc-800 bg-[#090d14]/70 hover:border-zinc-700 text-zinc-400'
+                  ? 'border-[#670CDC] bg-[#1C0142] text-[#F7F3FF] shadow-md shadow-[#670CDC]/20'
+                  : 'border-[#670CDC]/20 bg-[#140130] hover:border-[#670CDC]/40 text-[#B8A9CC]'
               }`}
             >
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#100126] border border-[#670CDC]/25 text-[#D76EDD]">
                   {item.badge}
                 </span>
                 {archetype === item.id && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span className="w-2 h-2 rounded-full bg-[#F99225]" />
                 )}
               </div>
-              <h4 className="text-xs font-semibold text-zinc-100">{item.title}</h4>
-              <p className="text-[11px] text-zinc-400 mt-1 leading-normal font-sans">{item.desc}</p>
+              <h4 className="text-xs font-semibold text-[#F7F3FF]">{item.title}</h4>
+              <p className="text-[11px] text-[#B8A9CC] mt-1 leading-normal font-sans">{item.desc}</p>
             </button>
           ))}
         </div>
@@ -175,25 +175,25 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
       {/* Main Configuration & Interactive Tuning */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Sliders & Controls */}
-        <div className="lg:col-span-2 space-y-4 rounded-xl border border-zinc-800 bg-[#090d14]/80 p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+        <div className="lg:col-span-2 space-y-4 rounded-xl border border-[#670CDC]/25 bg-[#140130] p-5 shadow-md shadow-[#09011B]/60">
+          <div className="flex items-center justify-between pb-3 border-b border-[#670CDC]/20">
             <div className="flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider font-mono">
+              <Sliders className="w-4 h-4 text-[#F99225]" />
+              <h3 className="text-xs font-semibold text-[#F7F3FF] uppercase tracking-wider font-mono">
                 Mathematical Curve Parameters
               </h3>
             </div>
-            <span className="text-[11px] text-zinc-500 font-mono">Devnet Meteora DBC Core</span>
+            <span className="text-[11px] text-[#7E6D96] font-mono">Devnet Meteora DBC Core</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Curve Algorithm Type */}
             <div className="space-y-1.5">
-              <label className="text-xs text-zinc-400 font-medium">Curve Mathematical Shape</label>
+              <label className="text-xs text-[#B8A9CC] font-medium">Curve Mathematical Shape</label>
               <select
                 value={curveType}
                 onChange={(e) => setCurveType(e.target.value as any)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 focus:outline-hidden focus:border-zinc-600"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg px-3 py-2 text-xs text-[#EDE4FA] focus:outline-hidden"
               >
                 <option value="linear">Linear (Predictable Discovery)</option>
                 <option value="sigmoid">Sigmoid / S-Curve (Stabilized Plateau)</option>
@@ -204,7 +204,7 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
 
             {/* Quote Asset */}
             <div className="space-y-1.5">
-              <label className="text-xs text-zinc-400 font-medium">Quote Asset (Devnet)</label>
+              <label className="text-xs text-[#B8A9CC] font-medium">Quote Asset (Devnet)</label>
               <div className="flex items-center gap-2">
                 {(['USDC', 'SOL'] as const).map((q) => (
                   <button
@@ -213,8 +213,8 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                     onClick={() => setQuoteAsset(q)}
                     className={`flex-1 py-2 px-3 rounded-lg text-xs font-mono font-semibold transition-colors cursor-pointer border ${
                       quoteAsset === q
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800'
+                        ? 'bg-[#670CDC]/30 text-[#F7F3FF] border-[#670CDC]'
+                        : 'bg-[#100126] text-[#B8A9CC] border-[#670CDC]/25 hover:bg-[#1C0142]'
                     }`}
                   >
                     Devnet {q}
@@ -226,8 +226,8 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
             {/* Starting Price */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-400">Initial Spot Price</span>
-                <span className="font-mono text-zinc-200 font-semibold">${startPrice} {quoteAsset}</span>
+                <span className="text-[#B8A9CC]">Initial Spot Price</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">${startPrice} {quoteAsset}</span>
               </div>
               <input
                 type="range"
@@ -236,15 +236,15 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                 step="0.05"
                 value={startPrice}
                 onChange={(e) => setStartPrice(parseFloat(e.target.value))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
             </div>
 
             {/* Target Valuation */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-400">Target Graduation Market Cap</span>
-                <span className="font-mono text-zinc-200 font-semibold">${(targetCap / 1_000_000).toFixed(1)}M</span>
+                <span className="text-[#B8A9CC]">Target Graduation Market Cap</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">${(targetCap / 1_000_000).toFixed(1)}M</span>
               </div>
               <input
                 type="range"
@@ -253,15 +253,15 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                 step="1000000"
                 value={targetCap}
                 onChange={(e) => setTargetCap(parseFloat(e.target.value))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
             </div>
 
             {/* Curve Allocation % */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-400">Supply Allocated to Curve</span>
-                <span className="font-mono text-zinc-200 font-semibold">{curveAllocationPct}%</span>
+                <span className="text-[#B8A9CC]">Supply Allocated to Curve</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">{curveAllocationPct}%</span>
               </div>
               <input
                 type="range"
@@ -270,15 +270,15 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                 step="5"
                 value={curveAllocationPct}
                 onChange={(e) => setCurveAllocationPct(parseInt(e.target.value, 10))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
             </div>
 
             {/* Trading Fee Bps */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-400">Trading Fee Spread</span>
-                <span className="font-mono text-zinc-200 font-semibold">{feeBps} bps ({(feeBps / 100).toFixed(2)}%)</span>
+                <span className="text-[#B8A9CC]">Trading Fee Spread</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">{feeBps} bps ({(feeBps / 100).toFixed(2)}%)</span>
               </div>
               <input
                 type="range"
@@ -287,15 +287,15 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                 step="5"
                 value={feeBps}
                 onChange={(e) => setFeeBps(parseInt(e.target.value, 10))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
             </div>
 
             {/* Anti-Sniper Window */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-400">Anti-Sniper Window</span>
-                <span className="font-mono text-zinc-200 font-semibold">{antiSniperSlots} slots (~{(antiSniperSlots * 0.4).toFixed(0)}s)</span>
+                <span className="text-[#B8A9CC]">Anti-Sniper Window</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">{antiSniperSlots} slots (~{(antiSniperSlots * 0.4).toFixed(0)}s)</span>
               </div>
               <input
                 type="range"
@@ -304,15 +304,15 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                 step="10"
                 value={antiSniperSlots}
                 onChange={(e) => setAntiSniperSlots(parseInt(e.target.value, 10))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
             </div>
 
             {/* Liquidity Lock Days */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-400">DAMM Liquidity Lock Duration</span>
-                <span className="font-mono text-zinc-200 font-semibold">{vestingDays} days</span>
+                <span className="text-[#B8A9CC]">DAMM Liquidity Lock Duration</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">{vestingDays} days</span>
               </div>
               <input
                 type="range"
@@ -321,7 +321,7 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
                 step="30"
                 value={vestingDays}
                 onChange={(e) => setVestingDays(parseInt(e.target.value, 10))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
             </div>
           </div>
@@ -329,31 +329,31 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
 
         {/* Right Column: Model Summary & Action Cards */}
         <div className="space-y-4">
-          <div className="rounded-xl border border-zinc-800 bg-[#090d14]/90 p-5 space-y-4">
-            <h4 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider font-mono">
+          <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-5 space-y-4 shadow-md shadow-[#09011B]/60">
+            <h4 className="text-xs font-semibold text-[#F7F3FF] uppercase tracking-wider font-mono">
               Simulated Curve Output
             </h4>
 
             <div className="space-y-3 font-mono text-xs">
-              <div className="flex justify-between py-1.5 border-b border-zinc-800/80">
-                <span className="text-zinc-500">Graduation Target</span>
+              <div className="flex justify-between py-1.5 border-b border-[#670CDC]/20">
+                <span className="text-[#7E6D96]">Graduation Target</span>
                 <span className="text-emerald-400 font-semibold">~{quoteAtGraduationEstimate} {quoteAsset}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-zinc-800/80">
-                <span className="text-zinc-500">Tokens in Curve</span>
-                <span className="text-zinc-200">{tokensOnCurve.toLocaleString()} tokens</span>
+              <div className="flex justify-between py-1.5 border-b border-[#670CDC]/20">
+                <span className="text-[#7E6D96]">Tokens in Curve</span>
+                <span className="text-[#EDE4FA]">{tokensOnCurve.toLocaleString()} tokens</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-zinc-800/80">
-                <span className="text-zinc-500">Migration Target</span>
-                <span className="text-cyan-400">Meteora DAMM</span>
+              <div className="flex justify-between py-1.5 border-b border-[#670CDC]/20">
+                <span className="text-[#7E6D96]">Migration Target</span>
+                <span className="text-[#D76EDD] font-semibold">Meteora DAMM</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-zinc-800/80">
-                <span className="text-zinc-500">Vesting Lock</span>
-                <span className="text-zinc-200">{vestingDays} Days</span>
+              <div className="flex justify-between py-1.5 border-b border-[#670CDC]/20">
+                <span className="text-[#7E6D96]">Vesting Lock</span>
+                <span className="text-[#EDE4FA]">{vestingDays} Days</span>
               </div>
               <div className="flex justify-between py-1.5">
-                <span className="text-zinc-500">Cluster</span>
-                <span className="text-amber-400">Solana Devnet</span>
+                <span className="text-[#7E6D96]">Cluster</span>
+                <span className="text-[#F99225] font-semibold">Solana Devnet</span>
               </div>
             </div>
 
@@ -361,7 +361,7 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
               <button
                 type="button"
                 onClick={handleApply}
-                className="w-full py-2.5 px-4 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="w-full py-2.5 px-4 rounded-lg bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#F99225]/20"
               >
                 <span>Export to Market Creator</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -370,15 +370,15 @@ Is this model optimal for liquidity discovery, and what adjustments would you re
               <button
                 type="button"
                 onClick={handleCritique}
-                className="w-full py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center justify-center gap-2 border border-zinc-700 cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-lg bg-[#1C0142] hover:bg-[#26035A] text-[#EDE4FA] font-medium text-xs transition-colors flex items-center justify-center gap-2 border border-[#670CDC]/30 cursor-pointer"
               >
-                <MessageSquareCode className="w-3.5 h-3.5 text-emerald-400" />
+                <MessageSquareCode className="w-3.5 h-3.5 text-[#F99225]" />
                 <span>Ask Agent to Critique Model</span>
               </button>
             </div>
           </div>
 
-          <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/40 p-4 text-[11px] text-zinc-400 flex items-start gap-2.5 font-sans">
+          <div className="rounded-xl border border-[#670CDC]/20 bg-[#100126] p-4 text-[11px] text-[#B8A9CC] flex items-start gap-2.5 font-sans">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
               All curve parameters conform to the official Meteora Dynamic Bonding Curve smart contract constraints on Solana Devnet.

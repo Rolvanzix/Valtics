@@ -130,18 +130,18 @@ export const CuratedAssetDiscovery: React.FC<CuratedAssetDiscoveryProps> = ({
   return (
     <section className="space-y-4">
       {/* Header with Title and Single Clear Action */}
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-        <h2 className="text-base font-semibold text-zinc-100 font-sans tracking-tight">
+      <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-3">
+        <h2 className="text-base font-semibold text-[#F7F3FF] font-sans tracking-tight">
           Featured assets
         </h2>
 
         <button
           type="button"
           onClick={onExploreAll}
-          className="text-xs font-sans text-zinc-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer group font-medium"
+          className="text-xs font-sans text-[#B8A9CC] hover:text-[#F7F3FF] flex items-center gap-1.5 transition-colors cursor-pointer group font-medium"
         >
           <span>Explore all</span>
-          <ArrowRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="w-3.5 h-3.5 text-[#B8A9CC] group-hover:text-[#F7F3FF] transition-transform group-hover:translate-x-0.5" />
         </button>
       </div>
 
@@ -160,39 +160,39 @@ export const CuratedAssetDiscovery: React.FC<CuratedAssetDiscoveryProps> = ({
                   onExploreAll();
                 }
               }}
-              className="rounded-xl border border-zinc-800 bg-[#0b0f17] hover:bg-[#0e1420] hover:border-zinc-700 p-5 flex flex-col justify-between transition-colors cursor-pointer group"
+              className="rounded-xl border border-[#670CDC]/25 bg-[#140130] hover:bg-[#1C0142] hover:border-[#670CDC]/60 p-5 flex flex-col justify-between transition-all cursor-pointer group shadow-lg shadow-[#09011B]/40"
             >
               {/* Top Row: Symbol Badge + Category */}
               <div>
                 <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-200 font-mono font-semibold text-xs flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-lg bg-[#240250] border border-[#670CDC]/40 text-[#F7F3FF] font-mono font-semibold text-xs flex items-center justify-center">
                     {asset.symbol.slice(0, 3)}
                   </div>
-                  <span className="text-[11px] text-zinc-500 font-sans px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
+                  <span className="text-[11px] text-[#B8A9CC] font-sans px-2 py-0.5 rounded-full bg-[#120128] border border-[#670CDC]/20">
                     {asset.category}
                   </span>
                 </div>
 
                 {/* Asset Name and Symbol */}
                 <div className="mt-4">
-                  <h3 className="font-semibold text-zinc-100 text-base group-hover:text-white transition-colors truncate font-sans">
+                  <h3 className="font-semibold text-[#F7F3FF] text-base group-hover:text-[#F99225] transition-colors truncate font-sans">
                     {asset.name}
                   </h3>
-                  <span className="font-mono text-xs text-zinc-500 block mt-0.5">
+                  <span className="font-mono text-xs text-[#B8A9CC] block mt-0.5">
                     {asset.symbol}
                   </span>
                 </div>
               </div>
 
               {/* Bottom: Current Price and Movement */}
-              <div className="mt-6 pt-4 border-t border-zinc-800/80 flex items-baseline justify-between">
-                <span className="font-mono font-bold text-lg text-zinc-100">
+              <div className="mt-6 pt-4 border-t border-[#670CDC]/20 flex items-baseline justify-between">
+                <span className="font-mono font-bold text-lg text-[#F7F3FF]">
                   {asset.price !== null ? formatCurrency(asset.price) : '—'}
                 </span>
 
                 {asset.changePct !== null ? (
                   <span
-                    className={`font-mono text-xs font-medium ${
+                    className={`font-mono text-xs font-semibold ${
                       isPositive ? 'text-emerald-400' : 'text-rose-400'
                     }`}
                   >
@@ -200,7 +200,7 @@ export const CuratedAssetDiscovery: React.FC<CuratedAssetDiscoveryProps> = ({
                     {asset.changePct.toFixed(2)}%
                   </span>
                 ) : (
-                  <span className="text-zinc-600 text-xs font-mono">—</span>
+                  <span className="text-[#7E6D96] text-xs font-mono">—</span>
                 )}
               </div>
             </div>

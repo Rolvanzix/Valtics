@@ -91,14 +91,14 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-zinc-800/80 pb-3 flex items-center justify-between">
+      <div className="border-b border-[#670CDC]/20 pb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-white font-sans tracking-tight">Bonding curve</h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <h2 className="text-lg font-bold text-[#F7F3FF] font-sans tracking-tight">Bonding Curve</h2>
+          <p className="text-xs text-[#B8A9CC] mt-0.5">
             Configure dynamic bonding curve pricing bands and migration parameters.
           </p>
         </div>
-        <span className="text-[11px] font-mono text-zinc-400 px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700/60">
+        <span className="text-[11px] font-mono text-[#B8A9CC] px-2.5 py-1 rounded bg-[#100126] border border-[#670CDC]/30">
           Step 3 of 5
         </span>
       </div>
@@ -106,11 +106,11 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
       {/* Visual Invariant Curve Preview */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-violet-400" />
+          <span className="font-semibold text-[#EDE4FA] flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-[#670CDC]" />
             <span>Deterministic Pricing Curve Preview</span>
           </span>
-          <span className="font-mono text-[11px] text-zinc-400">
+          <span className="font-mono text-[11px] text-[#B8A9CC]">
             DAMM v2 Graduation Target: {formatCurrency(input.targetMigrationQuote, input.quoteSymbol)}
           </span>
         </div>
@@ -118,10 +118,10 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
       </div>
 
       {/* Numerical Curve Parameters */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 bg-[#090e18] border border-zinc-800/90 rounded-xl p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 bg-[#140130] border border-[#670CDC]/25 shadow-md shadow-[#09011B]/60 rounded-xl p-4">
         {/* Starting Price */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-zinc-300">
+          <label className="block text-xs font-semibold text-[#EDE4FA]">
             Starting Spot Price ({input.quoteSymbol})
           </label>
           <input
@@ -130,16 +130,16 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
             min="0.000001"
             value={input.startingPriceQuote}
             onChange={(e) => handleStartPriceChange(parseFloat(e.target.value) || 0.001)}
-            className="w-full bg-zinc-900/90 border border-zinc-700 rounded-lg px-3 py-2 text-sm font-mono text-amber-400 focus:outline-none focus:border-amber-500"
+            className="w-full bg-[#100126] border border-[#670CDC]/30 focus:border-[#670CDC] rounded-lg px-3 py-2 text-sm font-mono text-[#F99225] focus:outline-hidden"
           />
-          <span className="text-[10px] text-zinc-400 block font-mono">
+          <span className="text-[10px] text-[#7E6D96] block font-mono">
             Initial liquidity bin price
           </span>
         </div>
 
         {/* Migration Target Price */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-zinc-300">
+          <label className="block text-xs font-semibold text-[#EDE4FA]">
             Graduation Price ({input.quoteSymbol})
           </label>
           <input
@@ -148,16 +148,16 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
             min="0.000001"
             value={input.migrationPriceQuote}
             onChange={(e) => handleMigrationPriceChange(parseFloat(e.target.value) || 0.002)}
-            className="w-full bg-zinc-900/90 border border-zinc-700 rounded-lg px-3 py-2 text-sm font-mono text-amber-400 focus:outline-none focus:border-amber-500"
+            className="w-full bg-[#100126] border border-[#670CDC]/30 focus:border-[#670CDC] rounded-lg px-3 py-2 text-sm font-mono text-[#F99225] focus:outline-hidden"
           />
-          <span className="text-[10px] text-zinc-400 block font-mono">
+          <span className="text-[10px] text-[#7E6D96] block font-mono">
             Price at migration threshold
           </span>
         </div>
 
         {/* Graduation Target Quote Threshold */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-zinc-300">
+          <label className="block text-xs font-semibold text-[#EDE4FA]">
             Migration Target Threshold ({input.quoteSymbol})
           </label>
           <input
@@ -166,18 +166,18 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
             min="1"
             value={input.targetMigrationQuote}
             onChange={(e) => handleMigrationTargetChange(parseFloat(e.target.value) || 85)}
-            className="w-full bg-zinc-900/90 border border-zinc-700 rounded-lg px-3 py-2 text-sm font-mono text-zinc-100 focus:outline-none focus:border-amber-500"
+            className="w-full bg-[#100126] border border-[#670CDC]/30 focus:border-[#670CDC] rounded-lg px-3 py-2 text-sm font-mono text-[#F7F3FF] focus:outline-hidden"
           />
-          <span className="text-[10px] text-zinc-400 block font-mono">
+          <span className="text-[10px] text-[#7E6D96] block font-mono">
             Triggers automated DAMM migration
           </span>
         </div>
       </div>
 
       {/* Liquidity Allocation & Locking */}
-      <div className="bg-[#090e18] border border-zinc-800/90 rounded-xl p-4 space-y-3">
+      <div className="bg-[#140130] border border-[#670CDC]/25 shadow-md shadow-[#09011B]/60 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
+          <span className="font-semibold text-[#EDE4FA] flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-emerald-400" />
             <span>Permanent LP Protection</span>
           </span>
@@ -186,7 +186,7 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
           </span>
         </div>
 
-        <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden flex">
+        <div className="h-2 w-full bg-[#100126] rounded-full overflow-hidden flex border border-[#670CDC]/20">
           <div
             style={{ width: `${input.creatorPermanentLockedLpPct}%` }}
             className="bg-emerald-400 h-full"
@@ -194,29 +194,29 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
           />
           <div
             style={{ width: `${100 - input.creatorPermanentLockedLpPct}%` }}
-            className="bg-amber-400 h-full"
+            className="bg-[#F99225] h-full"
             title="Unlocked LP"
           />
         </div>
 
-        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 pt-1">
+        <div className="flex items-center justify-between text-[11px] font-mono text-[#B8A9CC] pt-1">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             Permanent Burnt LP (Anti-Rug)
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="w-2 h-2 rounded-full bg-[#F99225]" />
             Tradable LP ({100 - input.creatorPermanentLockedLpPct}%)
           </span>
         </div>
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-4 border-t border-zinc-800/80">
+      <div className="flex items-center justify-between pt-4 border-t border-[#670CDC]/20">
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 min-h-[44px] rounded-lg border border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+          className="px-4 py-2 min-h-[44px] rounded-lg border border-[#670CDC]/30 bg-[#1C0142] hover:bg-[#26035A] text-[#EDE4FA] text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
@@ -225,7 +225,7 @@ export const Step3BondingCurve: React.FC<Step3BondingCurveProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="px-5 py-2 min-h-[44px] rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg shadow-amber-500/20"
+          className="px-5 py-2 min-h-[44px] rounded-lg bg-[#F99225] hover:bg-[#FFA742] text-[#09011B] text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg shadow-[#F99225]/20 active:scale-[0.99]"
         >
           <span>Next: Review</span>
           <ArrowRight className="w-3.5 h-3.5" />

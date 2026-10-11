@@ -28,13 +28,13 @@ export const PremiumEmptyState: React.FC<PremiumEmptyStateProps> = ({
         <svg viewBox="0 0 80 50" className="w-full h-full overflow-visible">
           <defs>
             <linearGradient id="empty-curve-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.8" />
-              <stop offset="60%" stopColor="#f43f5e" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.9" />
+              <stop offset="0%" stopColor="#670CDC" stopOpacity="0.9" />
+              <stop offset="60%" stopColor="#BA3351" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#F99225" stopOpacity="0.9" />
             </linearGradient>
             <linearGradient id="empty-curve-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#070b14" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#670CDC" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#09011B" stopOpacity="0.0" />
             </linearGradient>
           </defs>
           <path
@@ -48,17 +48,17 @@ export const PremiumEmptyState: React.FC<PremiumEmptyStateProps> = ({
             strokeWidth="2.5"
             strokeLinecap="round"
           />
-          <circle cx="74" cy="8" r="3.5" fill="#f59e0b" stroke="#ffffff" strokeWidth="1.5" />
-          <circle cx="6" cy="42" r="2.5" fill="#7c3aed" />
+          <circle cx="74" cy="8" r="3.5" fill="#F99225" stroke="#F7F3FF" strokeWidth="1.5" />
+          <circle cx="6" cy="42" r="2.5" fill="#670CDC" />
         </svg>
       </div>
 
       {/* Concise Copy */}
       <div className="space-y-1 max-w-sm">
-        <h3 className="text-base font-semibold text-zinc-100 font-sans tracking-tight">
+        <h3 className="text-base font-semibold text-[#F7F3FF] font-sans tracking-tight">
           {title}
         </h3>
-        <p className="text-xs text-zinc-400 font-sans">
+        <p className="text-xs text-[#B8A9CC] font-sans">
           {description}
         </p>
       </div>

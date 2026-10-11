@@ -17,8 +17,8 @@ export const AssetLogo: React.FC<AssetLogoProps> = ({
 
   // Pick color accent according to financial asset category
   const lowerCat = category.toLowerCase();
-  let bgStyles = 'bg-zinc-900 border-zinc-800 text-zinc-200';
-  let badgeAccent = 'text-zinc-400';
+  let bgStyles = 'bg-[#140130] border-[#670CDC]/30 text-[#EDE4FA]';
+  let badgeAccent = 'text-[#B8A9CC]';
 
   if (lowerCat.includes('commodity') || clean === 'XAU' || clean === 'PAXG' || clean === 'GLD') {
     bgStyles = 'bg-amber-950/20 border-amber-800/40 text-amber-200';

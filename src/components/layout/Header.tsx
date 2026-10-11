@@ -6,7 +6,7 @@ import { AddressBadge } from '../common/AddressBadge';
 import { formatCurrency } from '../../utils/format';
 import { ValticsMark } from '../brand/ValticsLogo';
 
-export type NavigationTab = 'overview' | 'explore-assets' | 'markets' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity' | 'agent';
+export type NavigationTab = 'overview' | 'explore-assets' | 'markets' | 'predictions' | 'portfolio' | 'passport' | 'create' | 'studio' | 'my-markets' | 'activity' | 'agent';
 
 interface HeaderProps {
   activeTab: NavigationTab;
@@ -26,6 +26,8 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'overview', label: 'Overview' },
     { id: 'explore-assets', label: 'Explore assets' },
     { id: 'markets', label: 'Explore markets' },
+    { id: 'predictions', label: 'Predictions' },
+    { id: 'portfolio', label: 'Portfolio' },
     { id: 'agent', label: 'Valtics Agent', badge: 'AI' },
     { id: 'create', label: 'Create market' },
     { id: 'my-markets', label: 'Dashboard' },
@@ -47,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="font-extrabold text-base tracking-tight text-[#F7F3FF] font-sans group-hover:text-white transition-colors">
                   VALTICS
                 </span>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-[#1C0142] text-[#F99225] border border-[#F99225]/30">
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#1C0142] text-[#F99225] border border-[#F99225]/30">
                   DBC Core
                 </span>
               </div>
@@ -89,10 +91,10 @@ export const Header: React.FC<HeaderProps> = ({
                 id="wallet-user-pill"
                 type="button"
                 onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
-                className={`flex items-center gap-2 pl-2.5 pr-2 py-1 rounded-md border transition-colors text-xs ${
+                className={`flex items-center gap-2 pl-2.5 pr-2 py-1 rounded-lg border transition-colors text-xs cursor-pointer ${
                   isWrongNetwork
                     ? 'border-rose-800/80 bg-rose-950/40 text-rose-200'
-                    : 'border-zinc-800 bg-[#0e131d] hover:border-zinc-700 text-zinc-200'
+                    : 'border-[#670CDC]/30 bg-[#140130] hover:border-[#670CDC]/60 text-[#F7F3FF]'
                 }`}
               >
                 {isWrongNetwork ? (
@@ -101,41 +103,41 @@ export const Header: React.FC<HeaderProps> = ({
                   </span>
                 ) : (
                   <div className="flex items-center gap-1.5 font-mono-nums">
-                    <span className="text-emerald-400 font-medium hidden sm:inline">
+                    <span className="text-emerald-400 font-semibold hidden sm:inline">
                       {balanceSol !== null ? `${balanceSol.toFixed(3)} SOL` : '—'}
                     </span>
-                    <span className="w-1 h-1 rounded-full bg-zinc-700 hidden sm:inline" />
-                    <span className="text-zinc-300 font-mono">
+                    <span className="w-1 h-1 rounded-full bg-[#670CDC] hidden sm:inline" />
+                    <span className="text-[#F7F3FF] font-mono">
                       {publicKeyStr.slice(0, 4)}...{publicKeyStr.slice(-4)}
                     </span>
                   </div>
                 )}
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#B8A9CC]" />
               </button>
 
               {walletDropdownOpen && (
                 <div
                   id="wallet-dropdown-menu"
-                  className="absolute right-0 mt-2 w-64 rounded-lg border border-zinc-800 bg-[#0c1018] shadow-2xl z-50 p-3 space-y-3 text-xs"
+                  className="absolute right-0 mt-2 w-64 rounded-xl border border-[#670CDC]/30 bg-[#140130] shadow-2xl shadow-[#09011B]/95 z-50 p-3.5 space-y-3 text-xs"
                 >
-                  <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-                    <span className="text-zinc-400 text-[11px]">Connected Wallet</span>
-                    <span className="font-semibold text-zinc-200">{walletName || 'Solana Wallet'}</span>
+                  <div className="flex items-center justify-between pb-2 border-b border-[#670CDC]/20">
+                    <span className="text-[#B8A9CC] text-[11px]">Connected Wallet</span>
+                    <span className="font-semibold text-[#F7F3FF]">{walletName || 'Solana Wallet'}</span>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-400 uppercase font-semibold">Account</span>
+                    <span className="text-[10px] text-[#B8A9CC] uppercase font-semibold">Account</span>
                     <AddressBadge address={publicKeyStr} head={6} tail={6} className="w-full justify-between" />
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-400 uppercase font-semibold">SOL Balance</span>
-                    <div className="font-mono-nums text-sm font-semibold text-zinc-100">
+                    <span className="text-[10px] text-[#B8A9CC] uppercase font-semibold">SOL Balance</span>
+                    <div className="font-mono-nums text-sm font-bold text-[#F99225]">
                       {balanceSol !== null ? formatCurrency(balanceSol, 'SOL') : 'Fetching balance...'}
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-zinc-800/80">
+                  <div className="pt-2 border-t border-[#670CDC]/20">
                     <button
                       id="wallet-disconnect-action"
                       type="button"
@@ -143,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
                         await disconnect();
                         setWalletDropdownOpen(false);
                       }}
-                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded bg-zinc-800/80 hover:bg-rose-950/60 hover:text-rose-300 text-zinc-300 text-xs transition-colors"
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-[#1C0142] hover:bg-rose-950/60 hover:text-rose-300 text-[#B8A9CC] border border-[#670CDC]/25 text-xs transition-colors cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Disconnect</span>
@@ -157,26 +159,26 @@ export const Header: React.FC<HeaderProps> = ({
               id="connect-wallet-btn"
               type="button"
               onClick={onOpenWalletModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold shadow-xs transition-all tracking-tight active:scale-[0.98] cursor-pointer font-sans"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#670CDC] hover:bg-[#7818EE] text-[#F7F3FF] text-xs font-semibold shadow-md shadow-[#670CDC]/30 transition-all tracking-tight active:scale-[0.98] cursor-pointer font-sans"
             >
-              <Wallet className="w-3.5 h-3.5 text-zinc-950" />
-              <span>Connect wallet</span>
+              <Wallet className="w-3.5 h-3.5 text-[#F99225]" />
+              <span>Connect Wallet</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Mobile Navigation Bar */}
-      <div className="md:hidden flex items-center overflow-x-auto px-4 py-2 border-t border-zinc-800/60 gap-1 bg-[#080b11]">
+      <div className="md:hidden flex items-center overflow-x-auto px-4 py-2 border-t border-[#670CDC]/20 gap-1 bg-[#0E0124]">
         {navItems.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => onSelectTab(item.id)}
-            className={`px-2.5 py-1 rounded text-xs whitespace-nowrap font-medium transition-colors ${
+            className={`px-2.5 py-1 rounded-md text-xs whitespace-nowrap font-medium transition-colors cursor-pointer ${
               activeTab === item.id
-                ? 'bg-zinc-800 text-zinc-100'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-[#3B0489] text-[#F7F3FF] font-semibold border border-[#670CDC]/40'
+                : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
             }`}
           >
             {item.label}

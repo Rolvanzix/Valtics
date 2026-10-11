@@ -98,28 +98,28 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
       {/* Institutional Legal Modal */}
       {legalModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-xl border border-zinc-800 bg-[#0c1018] p-6 shadow-2xl space-y-4 text-xs font-sans text-zinc-300">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+          <div className="w-full max-w-lg rounded-xl border border-[#670CDC]/30 bg-[#140130] p-6 shadow-2xl shadow-[#09011B]/95 space-y-4 text-xs font-sans text-[#F7F3FF]">
+            <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-3">
               <div className="flex items-center gap-2">
                 {legalModal === 'terms' ? (
-                  <FileText className="w-4 h-4 text-zinc-400" />
+                  <FileText className="w-4 h-4 text-[#D76EDD]" />
                 ) : (
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 )}
-                <h3 className="font-semibold text-sm text-zinc-100">
+                <h3 className="font-semibold text-sm text-[#F7F3FF]">
                   {legalModal === 'terms' ? 'Terms of Protocol Use' : 'Privacy & Data Standards'}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setLegalModal(null)}
-                className="p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1 rounded-md text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142] transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 leading-relaxed text-zinc-400">
+            <div className="space-y-3 leading-relaxed text-[#B8A9CC]">
               {legalModal === 'terms' ? (
                 <>
                   <p>
@@ -147,11 +147,11 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
               )}
             </div>
 
-            <div className="pt-3 border-t border-zinc-800 flex justify-end">
+            <div className="pt-3 border-t border-[#670CDC]/20 flex justify-end">
               <button
                 type="button"
                 onClick={() => setLegalModal(null)}
-                className="px-4 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-[#1C0142] hover:bg-[#250255] text-[#F7F3FF] border border-[#670CDC]/30 text-xs font-semibold transition-colors cursor-pointer"
               >
                 Close
               </button>

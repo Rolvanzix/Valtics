@@ -293,7 +293,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
       title={
         <div className="flex items-center gap-2.5">
           <ValticsMark size={22} glow />
-          <span className="text-zinc-100 font-bold">
+          <span className="text-[#F7F3FF] font-bold">
             {stage === 'confirmed'
               ? 'Swap Confirmed & Verified On-Chain'
               : stage === 'preflight_review' || stage !== 'idle'
@@ -318,7 +318,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   <h4 className="text-sm font-semibold text-emerald-200">
                     Transaction Finalized & Verified On-Chain
                   </h4>
-                  <p className="text-xs text-zinc-300">
+                  <p className="text-xs text-[#EDE4FA]">
                     Your curve swap was signed, committed to Solana block{' '}
                     <span className="font-mono text-emerald-300">#{receipt.slot}</span>, and verified
                     on the ledger with zero state errors.
@@ -326,17 +326,17 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-zinc-950/70 border border-emerald-900/40 space-y-2 font-mono text-[11px]">
+              <div className="p-3 rounded-lg bg-[#100126] border border-emerald-900/40 space-y-2 font-mono text-[11px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Transaction Signature:</span>
+                  <span className="text-[#B8A9CC] font-sans">Transaction Signature:</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-zinc-200">
+                    <span className="text-[#EDE4FA]">
                       {receipt.signature.slice(0, 6)}...{receipt.signature.slice(-6)}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleCopy(receipt.signature, 'sig')}
-                      className="text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                      className="text-[#B8A9CC] hover:text-[#F7F3FF] cursor-pointer"
                     >
                       {copiedKey === 'sig' ? (
                         <Check className="w-3 h-3 text-emerald-400" />
@@ -356,14 +356,14 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Network Fee:</span>
-                  <span className="text-zinc-300">
+                  <span className="text-[#B8A9CC] font-sans">Network Fee:</span>
+                  <span className="text-[#EDE4FA]">
                     {(receipt.networkFeeLamports / 1e9).toFixed(6)} SOL
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Verification Status:</span>
+                  <span className="text-[#B8A9CC] font-sans">Verification Status:</span>
                   <Badge variant="live" size="xs">
                     Confirmed On-Chain
                   </Badge>
@@ -389,10 +389,10 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
           quote && (
             <div className="space-y-4 py-1">
               {/* Mandatory Preflight Checklist Matrix */}
-              <div className="p-3.5 rounded-xl bg-[#090d16] border border-zinc-800 space-y-3">
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-                  <span className="text-[11px] font-mono uppercase text-amber-400 font-semibold tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <div className="p-3.5 rounded-xl bg-[#140130] border border-[#670CDC]/25 space-y-3">
+                <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-2">
+                  <span className="text-[11px] font-mono uppercase text-[#F99225] font-semibold tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#F99225]" />
                     Transaction Safety Checklist
                   </span>
                   <Badge variant="accent" size="xs">
@@ -402,11 +402,11 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono text-[11px]">
                   {/* Purpose */}
-                  <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800 col-span-full">
-                    <span className="text-zinc-400 font-sans text-[10px] block uppercase">
+                  <div className="p-2.5 rounded-lg bg-[#1C0142]/60 border border-[#670CDC]/25 col-span-full">
+                    <span className="text-[#B8A9CC] font-sans text-[10px] block uppercase">
                       Transaction Purpose
                     </span>
-                    <span className="text-zinc-100 font-semibold font-sans mt-0.5 block">
+                    <span className="text-[#F7F3FF] font-semibold font-sans mt-0.5 block">
                       {isSellMode
                         ? `Dynamic Bonding Curve Swap: Sell ${amountIn} ${baseSymbol} for ${quoteSymbol}`
                         : `Dynamic Bonding Curve Swap: Buy ${quote.expectedOutputFormatted} ${baseSymbol} with ${amountIn} ${quoteSymbol}`}
@@ -414,64 +414,64 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   </div>
 
                   {/* Token / Asset */}
-                  <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <span className="text-zinc-400 font-sans text-[10px] block uppercase">
+                  <div className="p-2.5 rounded-lg bg-[#1C0142]/60 border border-[#670CDC]/25">
+                    <span className="text-[#B8A9CC] font-sans text-[10px] block uppercase">
                       Token / Asset
                     </span>
-                    <div className="text-zinc-200 font-semibold mt-0.5 truncate">
+                    <div className="text-[#F7F3FF] font-semibold mt-0.5 truncate">
                       {pool.tokenName} (${baseSymbol})
                     </div>
-                    <span className="text-[10px] text-zinc-400 truncate block">
+                    <span className="text-[10px] text-[#B8A9CC] truncate block">
                       Mint: {pool.baseMint.slice(0, 6)}...{pool.baseMint.slice(-4)}
                     </span>
                   </div>
 
                   {/* Quote Asset */}
-                  <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <span className="text-zinc-400 font-sans text-[10px] block uppercase">
+                  <div className="p-2.5 rounded-lg bg-[#1C0142]/60 border border-[#670CDC]/25">
+                    <span className="text-[#B8A9CC] font-sans text-[10px] block uppercase">
                       Quote Asset
                     </span>
-                    <div className="text-zinc-200 font-semibold mt-0.5">
+                    <div className="text-[#F7F3FF] font-semibold mt-0.5">
                       {quoteSymbol} (Meteora Vault PDA)
                     </div>
-                    <span className="text-[10px] text-zinc-400 truncate block">
+                    <span className="text-[10px] text-[#B8A9CC] truncate block">
                       Vault: {pool.quoteVault.slice(0, 6)}...{pool.quoteVault.slice(-4)}
                     </span>
                   </div>
 
                   {/* Amount In & Out */}
-                  <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <span className="text-zinc-400 font-sans text-[10px] block uppercase">
+                  <div className="p-2.5 rounded-lg bg-[#1C0142]/60 border border-[#670CDC]/25">
+                    <span className="text-[#B8A9CC] font-sans text-[10px] block uppercase">
                       Swap Amount
                     </span>
-                    <div className="text-amber-400 font-bold mt-0.5">
+                    <div className="text-[#F99225] font-bold mt-0.5">
                       {amountIn} {isSellMode ? baseSymbol : quoteSymbol}
                     </div>
-                    <span className="text-[10px] text-zinc-400 block">
+                    <span className="text-[10px] text-[#B8A9CC] block">
                       Min received: {quote.minimumOutputFormatted} {isSellMode ? quoteSymbol : baseSymbol}
                     </span>
                   </div>
 
                   {/* Estimated Network Fee & Protocol Fee */}
-                  <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <span className="text-zinc-400 font-sans text-[10px] block uppercase">
+                  <div className="p-2.5 rounded-lg bg-[#100126] border border-[#670CDC]/20">
+                    <span className="text-[#7E6D96] font-sans text-[10px] block uppercase">
                       Fees & Slippage
                     </span>
-                    <div className="text-zinc-200 mt-0.5">
+                    <div className="text-[#EDE4FA] mt-0.5">
                       Gas: ~0.000005 SOL · Slippage: {slippageBps / 100}%
                     </div>
-                    <span className="text-[10px] text-zinc-400 block">
+                    <span className="text-[10px] text-[#B8A9CC] block">
                       Protocol fee: {quote.protocolFeeFormatted} {isSellMode ? baseSymbol : quoteSymbol}
                     </span>
                   </div>
 
                   {/* Destination / Pool */}
-                  <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800 col-span-full flex items-center justify-between">
+                  <div className="p-2.5 rounded-lg bg-[#100126] border border-[#670CDC]/20 col-span-full flex items-center justify-between">
                     <div>
-                      <span className="text-zinc-400 font-sans text-[10px] block uppercase">
+                      <span className="text-[#7E6D96] font-sans text-[10px] block uppercase">
                         Destination Pool PDA (Verified DBC)
                       </span>
-                      <span className="text-zinc-300 font-mono text-[11px]">
+                      <span className="text-[#EDE4FA] font-mono text-[11px]">
                         {pool.poolAddress}
                       </span>
                     </div>
@@ -479,7 +479,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                       href={getExplorerUrl(pool.poolAddress, 'address', network)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-zinc-400 hover:text-amber-400 transition-colors shrink-0"
+                      className="text-[#7E6D96] hover:text-[#F99225] transition-colors shrink-0"
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
@@ -500,7 +500,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                       {stage === 'verifying_onchain' && 'Verifying transaction outcome on-chain...'}
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-400">
+                  <p className="text-[11px] text-[#B8A9CC]">
                     The transaction will only be confirmed once the Solana ledger strictly verifies its on-chain execution.
                   </p>
                 </div>
@@ -525,18 +525,18 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
 
               {/* Explicit Confirmation Checkbox */}
               {stage === 'preflight_review' && (
-                <div className="p-3 rounded-xl bg-[#0b0f19] border border-zinc-800 space-y-2">
-                  <label className="flex items-start gap-2.5 text-xs text-zinc-300 cursor-pointer select-none">
+                <div className="p-3 rounded-xl bg-[#100126] border border-[#670CDC]/25 space-y-2">
+                  <label className="flex items-start gap-2.5 text-xs text-[#EDE4FA] cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={confirmedRisk}
                       onChange={(e) => setConfirmedRisk(e.target.checked)}
-                      className="mt-0.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0 cursor-pointer"
+                      className="mt-0.5 rounded border-[#670CDC]/30 bg-[#140130] text-[#F99225] accent-[#F99225] focus:ring-0 cursor-pointer"
                     />
                     <span className="leading-snug">
                       I have reviewed the destination pool PDA, slippage bounds ({slippageBps / 100}%),
                       and explicitly authorize this swap on Solana{' '}
-                      <strong className="text-zinc-100">{network}</strong>.
+                      <strong className="text-[#F7F3FF]">{network}</strong>.
                     </span>
                   </label>
                 </div>
@@ -575,7 +575,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
         {stage === 'idle' && (
           <div className="space-y-4">
             {/* Direction Selector Tabs */}
-            <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-900/60 rounded-xl border border-zinc-800">
+            <div className="grid grid-cols-2 gap-2 p-1 bg-[#100126] rounded-xl border border-[#670CDC]/25">
               <button
                 type="button"
                 onClick={() => {
@@ -584,8 +584,8 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 }}
                 className={`py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
                   !isSellMode
-                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-[#F99225]/15 text-[#F99225] border border-[#F99225]/30'
+                    : 'text-[#B8A9CC] hover:text-[#EDE4FA]'
                 }`}
               >
                 <Zap className="w-3.5 h-3.5" />
@@ -600,8 +600,8 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 }}
                 className={`py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
                   isSellMode
-                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-[#F99225]/15 text-[#F99225] border border-[#F99225]/30'
+                    : 'text-[#B8A9CC] hover:text-[#EDE4FA]'
                 }`}
               >
                 <ArrowDownUp className="w-3.5 h-3.5" />
@@ -612,11 +612,11 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
             {/* Input Form */}
             <div className="space-y-3">
               {/* Pay Input */}
-              <div className="p-3 rounded-xl bg-zinc-950/70 border border-zinc-800/80 space-y-1.5">
-                <div className="flex items-center justify-between text-zinc-400 text-[11px]">
+              <div className="p-3 rounded-xl bg-[#100126] border border-[#670CDC]/20 space-y-1.5">
+                <div className="flex items-center justify-between text-[#7E6D96] text-[11px]">
                   <span>You Pay</span>
                   {connected && (
-                    <span className="font-mono">
+                    <span className="font-mono text-[#B8A9CC]">
                       Balance:{' '}
                       {isSellMode
                         ? `Token Balance`
@@ -633,20 +633,20 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                     value={amountIn}
                     onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.0"
-                    className="w-full bg-transparent text-xl font-bold font-mono text-zinc-100 focus:outline-none placeholder-zinc-700"
+                    className="w-full bg-transparent text-xl font-bold font-mono text-[#F7F3FF] focus:outline-none placeholder-[#7E6D96]"
                   />
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 font-mono text-xs font-semibold text-zinc-200 shrink-0">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#140130] border border-[#670CDC]/30 font-mono text-xs font-semibold text-[#EDE4FA] shrink-0">
                     <span>{isSellMode ? baseSymbol : quoteSymbol}</span>
                   </div>
                 </div>
               </div>
 
               {/* Receive Output */}
-              <div className="p-3 rounded-xl bg-zinc-950/70 border border-zinc-800/80 space-y-1.5">
-                <div className="flex items-center justify-between text-zinc-400 text-[11px]">
+              <div className="p-3 rounded-xl bg-[#100126] border border-[#670CDC]/20 space-y-1.5">
+                <div className="flex items-center justify-between text-[#7E6D96] text-[11px]">
                   <span>You Receive (Estimated)</span>
                   {isQuoting && (
-                    <span className="flex items-center gap-1 text-amber-400">
+                    <span className="flex items-center gap-1 text-[#F99225]">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       Computing SDK quote...
                     </span>
@@ -657,7 +657,7 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                   <div className="text-xl font-bold font-mono text-emerald-400 truncate">
                     {quote ? quote.expectedOutputFormatted : isQuoting ? '...' : '0.0'}
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 font-mono text-xs font-semibold text-zinc-200 shrink-0">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#140130] border border-[#670CDC]/30 font-mono text-xs font-semibold text-[#EDE4FA] shrink-0">
                     <span>{isSellMode ? quoteSymbol : baseSymbol}</span>
                   </div>
                 </div>
@@ -665,10 +665,10 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
             </div>
 
             {/* Slippage Settings */}
-            <div className="p-3 rounded-xl bg-[#090d16] border border-zinc-800 space-y-2">
+            <div className="p-3 rounded-xl bg-[#140130] border border-[#670CDC]/25 space-y-2">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-zinc-400 font-sans">Slippage Tolerance</span>
-                <span className="font-mono text-zinc-200 font-semibold">{slippageBps / 100}%</span>
+                <span className="text-[#B8A9CC] font-sans">Slippage Tolerance</span>
+                <span className="font-mono text-[#F7F3FF] font-semibold">{slippageBps / 100}%</span>
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {[50, 100, 200, 300].map((bps) => (
@@ -676,10 +676,10 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                     key={bps}
                     type="button"
                     onClick={() => setSlippageBps(bps)}
-                    className={`py-1 rounded text-xs font-mono transition-colors border cursor-pointer ${
+                    className={`py-1 rounded-lg text-xs font-mono transition-colors border cursor-pointer ${
                       slippageBps === bps
-                        ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
-                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200'
+                        ? 'border-[#F99225]/60 bg-[#F99225]/15 text-[#F99225] font-semibold'
+                        : 'border-[#670CDC]/25 bg-[#1C0142]/60 text-[#B8A9CC] hover:text-[#F7F3FF] hover:border-[#670CDC]/50'
                     }`}
                   >
                     {bps / 100}%
@@ -695,34 +695,34 @@ export const MeteoraSwapModal: React.FC<MeteoraSwapModalProps> = ({
                 <span>{quoteError}</span>
               </div>
             ) : quote ? (
-              <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 space-y-1.5 font-mono text-[11px]">
+              <div className="p-3 rounded-xl bg-[#100126] border border-[#670CDC]/20 space-y-1.5 font-mono text-[11px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Effective Execution Price:</span>
-                  <span className="text-zinc-200 font-semibold">
+                  <span className="text-[#7E6D96] font-sans">Effective Execution Price:</span>
+                  <span className="text-[#EDE4FA] font-semibold">
                     {formatCurrency(quote.effectivePriceQuotePerBase, quoteSymbol)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Guaranteed Minimum Output:</span>
+                  <span className="text-[#7E6D96] font-sans">Guaranteed Minimum Output:</span>
                   <span className="text-emerald-400">
                     {quote.minimumOutputFormatted} {isSellMode ? quoteSymbol : baseSymbol}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Estimated Price Impact:</span>
+                  <span className="text-[#7E6D96] font-sans">Estimated Price Impact:</span>
                   <span
                     className={
                       quote.priceImpactPct > 5
-                        ? 'text-amber-400 font-semibold'
-                        : 'text-zinc-300'
+                        ? 'text-[#F99225] font-semibold'
+                        : 'text-[#EDE4FA]'
                     }
                   >
                     {quote.priceImpactPct.toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400 font-sans">Protocol Fee:</span>
-                  <span className="text-zinc-400">
+                  <span className="text-[#7E6D96] font-sans">Protocol Fee:</span>
+                  <span className="text-[#B8A9CC]">
                     {quote.protocolFeeFormatted} {isSellMode ? baseSymbol : quoteSymbol}
                   </span>
                 </div>

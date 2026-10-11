@@ -71,10 +71,10 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-3 sm:px-0">
         {toasts.map((toast) => {
           const typeStyles = {
-            success: 'border-emerald-500/40 bg-[#0d1714] text-emerald-300',
-            error: 'border-rose-500/40 bg-[#1a0f14] text-rose-300',
-            warning: 'border-amber-500/40 bg-[#19140c] text-amber-300',
-            info: 'border-zinc-700/60 bg-[#0e131d] text-zinc-300',
+            success: 'border-emerald-500/40 bg-[#0c1f19] text-emerald-300',
+            error: 'border-[#BA3351]/50 bg-[#250315] text-[#FF9EAF]',
+            warning: 'border-[#F99225]/50 bg-[#1C0142] text-[#F99225]',
+            info: 'border-[#670CDC]/40 bg-[#140130] text-[#D76EDD]',
           }[toast.type];
 
           const IconComponent = {
@@ -86,23 +86,23 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
           const iconColor = {
             success: 'text-emerald-400',
-            error: 'text-rose-400',
-            warning: 'text-amber-400',
-            info: 'text-sky-400',
+            error: 'text-[#BA3351]',
+            warning: 'text-[#F99225]',
+            info: 'text-[#D76EDD]',
           }[toast.type];
 
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto rounded-lg border p-3.5 shadow-xl backdrop-blur-md transition-all flex items-start gap-3 ${typeStyles}`}
+              className={`pointer-events-auto rounded-xl border p-3.5 shadow-2xl shadow-[#09011B]/90 backdrop-blur-md transition-all flex items-start gap-3 ${typeStyles}`}
             >
               <IconComponent className={`w-4 h-4 shrink-0 mt-0.5 ${iconColor}`} />
               <div className="flex-1 min-w-0 space-y-0.5">
-                <div className="font-semibold text-xs text-zinc-100 tracking-tight">
+                <div className="font-semibold text-xs text-[#F7F3FF] tracking-tight font-sans">
                   {toast.title}
                 </div>
                 {toast.description && (
-                  <p className="text-[11px] text-zinc-400 leading-snug break-words">
+                  <p className="text-[11px] text-[#B8A9CC] leading-snug break-words font-sans">
                     {toast.description}
                   </p>
                 )}
@@ -112,7 +112,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                       href={`https://explorer.solana.com/tx/${toast.txSignature}?cluster=devnet`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[10px] font-mono text-amber-400 hover:text-amber-300 underline underline-offset-2"
+                      className="inline-flex items-center gap-1 text-[10px] font-mono text-[#F99225] hover:text-[#FFA640] underline underline-offset-2"
                     >
                       <span>Tx: {toast.txSignature.slice(0, 6)}...{toast.txSignature.slice(-4)}</span>
                       <ExternalLink className="w-2.5 h-2.5" />
@@ -123,7 +123,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               <button
                 type="button"
                 onClick={() => removeToast(toast.id)}
-                className="text-zinc-500 hover:text-zinc-300 p-0.5 rounded transition-colors"
+                className="text-[#7E6D96] hover:text-[#EDE4FA] p-0.5 rounded transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

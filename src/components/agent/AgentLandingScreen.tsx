@@ -39,8 +39,8 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       description: 'Analyze a market and identify relevant information, key variables, and risk factors.',
       badge: 'Deep Inspection',
       icon: Search,
-      accentColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
-      borderHover: 'hover:border-cyan-500/50 hover:bg-cyan-950/10',
+      accentColor: 'text-[#670CDC] bg-[#670CDC]/10 border-[#670CDC]/30',
+      borderHover: 'hover:border-[#670CDC]/60 hover:bg-[#670CDC]/15',
       buttonText: 'Launch Market Scanner',
     },
     {
@@ -49,8 +49,8 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       description: 'Investigate a market or topic through structured, guided institutional research.',
       badge: 'Guided Research',
       icon: Compass,
-      accentColor: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
-      borderHover: 'hover:border-violet-500/50 hover:bg-violet-950/10',
+      accentColor: 'text-[#D76EDD] bg-[#D76EDD]/10 border-[#D76EDD]/30',
+      borderHover: 'hover:border-[#D76EDD]/60 hover:bg-[#D76EDD]/15',
       buttonText: 'Explore Topics',
     },
     {
@@ -59,8 +59,8 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       description: 'Get guided through the 10-step process of defining an on-chain market without ambiguity.',
       badge: 'Curve Architect',
       icon: PlusCircle,
-      accentColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-      borderHover: 'hover:border-emerald-500/50 hover:bg-emerald-950/10',
+      accentColor: 'text-[#F99225] bg-[#F99225]/10 border-[#F99225]/30',
+      borderHover: 'hover:border-[#F99225]/60 hover:bg-[#F99225]/15',
       buttonText: 'Start Guided Creation',
     },
     {
@@ -69,8 +69,8 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       description: 'Learn about VALTICS, Meteora Dynamic Bonding Curves, or specific financial concepts.',
       badge: 'Knowledge Hub',
       icon: BookOpen,
-      accentColor: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-      borderHover: 'hover:border-amber-500/50 hover:bg-amber-950/10',
+      accentColor: 'text-[#EDE4FA] bg-[#140130] border-[#670CDC]/30',
+      borderHover: 'hover:border-[#670CDC]/60 hover:bg-[#1C0142]',
       buttonText: 'Review Architecture',
     },
     {
@@ -79,8 +79,8 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       description: 'Start a natural conversation with the Agent for custom inquiries, audits, and prompts.',
       badge: 'Interactive Intelligence',
       icon: MessageSquareCode,
-      accentColor: 'text-pink-400 bg-pink-500/10 border-pink-500/20',
-      borderHover: 'hover:border-pink-500/50 hover:bg-pink-950/10',
+      accentColor: 'text-[#BA3351] bg-[#BA3351]/10 border-[#BA3351]/30',
+      borderHover: 'hover:border-[#BA3351]/60 hover:bg-[#BA3351]/15',
       buttonText: 'Open Terminal',
     },
   ];
@@ -151,10 +151,10 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       {/* Starting Actions Grid */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 font-mono">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[#B8A9CC] font-mono">
             Intelligence Starting Actions
           </h3>
-          <span className="text-[11px] text-zinc-500 font-mono">Select a workflow to begin</span>
+          <span className="text-[11px] text-[#7E6D96] font-mono">Select a workflow to begin</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -164,31 +164,31 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
               <div
                 key={action.id}
                 onClick={() => onSelectMode(action.id)}
-                className={`group rounded-xl border border-zinc-800/90 bg-[#090d14]/70 p-5 transition-all cursor-pointer flex flex-col justify-between space-y-4 ${action.borderHover}`}
+                className={`group rounded-xl border border-[#670CDC]/25 bg-[#140130] p-5 transition-all cursor-pointer flex flex-col justify-between space-y-4 shadow-md shadow-[#09011B]/60 hover:border-[#670CDC]/60 hover:bg-[#1C0142]`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className={`p-2 rounded-lg border ${action.accentColor}`}>
                       <Icon className="w-4 h-4" />
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#100126] text-[#D76EDD] border border-[#670CDC]/30">
                       {action.badge}
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-sm text-zinc-100 group-hover:text-white transition-colors">
+                    <h4 className="font-bold text-sm text-[#F7F3FF] group-hover:text-white transition-colors">
                       {action.title}
                     </h4>
-                    <p className="text-xs text-zinc-400 mt-1 leading-relaxed font-sans">
+                    <p className="text-xs text-[#B8A9CC] mt-1 leading-relaxed font-sans">
                       {action.description}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-xs font-medium text-zinc-300 group-hover:text-white">
+                <div className="pt-2 border-t border-[#670CDC]/20 flex items-center justify-between text-xs font-medium text-[#EDE4FA] group-hover:text-[#F7F3FF]">
                   <span>{action.buttonText}</span>
-                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform text-[#F99225]" />
                 </div>
               </div>
             );
@@ -197,16 +197,16 @@ export const AgentLandingScreen: React.FC<AgentLandingScreenProps> = ({ onSelect
       </div>
 
       {/* Strict Non-Custodial Boundaries Footer Banner */}
-      <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/40 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-zinc-400 font-sans">
+      <div className="rounded-xl border border-[#670CDC]/20 bg-[#100126] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#B8A9CC] font-sans">
         <div className="flex items-center gap-2.5">
           <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>
-            <strong>Institutional Trust Guardrail:</strong> VALTICS Agent evaluates observable facts and formulates proposals. It cannot independently execute or sign transactions.
+            <strong className="text-[#F7F3FF]">Institutional Trust Guardrail:</strong> VALTICS Agent evaluates observable facts and formulates proposals. It cannot independently execute or sign transactions.
           </span>
         </div>
-        <div className="flex items-center gap-2 shrink-0 font-mono text-[11px] text-zinc-500">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-          <span>Solana Devnet Cluster</span>
+        <div className="flex items-center gap-2 shrink-0 font-mono text-[11px] text-[#7E6D96]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F99225]" />
+          <span className="text-[#F99225]">Solana Devnet Cluster</span>
         </div>
       </div>
     </div>

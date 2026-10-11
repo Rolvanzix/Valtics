@@ -33,6 +33,7 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'bigint-buffer': path.resolve(__dirname, 'src/lib/bigint-buffer-shim.ts'),
         'cross-fetch': path.resolve(__dirname, 'src/lib/fetch.ts'),
         '@coral-xyz/anchor': path.resolve(__dirname, 'node_modules/@coral-xyz/anchor/dist/esm/index.js'),
       },

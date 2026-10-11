@@ -113,18 +113,18 @@ export const CreateMarketView: React.FC<CreateMarketViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#670CDC]/20 pb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#F7F3FF] tracking-tight font-sans">
             Create Market
           </h1>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-[#B8A9CC] mt-0.5">
             Initialize dynamic bonding curve liquidity and verifiable reference benchmarks on Solana Devnet.
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono shrink-0 self-start sm:self-auto bg-zinc-900 border border-zinc-800 text-zinc-300">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono shrink-0 self-start sm:self-auto bg-[#100126] border border-[#670CDC]/25 text-[#B8A9CC]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F99225]" />
           <span>{environmentStatusMessage}</span>
         </div>
       </div>

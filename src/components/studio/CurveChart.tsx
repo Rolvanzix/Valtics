@@ -11,7 +11,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (!points || points.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-zinc-500 text-xs">No curve data</div>;
+    return <div className="h-64 flex items-center justify-center text-[#7E6D96] text-xs">No curve data</div>;
   }
 
   const width = 640;
@@ -45,30 +45,30 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
       : null;
 
   return (
-    <div className="w-full bg-[#090d14] border border-zinc-800 rounded-xl p-4 space-y-4">
+    <div className="w-full bg-[#140130] border border-[#670CDC]/25 rounded-xl p-4 space-y-4 shadow-xl shadow-[#09011B]/60">
       {/* Dynamic Telemetry Banner on Hover */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0d121c] p-3 rounded-lg border border-zinc-800/80 font-mono-nums text-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#100126] p-3 rounded-lg border border-[#670CDC]/20 font-mono-nums text-xs">
         <div>
-          <span className="text-[10px] uppercase font-sans text-zinc-400 block">Curve Progress</span>
-          <span className="text-zinc-100 font-semibold text-sm">
+          <span className="text-[10px] uppercase font-sans text-[#7E6D96] block">Curve Progress</span>
+          <span className="text-[#F7F3FF] font-semibold text-sm">
             {formatPercent(activePoint.tokensSoldPct)}
           </span>
         </div>
         <div>
-          <span className="text-[10px] uppercase font-sans text-zinc-400 block">Spot Price</span>
-          <span className="text-amber-400 font-semibold text-sm">
+          <span className="text-[10px] uppercase font-sans text-[#7E6D96] block">Spot Price</span>
+          <span className="text-[#F99225] font-semibold text-sm">
             {formatCurrency(activePoint.currentPriceUsd)}
           </span>
         </div>
         <div>
-          <span className="text-[10px] uppercase font-sans text-zinc-400 block">Accumulated Quote</span>
-          <span className="text-zinc-100 font-semibold text-sm">
+          <span className="text-[10px] uppercase font-sans text-[#7E6D96] block">Accumulated Quote</span>
+          <span className="text-[#EDE4FA] font-semibold text-sm">
             {formatCurrency(activePoint.accumulatedQuoteUsd)}
           </span>
         </div>
         <div>
-          <span className="text-[10px] uppercase font-sans text-zinc-400 block">Market Cap</span>
-          <span className="text-zinc-100 font-semibold text-sm">
+          <span className="text-[10px] uppercase font-sans text-[#7E6D96] block">Market Cap</span>
+          <span className="text-[#EDE4FA] font-semibold text-sm">
             {formatCurrency(activePoint.marketCapUsd)}
           </span>
         </div>
@@ -83,8 +83,9 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
         >
           <defs>
             <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#8023EC" stopOpacity="0.35" />
+              <stop offset="70%" stopColor="#D11CA5" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#09011B" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -99,7 +100,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
                   y1={y}
                   x2={padding.left + chartW}
                   y2={y}
-                  stroke="#1e2638"
+                  stroke="#350968"
                   strokeDasharray="3 3"
                   strokeWidth="1"
                 />
@@ -107,7 +108,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
                   x={padding.left - 8}
                   y={y + 3}
                   textAnchor="end"
-                  fill="#64748b"
+                  fill="#7E6D96"
                   fontSize="10"
                   fontFamily="JetBrains Mono"
                 >
@@ -127,14 +128,14 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
                   y1={padding.top + chartH}
                   x2={x}
                   y2={padding.top + chartH + 5}
-                  stroke="#273349"
+                  stroke="#350968"
                   strokeWidth="1"
                 />
                 <text
                   x={x}
                   y={padding.top + chartH + 18}
                   textAnchor="middle"
-                  fill="#64748b"
+                  fill="#7E6D96"
                   fontSize="10"
                   fontFamily="JetBrains Mono"
                 >
@@ -151,7 +152,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
           <path
             d={pathD}
             fill="none"
-            stroke="#f59e0b"
+            stroke="#F99225"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -165,7 +166,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
                 y1={padding.top}
                 x2={activeX}
                 y2={padding.top + chartH}
-                stroke="#f59e0b"
+                stroke="#F99225"
                 strokeDasharray="2 2"
                 strokeWidth="1.5"
               />
@@ -173,8 +174,8 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
                 cx={activeX}
                 cy={activeY}
                 r="4.5"
-                fill="#f59e0b"
-                stroke="#090d14"
+                fill="#F99225"
+                stroke="#140130"
                 strokeWidth="2"
               />
             </g>
@@ -200,7 +201,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({ points, quoteAsset }) =>
         </svg>
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+      <div className="flex items-center justify-between text-[11px] text-[#B8A9CC] font-mono">
         <span>X-Axis: Supply Sold into Dynamic Bonding Curve</span>
         <span>Y-Axis: Spot Price ({quoteAsset} / USD)</span>
       </div>

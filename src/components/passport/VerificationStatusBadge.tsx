@@ -58,11 +58,11 @@ export const VerificationStatusBadge: React.FC<VerificationStatusBadgeProps> = (
     },
     'Data unavailable': {
       label: 'Data unavailable',
-      bg: 'bg-zinc-900',
-      text: 'text-zinc-400',
-      border: 'border-zinc-700/60',
-      dotColor: 'bg-zinc-500',
-      icon: <HelpCircle className="w-3.5 h-3.5 text-zinc-400 shrink-0" />,
+      bg: 'bg-[#100126]',
+      text: 'text-[#B8A9CC]',
+      border: 'border-[#670CDC]/30',
+      dotColor: 'bg-[#7E6D96]',
+      icon: <HelpCircle className="w-3.5 h-3.5 text-[#7E6D96] shrink-0" />,
       tooltip: 'No benchmark pricing, stock exchange feed, or collateral data is currently published.',
     },
   };

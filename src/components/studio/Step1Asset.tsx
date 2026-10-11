@@ -157,21 +157,21 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
   return (
     <div className="space-y-6">
       {/* Header & Context */}
-      <div className="border-b border-zinc-800/80 pb-4">
-        <h2 className="text-xl font-bold text-white tracking-tight font-sans">Asset</h2>
-        <p className="text-xs text-zinc-400 mt-1">
+      <div className="border-b border-[#670CDC]/20 pb-4">
+        <h2 className="text-xl font-bold text-[#F7F3FF] tracking-tight font-sans">Asset</h2>
+        <p className="text-xs text-[#B8A9CC] mt-1">
           Paste an existing Solana token mint address to validate on-chain via Devnet RPC.
         </p>
       </div>
 
       {/* Devnet Preset Tokens */}
-      <div className="bg-[#0c101a] border border-zinc-800/80 rounded-xl p-4 space-y-3">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-xs font-semibold text-[#EDE4FA] flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#F99225]" />
             <span>Devnet Preset Tokens</span>
           </span>
-          <span className="text-[11px] text-zinc-400">Quick selection for testing</span>
+          <span className="text-[11px] text-[#B8A9CC]">Quick selection for testing</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -182,19 +182,19 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
               onClick={() => handleSelectDevnetPreset(item)}
               className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
                 data.baseMint === item.mint
-                  ? 'border-amber-500/60 bg-amber-500/10 text-white shadow-xs'
-                  : 'border-zinc-800 bg-zinc-900/40 hover:bg-zinc-800/60 text-zinc-300'
+                  ? 'border-[#F99225]/60 bg-[#F99225]/15 text-[#F7F3FF] shadow-xs'
+                  : 'border-[#670CDC]/20 bg-[#100126] hover:bg-[#1E0148] text-[#EDE4FA]'
               }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-semibold text-xs text-white">{item.name}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono">
+                <span className="font-semibold text-xs text-[#F7F3FF]">{item.name}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1E0148] text-[#B8A9CC] font-mono border border-[#670CDC]/20">
                   {item.symbol}
                 </span>
               </div>
-              <div className="text-[11px] text-zinc-400 font-mono flex items-center justify-between">
+              <div className="text-[11px] text-[#B8A9CC] font-mono flex items-center justify-between">
                 <span className="truncate max-w-[180px]">{item.mint.slice(0, 8)}...{item.mint.slice(-6)}</span>
-                <span className="text-amber-400 text-[10px]">Select & Inspect</span>
+                <span className="text-[#F99225] text-[10px]">Select & Inspect</span>
               </div>
             </button>
           ))}
@@ -202,10 +202,10 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
       </div>
 
       {/* Primary Asset Form */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-[#0c101a] border border-zinc-800 rounded-xl p-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5">
         {/* Asset Name */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-zinc-300">
+          <label className="block text-xs font-medium text-[#EDE4FA]">
             Asset Name <span className="text-rose-400">*</span>
           </label>
           <input
@@ -213,14 +213,14 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
             value={data.assetName}
             onChange={(e) => onChange({ ...data, assetName: e.target.value })}
             placeholder="e.g. USD Coin (Devnet)"
-            className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition-colors"
+            className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3.5 py-2.5 text-sm text-[#F7F3FF] placeholder-[#7E6D96] focus:outline-none focus:border-[#670CDC] transition-colors"
           />
-          <p className="text-[11px] text-zinc-400">The token or asset display name.</p>
+          <p className="text-[11px] text-[#B8A9CC]">The token or asset display name.</p>
         </div>
 
         {/* Ticker */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-zinc-300">
+          <label className="block text-xs font-medium text-[#EDE4FA]">
             Asset Ticker Symbol <span className="text-rose-400">*</span>
           </label>
           <input
@@ -229,18 +229,18 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
             onChange={(e) => onChange({ ...data, ticker: e.target.value.toUpperCase() })}
             placeholder="e.g. USDC"
             maxLength={12}
-            className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition-colors uppercase"
+            className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3.5 py-2.5 text-sm font-mono text-[#F7F3FF] placeholder-[#7E6D96] focus:outline-none focus:border-[#670CDC] transition-colors uppercase"
           />
-          <p className="text-[11px] text-zinc-400">Secondary trading ticker symbol (2-10 characters).</p>
+          <p className="text-[11px] text-[#B8A9CC]">Secondary trading ticker symbol (2-10 characters).</p>
         </div>
 
         {/* Token Mint Address with Address Validation */}
         <div className="space-y-1.5 md:col-span-2">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-medium text-zinc-300">
+            <label className="block text-xs font-medium text-[#EDE4FA]">
               Token Mint Address (Solana Devnet Base58) <span className="text-rose-400">*</span>
             </label>
-            <span className="text-[11px] text-zinc-400 font-mono">SPL Token Standard</span>
+            <span className="text-[11px] text-[#B8A9CC] font-mono">SPL Token Standard</span>
           </div>
 
           <div className="flex gap-2">
@@ -253,13 +253,13 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
                 setErrorMessage(null);
               }}
               placeholder="Enter 32-44 char Solana SPL token mint on Devnet..."
-              className="flex-1 bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3.5 py-2.5 text-sm font-mono text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition-colors"
+              className="flex-1 bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3.5 py-2.5 text-sm font-mono text-[#F7F3FF] placeholder-[#7E6D96] focus:outline-none focus:border-[#670CDC] transition-colors"
             />
             <button
               type="button"
               disabled={inspecting || !data.baseMint}
               onClick={() => handleInspectMint(data.baseMint)}
-              className="px-5 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-amber-500 hover:bg-amber-400 text-zinc-950"
+              className="px-5 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-[#F99225] hover:bg-[#ff9f3b] text-[#09011B]"
             >
               {inspecting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
               <span>Validate</span>
@@ -281,11 +281,11 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
 
           {/* Devnet Validated Display */}
           {validationState === 'valid' && data.verifiedMetadata && (
-            <div className="bg-emerald-950/20 border border-emerald-900/50 rounded-xl p-4 text-xs text-emerald-300 space-y-3">
+            <div className="bg-[#100126] border border-emerald-500/40 rounded-xl p-4 text-xs text-emerald-300 space-y-3">
               <div className="flex items-center justify-between border-b border-emerald-900/40 pb-2">
                 <div className="flex items-center gap-2 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span className="font-bold text-white">Validated Asset on Solana Devnet</span>
+                  <span className="font-bold text-[#F7F3FF]">Validated Asset on Solana Devnet</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400">
@@ -295,7 +295,7 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
                     href={getExplorerUrl(data.baseMint, 'address', 'devnet')}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1"
+                    className="text-[#B8A9CC] hover:text-[#F7F3FF] inline-flex items-center gap-1"
                   >
                     <ExternalLink className="w-3 h-3" />
                   </a>
@@ -304,16 +304,16 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-[11px]">
                 <div>
-                  <span className="text-zinc-500 block">Decimals:</span>
-                  <span className="text-zinc-200 font-medium">{data.decimals}</span>
+                  <span className="text-[#7E6D96] block">Decimals:</span>
+                  <span className="text-[#EDE4FA] font-medium">{data.decimals}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Supply:</span>
-                  <span className="text-zinc-200 font-medium truncate block">{data.totalSupply}</span>
+                  <span className="text-[#7E6D96] block">Supply:</span>
+                  <span className="text-[#EDE4FA] font-medium truncate block">{data.totalSupply}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Cluster:</span>
-                  <span className="text-amber-400 font-medium">Solana Devnet</span>
+                  <span className="text-[#7E6D96] block">Cluster:</span>
+                  <span className="text-[#F99225] font-medium">Solana Devnet</span>
                 </div>
               </div>
             </div>
@@ -322,11 +322,11 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
 
         {/* Asset Category */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-zinc-300">Asset Category</label>
+          <label className="block text-xs font-medium text-[#EDE4FA]">Asset Category</label>
           <select
             value={data.assetCategory}
             onChange={(e) => onChange({ ...data, assetCategory: e.target.value })}
-            className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
+            className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3.5 py-2.5 text-sm text-[#F7F3FF] focus:outline-none focus:border-[#670CDC] transition-colors cursor-pointer"
           >
             {ASSET_CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
@@ -338,25 +338,25 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
 
         {/* Reference Price */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-zinc-300">
+          <label className="block text-xs font-medium text-[#EDE4FA]">
             Initial Reference / Par Valuation ($USD)
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-2.5 text-zinc-500 text-sm">$</span>
+            <span className="absolute left-3.5 top-2.5 text-[#7E6D96] text-sm">$</span>
             <input
               type="number"
               step="0.01"
               min="0.0001"
               value={data.referencePrice}
               onChange={(e) => onChange({ ...data, referencePrice: e.target.value })}
-              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg pl-7 pr-3.5 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg pl-7 pr-3.5 py-2.5 text-sm font-mono text-[#F7F3FF] focus:outline-none focus:border-[#670CDC] transition-colors"
             />
           </div>
         </div>
 
         {/* Quote Asset Selector */}
         <div className="space-y-1.5 md:col-span-2">
-          <label className="block text-xs font-medium text-zinc-300">Pairing Reserve Asset (Quote)</label>
+          <label className="block text-xs font-medium text-[#EDE4FA]">Pairing Reserve Asset (Quote)</label>
           <div className="grid grid-cols-2 gap-3">
             {(['USDC', 'SOL'] as const).map((sym) => (
               <button
@@ -365,15 +365,15 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
                 onClick={() => handleQuoteChange(sym)}
                 className={`p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition-all ${
                   data.quoteSymbol === sym
-                    ? 'border-amber-500/60 bg-amber-500/10 text-white'
-                    : 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
+                    ? 'border-[#F99225]/60 bg-[#F99225]/15 text-[#F7F3FF]'
+                    : 'border-[#670CDC]/20 bg-[#100126] text-[#B8A9CC] hover:bg-[#1E0148] hover:text-[#F7F3FF]'
                 }`}
               >
                 <div>
-                  <span className="font-semibold text-xs block text-white">
+                  <span className="font-semibold text-xs block text-[#F7F3FF]">
                     {sym === 'USDC' ? 'USD Coin (USDC)' : 'Solana (SOL)'}
                   </span>
-                  <span className="text-[10px] text-zinc-400">
+                  <span className="text-[10px] text-[#B8A9CC]">
                     {sym === 'USDC' ? 'Circle Dollar SPL · Stable' : 'Native Solana · Variable'}
                   </span>
                 </div>
@@ -390,7 +390,7 @@ export const Step1Asset: React.FC<Step1AssetProps> = ({ data, onChange, onNext }
           type="button"
           disabled={!isFormValid}
           onClick={onNext}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs uppercase tracking-wide cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] font-bold text-xs uppercase tracking-wide cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#F99225]/20"
         >
           <span>Continue to Market Parameters</span>
           <ArrowRight className="w-4 h-4" />

@@ -65,7 +65,7 @@ export const DataProvenanceFlow: React.FC<DataProvenanceFlowProps> = ({ classNam
             <div key={s.id} className="relative group flex flex-col">
               {/* Card Node */}
               <div
-                className={`flex-1 p-4 rounded-xl border ${s.accent} bg-[#080d19]/80 backdrop-blur-xs transition-all duration-200 flex flex-col justify-between space-y-3 relative overflow-hidden`}
+                className={`flex-1 p-4 rounded-xl border ${s.accent} bg-[#140130]/90 backdrop-blur-xs transition-all duration-200 flex flex-col justify-between space-y-3 relative overflow-hidden`}
               >
                 {/* Subtle gradient corner */}
                 <div
@@ -75,10 +75,10 @@ export const DataProvenanceFlow: React.FC<DataProvenanceFlowProps> = ({ classNam
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-[#0f172a] border border-zinc-800 flex items-center justify-center">
-                        <Icon className="w-3.5 h-3.5 text-zinc-300" />
+                      <div className="w-6 h-6 rounded-md bg-[#100126] border border-[#670CDC]/30 flex items-center justify-center">
+                        <Icon className="w-3.5 h-3.5 text-[#EDE4FA]" />
                       </div>
-                      <span className="font-mono text-[10px] text-zinc-500 font-semibold">{s.step}</span>
+                      <span className="font-mono text-[10px] text-[#7E6D96] font-semibold">{s.step}</span>
                     </div>
 
                     <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${s.badgeColor}`}>
@@ -87,16 +87,16 @@ export const DataProvenanceFlow: React.FC<DataProvenanceFlowProps> = ({ classNam
                   </div>
 
                   <div>
-                    <h4 className="text-xs font-semibold text-zinc-100 font-sans tracking-tight">
+                    <h4 className="text-xs font-semibold text-[#F7F3FF] font-sans tracking-tight">
                       {s.title}
                     </h4>
-                    <p className="text-[11px] text-zinc-400 font-sans leading-snug mt-1">
+                    <p className="text-[11px] text-[#B8A9CC] font-sans leading-snug mt-1">
                       {s.desc}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#162032] flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+                <div className="pt-2 border-t border-[#670CDC]/20 flex items-center justify-between text-[10px] text-[#7E6D96] font-mono">
                   <span>STATUS</span>
                   <span className="text-emerald-400 flex items-center gap-1 font-sans">
                     <span className="w-1 h-1 rounded-full bg-emerald-400" />
@@ -107,15 +107,15 @@ export const DataProvenanceFlow: React.FC<DataProvenanceFlowProps> = ({ classNam
 
               {/* Desktop connector chevron */}
               {!isLast && (
-                <div className="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-4 h-4 rounded-full bg-[#0d1424] border border-[#22304d] items-center justify-center text-zinc-400">
-                  <ArrowRight className="w-2.5 h-2.5 text-zinc-400" />
+                <div className="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-4 h-4 rounded-full bg-[#140130] border border-[#670CDC]/30 items-center justify-center text-[#B8A9CC]">
+                  <ArrowRight className="w-2.5 h-2.5 text-[#B8A9CC]" />
                 </div>
               )}
 
               {/* Mobile connector down chevron */}
               {!isLast && (
                 <div className="md:hidden flex justify-center py-1">
-                  <ArrowDown className="w-3.5 h-3.5 text-zinc-600" />
+                  <ArrowDown className="w-3.5 h-3.5 text-[#7E6D96]" />
                 </div>
               )}
             </div>

@@ -9,7 +9,8 @@
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "postinstall": "node scripts/patch-bigint-buffer.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -18,10 +19,12 @@
     "@solana/web3.js": "^1.99.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/bn.js": "^5.2.0",
+    "@types/d3": "^7.4.3",
     "@vitejs/plugin-react": "^5.0.4",
     "bn.js": "^5.2.5",
     "bs58": "^6.0.0",
     "buffer": "^6.0.3",
+    "d3": "^7.9.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "lucide-react": "^0.546.0",

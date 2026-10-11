@@ -1,5 +1,16 @@
 import { Buffer } from 'buffer';
 
+// Suppress benign bigint-buffer native binding fallback warning from spl-token in browser
+if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('bigint: Failed to load bindings')) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+}
+
 // Ensure fetch property on window has a safe setter so buggy browser polyfills (e.g. cross-fetch) don't throw
 if (typeof window !== 'undefined') {
   try {

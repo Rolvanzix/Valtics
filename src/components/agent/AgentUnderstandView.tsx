@@ -94,17 +94,17 @@ Meteora DBC solves this via anti-sniper slot windows:
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-zinc-800 bg-[#090d14]/90 p-5 space-y-2">
+      <div className="rounded-xl border border-[#670CDC]/30 bg-[#140130] p-5 space-y-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-500/30">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1E0148] text-[#F99225] border border-[#F99225]/30">
             KNOWLEDGE BASE
           </span>
-          <span className="text-[11px] text-zinc-500 font-mono">VALTICS Platform Architecture</span>
+          <span className="text-[11px] text-[#7E6D96] font-mono">VALTICS Platform Architecture</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#F7F3FF] tracking-tight font-sans">
           Understand VALTICS & Bonding Curve Mechanics
         </h2>
-        <p className="text-xs text-zinc-400 font-sans max-w-2xl">
+        <p className="text-xs text-[#B8A9CC] font-sans max-w-2xl">
           Learn how Meteora Dynamic Bonding Curves, autonomous pricing, and non-custodial graduation operate on Solana Devnet.
         </p>
       </div>
@@ -119,8 +119,8 @@ Meteora DBC solves this via anti-sniper slot windows:
               key={concept.id}
               className={`rounded-xl border transition-all ${
                 isExpanded
-                  ? 'border-amber-500/40 bg-[#0a0e17]'
-                  : 'border-zinc-800 bg-[#090d14]/70 hover:border-zinc-700'
+                  ? 'border-[#F99225]/40 bg-[#160136]'
+                  : 'border-[#670CDC]/25 bg-[#140130] hover:border-[#670CDC]/40'
               }`}
             >
               <button
@@ -130,36 +130,36 @@ Meteora DBC solves this via anti-sniper slot windows:
               >
                 <div className="space-y-1 pr-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1E0148] text-[#EDE4FA] border border-[#670CDC]/25">
                       {concept.badge}
                     </span>
-                    <h3 className="font-bold text-sm text-zinc-100">{concept.title}</h3>
+                    <h3 className="font-bold text-sm text-[#F7F3FF]">{concept.title}</h3>
                   </div>
-                  <p className="text-xs text-zinc-400 font-sans">{concept.summary}</p>
+                  <p className="text-xs text-[#B8A9CC] font-sans">{concept.summary}</p>
                 </div>
 
-                <div className="p-1 rounded bg-zinc-800/60 text-zinc-400 shrink-0">
+                <div className="p-1 rounded bg-[#1E0148] text-[#B8A9CC] shrink-0 border border-[#670CDC]/20">
                   {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-zinc-800/80 space-y-4">
-                  <div className="text-xs text-zinc-300 leading-relaxed font-sans whitespace-pre-line space-y-2">
+                <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-[#670CDC]/20 space-y-4">
+                  <div className="text-xs text-[#EDE4FA] leading-relaxed font-sans whitespace-pre-line space-y-2">
                     {concept.content}
                   </div>
 
-                  <div className="pt-3 border-t border-zinc-800/60 flex items-center justify-between">
-                    <span className="text-[11px] text-zinc-500 font-mono">
+                  <div className="pt-3 border-t border-[#670CDC]/15 flex items-center justify-between">
+                    <span className="text-[11px] text-[#7E6D96] font-mono">
                       Have specific questions about this concept?
                     </span>
 
                     <button
                       type="button"
                       onClick={() => onAskConceptInChat(concept.suggestedQuery)}
-                      className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border border-zinc-700"
+                      className="px-3.5 py-1.5 rounded-lg bg-[#1E0148] hover:bg-[#280261] text-[#F99225] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border border-[#670CDC]/30"
                     >
-                      <MessageSquareCode className="w-3.5 h-3.5 text-amber-400" />
+                      <MessageSquareCode className="w-3.5 h-3.5 text-[#F99225]" />
                       <span>Ask Agent</span>
                     </button>
                   </div>

@@ -32,7 +32,7 @@ export const StudioStepper: React.FC<StudioStepperProps> = ({
   steps = CREATE_MARKET_STEPS,
 }) => {
   return (
-    <div className="w-full bg-[#090d15] border border-zinc-800/80 rounded-xl p-3 font-sans">
+    <div className="w-full bg-[#140130] border border-[#670CDC]/25 rounded-xl p-3 font-sans">
       <div className="flex items-center justify-between overflow-x-auto gap-2 sm:gap-4 no-scrollbar">
         {steps.map((step, idx) => {
           const isCurrent = currentStep === step.id;
@@ -47,35 +47,35 @@ export const StudioStepper: React.FC<StudioStepperProps> = ({
                 disabled={!isClickable}
                 className={`flex items-center gap-2.5 px-3 py-2 min-h-[44px] rounded-lg text-left transition-colors shrink-0 cursor-pointer ${
                   isCurrent
-                    ? 'bg-zinc-800/90 border border-zinc-700 text-white'
+                    ? 'bg-[#1E0148] border border-[#670CDC]/50 text-[#F7F3FF]'
                     : isCompleted
-                    ? 'bg-zinc-900/40 border border-zinc-800 text-zinc-300 hover:border-zinc-700'
-                    : 'text-zinc-500 border border-transparent opacity-60 cursor-not-allowed'
+                    ? 'bg-[#100126] border border-[#670CDC]/20 text-[#EDE4FA] hover:border-[#670CDC]/40'
+                    : 'text-[#7E6D96] border border-transparent opacity-60 cursor-not-allowed'
                 }`}
               >
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-medium shrink-0 transition-colors ${
                     isCurrent
-                      ? 'bg-amber-400 text-zinc-950 font-bold'
+                      ? 'bg-[#F99225] text-[#09011B] font-bold'
                       : isCompleted
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                      : 'bg-zinc-800 text-zinc-400'
+                      ? 'bg-[#670CDC]/25 text-[#EDE4FA] border border-[#670CDC]/40'
+                      : 'bg-[#1E0148] text-[#7E6D96]'
                   }`}
                 >
                   {isCompleted && !isCurrent ? <Check className="w-3.5 h-3.5" /> : step.id}
                 </div>
                 <div>
-                  <div className={`text-xs font-medium whitespace-nowrap ${isCurrent ? 'text-zinc-100 font-semibold' : 'text-zinc-300'}`}>
+                  <div className={`text-xs font-medium whitespace-nowrap ${isCurrent ? 'text-[#F7F3FF] font-semibold' : 'text-[#EDE4FA]'}`}>
                     {step.title}
                   </div>
-                  <div className="text-[10px] text-zinc-400 leading-tight hidden sm:block whitespace-nowrap">
+                  <div className="text-[10px] text-[#B8A9CC] leading-tight hidden sm:block whitespace-nowrap">
                     {step.subtitle}
                   </div>
                 </div>
               </button>
 
               {idx < steps.length - 1 && (
-                <div className="hidden lg:flex items-center text-zinc-700 shrink-0">
+                <div className="hidden lg:flex items-center text-[#670CDC]/40 shrink-0">
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               )}

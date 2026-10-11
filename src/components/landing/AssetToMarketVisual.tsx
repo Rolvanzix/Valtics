@@ -86,11 +86,11 @@ export const AssetToMarketVisual: React.FC = () => {
                 }}
                 className={`py-1.5 px-1 cursor-pointer transition-all whitespace-nowrap flex items-center gap-2 ${
                   currentStep === s.id
-                    ? 'text-white font-semibold border-b-2 border-emerald-400'
-                    : 'text-zinc-500 hover:text-zinc-300'
+                    ? 'text-[#F7F3FF] font-semibold border-b-2 border-[#F99225]'
+                    : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
                 }`}
               >
-                <span className={`text-[10px] ${currentStep === s.id ? 'text-emerald-400' : 'text-zinc-600'}`}>
+                <span className={`text-[10px] ${currentStep === s.id ? 'text-[#F99225]' : 'text-[#7E6D96]'}`}>
                   0{s.id}
                 </span>
                 <span>{s.label}</span>
@@ -101,7 +101,7 @@ export const AssetToMarketVisual: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsAuto(!isAuto)}
-            className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors hidden sm:inline-block cursor-pointer shrink-0"
+            className="text-[11px] text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors hidden sm:inline-block cursor-pointer shrink-0"
           >
             {isAuto ? 'Pause sequence' : 'Resume sequence'}
           </button>
@@ -154,21 +154,21 @@ export const AssetToMarketVisual: React.FC = () => {
                 {/* Monolithic Token Prism */}
                 <polygon
                   points={`${cx},${cy - 65} ${cx + 55},${cy} ${cx},${cy + 65} ${cx - 55},${cy}`}
-                  fill="#080b12"
-                  stroke={hoveredNode === 'prism' ? '#10b981' : '#e4e4e7'}
+                  fill="#100126"
+                  stroke={hoveredNode === 'prism' ? '#F99225' : '#EDE4FA'}
                   strokeWidth="2"
                   filter="url(#metamorphGlow)"
                   className="transition-colors duration-300"
                 />
-                <circle cx={cx} cy={cy} r="4" fill="#10b981" />
-                <line x1={cx - 55} y1={cy} x2={cx + 55} y2={cy} stroke="#52525b" strokeWidth="1.2" strokeDasharray="2 2" />
-                <line x1={cx} y1={cy - 65} x2={cx} y2={cy + 65} stroke="#52525b" strokeWidth="1.2" strokeDasharray="2 2" />
+                <circle cx={cx} cy={cy} r="4" fill="#F99225" />
+                <line x1={cx - 55} y1={cy} x2={cx + 55} y2={cy} stroke="#670CDC" strokeWidth="1.2" strokeDasharray="2 2" />
+                <line x1={cx} y1={cy - 65} x2={cx} y2={cy + 65} stroke="#670CDC" strokeWidth="1.2" strokeDasharray="2 2" />
 
                 {/* Micro Inscription Badges */}
-                <text x={cx} y={cy + 110} textAnchor="middle" fill="#e4e4e7" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
+                <text x={cx} y={cy + 110} textAnchor="middle" fill="#F7F3FF" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
                   TOKENIZED ASSET COLLATERAL
                 </text>
-                <text x={cx} y={cy + 130} textAnchor="middle" fill="#71717a" fontSize="10" fontFamily="monospace">
+                <text x={cx} y={cy + 130} textAnchor="middle" fill="#7E6D96" fontSize="10" fontFamily="monospace">
                   SPL Program Standard · Isolated Initial State
                 </text>
               </g>
@@ -179,27 +179,27 @@ export const AssetToMarketVisual: React.FC = () => {
               <g className="transition-all duration-700 ease-out">
                 <polygon
                   points={`${cx},${cy - 48} ${cx + 48},${cy} ${cx},${cy + 48} ${cx - 48},${cy}`}
-                  fill="#080b12"
-                  stroke="#71717a"
+                  fill="#100126"
+                  stroke="#670CDC"
                   strokeWidth="1.5"
                 />
                 {/* Structural Boundary Calipers */}
-                <rect x={cx - 100} y={cy - 100} width="200" height="200" fill="none" stroke="#27272a" strokeWidth="1" strokeDasharray="4 4" />
-                <circle cx={cx - 100} cy={cy - 100} r="4" fill="#10b981" />
-                <circle cx={cx + 100} cy={cy - 100} r="4" fill="#10b981" />
-                <circle cx={cx - 100} cy={cy + 100} r="4" fill="#10b981" />
-                <circle cx={cx + 100} cy={cy + 100} r="4" fill="#10b981" />
+                <rect x={cx - 100} y={cy - 100} width="200" height="200" fill="none" stroke="rgba(103, 12, 220, 0.25)" strokeWidth="1" strokeDasharray="4 4" />
+                <circle cx={cx - 100} cy={cy - 100} r="4" fill="#F99225" />
+                <circle cx={cx + 100} cy={cy - 100} r="4" fill="#F99225" />
+                <circle cx={cx - 100} cy={cy + 100} r="4" fill="#F99225" />
+                <circle cx={cx + 100} cy={cy + 100} r="4" fill="#F99225" />
 
                 {/* Caliper Measurement Ticks */}
-                <line x1={cx - 110} y1={cy} x2={cx - 90} y2={cy} stroke="#10b981" strokeWidth="1.5" />
-                <line x1={cx + 90} y1={cy} x2={cx + 110} y2={cy} stroke="#10b981" strokeWidth="1.5" />
-                <line x1={cx} y1={cy - 110} x2={cx} y2={cy - 90} stroke="#10b981" strokeWidth="1.5" />
-                <line x1={cx} y1={cy + 90} x2={cx} y2={cy + 110} stroke="#10b981" strokeWidth="1.5" />
+                <line x1={cx - 110} y1={cy} x2={cx - 90} y2={cy} stroke="#F99225" strokeWidth="1.5" />
+                <line x1={cx + 90} y1={cy} x2={cx + 110} y2={cy} stroke="#F99225" strokeWidth="1.5" />
+                <line x1={cx} y1={cy - 110} x2={cx} y2={cy - 90} stroke="#F99225" strokeWidth="1.5" />
+                <line x1={cx} y1={cy + 90} x2={cx} y2={cy + 110} stroke="#F99225" strokeWidth="1.5" />
 
-                <text x={cx} y={cy + 140} textAnchor="middle" fill="#10b981" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
+                <text x={cx} y={cy + 140} textAnchor="middle" fill="#F99225" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
                   DETERMINISTIC BONDING INVARIANTS LOCKED
                 </text>
-                <text x={cx} y={cy + 160} textAnchor="middle" fill="#71717a" fontSize="10" fontFamily="monospace">
+                <text x={cx} y={cy + 160} textAnchor="middle" fill="#7E6D96" fontSize="10" fontFamily="monospace">
                   P(S) = P₀ · (1 + α · S^β) · Autonomous Escrow Rules
                 </text>
               </g>
@@ -209,8 +209,8 @@ export const AssetToMarketVisual: React.FC = () => {
             {currentStep === 3 && (
               <g className="transition-all duration-700 ease-out">
                 {/* Central Escrow Core */}
-                <circle cx={cx} cy={cy} r="28" fill="#080b12" stroke="#e4e4e7" strokeWidth="2" />
-                <circle cx={cx} cy={cy} r="6" fill="#10b981" />
+                <circle cx={cx} cy={cy} r="28" fill="#100126" stroke="#EDE4FA" strokeWidth="2" />
+                <circle cx={cx} cy={cy} r="6" fill="#F99225" />
 
                 {/* Sweeping Bilateral Reserve Depth Waves */}
                 <path
@@ -223,22 +223,22 @@ export const AssetToMarketVisual: React.FC = () => {
                 <path
                   d={`M ${cx - 240} ${cy - 60} Q ${cx} ${cy + 120}, ${cx + 240} ${cy - 60}`}
                   fill="none"
-                  stroke="#10b981"
+                  stroke="#F99225"
                   strokeWidth="1.5"
                   strokeDasharray="4 5"
                   opacity="0.7"
                 />
 
                 {/* Liquidity Anchor Nodes */}
-                <circle cx={cx - 240} cy={cy + 60} r="5" fill="#10b981" />
-                <circle cx={cx + 240} cy={cy + 60} r="5" fill="#10b981" />
-                <circle cx={cx - 240} cy={cy - 60} r="4" fill="#ffffff" />
-                <circle cx={cx + 240} cy={cy - 60} r="4" fill="#ffffff" />
+                <circle cx={cx - 240} cy={cy + 60} r="5" fill="#F99225" />
+                <circle cx={cx + 240} cy={cy + 60} r="5" fill="#F99225" />
+                <circle cx={cx - 240} cy={cy - 60} r="4" fill="#F7F3FF" />
+                <circle cx={cx + 240} cy={cy - 60} r="4" fill="#F7F3FF" />
 
-                <text x={cx} y={cy + 130} textAnchor="middle" fill="#e4e4e7" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
+                <text x={cx} y={cy + 130} textAnchor="middle" fill="#F7F3FF" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
                   BILATERAL RESERVE RAILS PROJECTED
                 </text>
-                <text x={cx} y={cy + 150} textAnchor="middle" fill="#10b981" fontSize="10" fontFamily="monospace">
+                <text x={cx} y={cy + 150} textAnchor="middle" fill="#F99225" fontSize="10" fontFamily="monospace">
                   Continuous Orderbook-Free Reserves Formed
                 </text>
               </g>
@@ -249,11 +249,11 @@ export const AssetToMarketVisual: React.FC = () => {
               <g className="transition-all duration-700 ease-out">
                 {/* Planetary Orbital Ring */}
                 <ellipse cx={cx} cy={cy} rx="240" ry="90" fill="none" stroke="url(#ringGrad)" strokeWidth="2.5" filter="url(#metamorphGlow)" />
-                <ellipse cx={cx} cy={cy} rx="160" ry="60" fill="none" stroke="#27272a" strokeWidth="1.2" strokeDasharray="4 6" />
+                <ellipse cx={cx} cy={cy} rx="160" ry="60" fill="none" stroke="rgba(103, 12, 220, 0.25)" strokeWidth="1.2" strokeDasharray="4 6" />
 
                 {/* Core Market Sovereign Engine */}
-                <circle cx={cx} cy={cy} r="22" fill="#06080d" stroke="#10b981" strokeWidth="2" />
-                <circle cx={cx} cy={cy} r="7" fill="#10b981" />
+                <circle cx={cx} cy={cy} r="22" fill="#100126" stroke="#F99225" strokeWidth="2" />
+                <circle cx={cx} cy={cy} r="7" fill="#F99225" />
 
                 {/* Satellite Participant Nodes with Radial Beams */}
                 {[20, 110, 200, 290].map((deg) => {
@@ -262,16 +262,16 @@ export const AssetToMarketVisual: React.FC = () => {
                   const py = cy + Math.sin(rad) * 90;
                   return (
                     <g key={deg}>
-                      <line x1={cx} y1={cy} x2={px} y2={py} stroke="#10b981" strokeWidth="0.8" opacity="0.3" strokeDasharray="2 3" />
-                      <circle cx={px} cy={py} r="5" fill="#ffffff" stroke="#10b981" strokeWidth="1.5" />
+                      <line x1={cx} y1={cy} x2={px} y2={py} stroke="#F99225" strokeWidth="0.8" opacity="0.3" strokeDasharray="2 3" />
+                      <circle cx={px} cy={py} r="5" fill="#F7F3FF" stroke="#F99225" strokeWidth="1.5" />
                     </g>
                   );
                 })}
 
-                <text x={cx} y={cy + 140} textAnchor="middle" fill="#10b981" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
+                <text x={cx} y={cy + 140} textAnchor="middle" fill="#F99225" fontSize="12" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
                   AUTONOMOUS MARKET CLEARING ON SOLANA
                 </text>
-                <text x={cx} y={cy + 160} textAnchor="middle" fill="#e4e4e7" fontSize="10" fontFamily="monospace">
+                <text x={cx} y={cy + 160} textAnchor="middle" fill="#B8A9CC" fontSize="10" fontFamily="monospace">
                   Sub-400ms Finality · 100% Transition to Open Meteora DAMM
                 </text>
               </g>
@@ -280,16 +280,16 @@ export const AssetToMarketVisual: React.FC = () => {
         </div>
 
         {/* Quiet Subtitle & Formula Strip */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-white/[0.08] text-xs font-mono">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-[#670CDC]/20 text-xs font-mono">
           <div>
-            <p className="text-zinc-200 text-sm font-light">
+            <p className="text-[#EDE4FA] text-sm font-light">
               {active.phrase}
             </p>
-            <p className="text-zinc-500 text-xs mt-0.5">
+            <p className="text-[#B8A9CC] text-xs mt-0.5">
               {active.detail}
             </p>
           </div>
-          <code className="text-emerald-400 bg-white/[0.03] px-3.5 py-1.5 rounded border border-white/[0.06] shrink-0 font-mono text-xs">
+          <code className="text-[#F99225] bg-[#100126] px-3.5 py-1.5 rounded border border-[#670CDC]/30 shrink-0 font-mono text-xs">
             {active.math}
           </code>
         </div>

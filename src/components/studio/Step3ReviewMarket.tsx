@@ -114,65 +114,66 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
   return (
     <div className="space-y-6">
       {/* Contextual Header */}
-      <div className="border-b border-zinc-800/80 pb-4">
-        <h2 className="text-xl font-bold text-white tracking-tight font-sans">
+      <div className="border-b border-[#670CDC]/20 pb-4">
+        <h2 className="text-xl font-bold text-[#F7F3FF] tracking-tight font-sans">
           Review
         </h2>
-        <p className="text-xs text-zinc-400 mt-1">
+        <p className="text-xs text-[#B8A9CC] mt-1">
           Verify bonding curve trajectory and financial specifications before deployment to Solana Devnet.
         </p>
       </div>
 
       {/* 1. Interactive Bonding Curve Model Preview */}
-      <div className="bg-[#090d14] border border-zinc-800 rounded-xl p-5 space-y-4">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <TrendingUp className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-[#670CDC]/20 border border-[#670CDC]/40 flex items-center justify-center text-[#EDE4FA]">
+              <TrendingUp className="w-4 h-4 text-[#F99225]" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-sans">
+              <h3 className="text-xs font-bold text-[#F7F3FF] uppercase tracking-wider font-sans">
                 Bonding Curve Invariant Trajectory
               </h3>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[#B8A9CC]">
                 Deterministic price evolution as tokens are purchased from the reserve.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs font-mono">
-            <span className="text-zinc-500">Preset:</span>
-            <span className="text-amber-400 font-bold uppercase">{input.profileKey}</span>
+            <span className="text-[#7E6D96]">Preset:</span>
+            <span className="text-[#F99225] font-bold uppercase">{input.profileKey}</span>
           </div>
         </div>
 
         {/* Telemetry Strip on Hover */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0d121c] p-3 rounded-lg border border-zinc-800 font-mono text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#100126] p-3 rounded-lg border border-[#670CDC]/20 font-mono text-xs">
           <div>
-            <span className="text-[10px] text-zinc-500 uppercase block font-sans">Progress</span>
-            <span className="text-zinc-100 font-semibold">{formatPercent(activePoint.percent)}</span>
+            <span className="text-[10px] text-[#7E6D96] uppercase block font-sans">Progress</span>
+            <span className="text-[#F7F3FF] font-semibold">{formatPercent(activePoint.percent)}</span>
           </div>
           <div>
-            <span className="text-[10px] text-zinc-500 uppercase block font-sans">Spot Price</span>
-            <span className="text-amber-400 font-semibold">{formatCurrency(activePoint.spotPrice, input.quoteSymbol)}</span>
+            <span className="text-[10px] text-[#7E6D96] uppercase block font-sans">Spot Price</span>
+            <span className="text-[#F99225] font-semibold">{formatCurrency(activePoint.spotPrice, input.quoteSymbol)}</span>
           </div>
           <div>
-            <span className="text-[10px] text-zinc-500 uppercase block font-sans">Reserve Quote</span>
+            <span className="text-[10px] text-[#7E6D96] uppercase block font-sans">Reserve Quote</span>
             <span className="text-emerald-400 font-semibold">{formatNumber(activePoint.accumulatedQuote, 0)} {input.quoteSymbol}</span>
           </div>
           <div>
-            <span className="text-[10px] text-zinc-500 uppercase block font-sans">Implied Valuation</span>
-            <span className="text-zinc-200 font-semibold">{formatCurrency(activePoint.marketCap, input.quoteSymbol)}</span>
+            <span className="text-[10px] text-[#7E6D96] uppercase block font-sans">Implied Valuation</span>
+            <span className="text-[#EDE4FA] font-semibold">{formatCurrency(activePoint.marketCap, input.quoteSymbol)}</span>
           </div>
         </div>
 
         {/* SVG Curve Canvas */}
-        <div className="relative w-full overflow-hidden bg-[#060910] rounded-xl border border-zinc-900 p-2">
+        <div className="relative w-full overflow-hidden bg-[#0C001C] rounded-xl border border-[#670CDC]/20 p-2">
           <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto select-none">
             <defs>
               <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="#8023EC" stopOpacity="0.4" />
+                <stop offset="70%" stopColor="#D11CA5" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#09011B" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
@@ -186,7 +187,7 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
                   y1={y}
                   x2={padding.left + chartW}
                   y2={y}
-                  stroke="#27272a"
+                  stroke="#350968"
                   strokeDasharray="4 4"
                   strokeWidth="1"
                 />
@@ -195,7 +196,7 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
 
             {/* Area and Line */}
             <path d={areaD} fill="url(#curveGradient)" />
-            <path d={pathD} fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={pathD} fill="none" stroke="#F99225" strokeWidth="2.5" strokeLinecap="round" />
 
             {/* Interactive Points */}
             {points.map((p, idx) => {
@@ -208,8 +209,8 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
                   cx={cx}
                   cy={cy}
                   r={isHovered ? 5 : 3}
-                  fill={isHovered ? '#ffffff' : '#f59e0b'}
-                  stroke="#090d14"
+                  fill={isHovered ? '#ffffff' : '#F99225'}
+                  stroke="#140130"
                   strokeWidth="1.5"
                   className="cursor-pointer transition-all"
                   onMouseEnter={() => setHoveredIdx(idx)}
@@ -218,18 +219,18 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
             })}
 
             {/* Y-Axis Labels */}
-            <text x={padding.left - 8} y={padding.top + 8} fill="#71717a" fontSize="10" textAnchor="end" fontFamily="monospace">
+            <text x={padding.left - 8} y={padding.top + 8} fill="#7E6D96" fontSize="10" textAnchor="end" fontFamily="monospace">
               {maxPrice.toFixed(4)}
             </text>
-            <text x={padding.left - 8} y={padding.top + chartH} fill="#71717a" fontSize="10" textAnchor="end" fontFamily="monospace">
+            <text x={padding.left - 8} y={padding.top + chartH} fill="#7E6D96" fontSize="10" textAnchor="end" fontFamily="monospace">
               {minPrice.toFixed(4)}
             </text>
 
             {/* X-Axis Labels */}
-            <text x={padding.left} y={svgHeight - 8} fill="#71717a" fontSize="10" fontFamily="monospace">
+            <text x={padding.left} y={svgHeight - 8} fill="#7E6D96" fontSize="10" fontFamily="monospace">
               Launch (0%)
             </text>
-            <text x={padding.left + chartW} y={svgHeight - 8} fill="#f59e0b" fontSize="10" textAnchor="end" fontFamily="monospace">
+            <text x={padding.left + chartW} y={svgHeight - 8} fill="#F99225" fontSize="10" textAnchor="end" fontFamily="monospace">
               Graduation (100%)
             </text>
           </svg>
@@ -237,69 +238,69 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
       </div>
 
       {/* 2. Specification Summary Table */}
-      <div className="bg-[#090d14] border border-zinc-800 rounded-xl p-5 space-y-4">
-        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider font-sans flex items-center gap-2">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+        <h3 className="text-xs font-bold text-[#F7F3FF] uppercase tracking-wider font-sans flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <span>Market Specifications Summary</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-          <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 space-y-1">
-            <span className="text-zinc-500 text-[11px]">Asset & Mint</span>
-            <div className="font-semibold text-zinc-100 truncate font-mono">
+          <div className="p-3 rounded-xl bg-[#1C0142]/60 border border-[#670CDC]/25 space-y-1">
+            <span className="text-[#B8A9CC] text-[11px]">Asset & Mint</span>
+            <div className="font-semibold text-[#F7F3FF] truncate font-mono">
               {input.assetName} ({input.ticker})
             </div>
-            <div className="text-[10px] text-zinc-400 font-mono truncate">
+            <div className="text-[10px] text-[#B8A9CC] font-mono truncate">
               {input.baseMint}
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 space-y-1">
-            <span className="text-zinc-500 text-[11px]">Quote Currency</span>
-            <div className="font-semibold text-zinc-100 font-mono">
+          <div className="p-3 rounded-xl bg-[#1C0142]/60 border border-[#670CDC]/25 space-y-1">
+            <span className="text-[#B8A9CC] text-[11px]">Quote Currency</span>
+            <div className="font-semibold text-[#F7F3FF] font-mono">
               {input.quoteSymbol} (Meteora Vault)
             </div>
-            <div className="text-[10px] text-zinc-400 font-mono">
+            <div className="text-[10px] text-[#B8A9CC] font-mono">
               Target Threshold: {formatNumber(input.migrationQuoteThreshold, 0)} {input.quoteSymbol}
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 space-y-1">
-            <span className="text-zinc-500 text-[11px]">Pricing Range</span>
-            <div className="font-semibold text-amber-400 font-mono">
+          <div className="p-3 rounded-xl bg-[#1C0142]/60 border border-[#670CDC]/25 space-y-1">
+            <span className="text-[#B8A9CC] text-[11px]">Pricing Range</span>
+            <div className="font-semibold text-[#F99225] font-mono">
               {formatCurrency(input.startingPriceQuote, input.quoteSymbol)} → {formatCurrency(input.migrationPriceQuote, input.quoteSymbol)}
             </div>
-            <div className="text-[10px] text-zinc-400 font-mono">
+            <div className="text-[10px] text-[#B8A9CC] font-mono">
               Valuation: {formatCurrency(input.startingPriceQuote * input.totalSupply, input.quoteSymbol)} → {formatCurrency(impliedMarketCapAtMigration, input.quoteSymbol)}
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 space-y-1">
-            <span className="text-zinc-500 text-[11px]">Fee Tier</span>
+          <div className="p-3 rounded-xl bg-[#1C0142]/60 border border-[#670CDC]/25 space-y-1">
+            <span className="text-[#B8A9CC] text-[11px]">Fee Tier</span>
             <div className="font-semibold text-emerald-400 font-mono">
               {formatBps(input.startingFeeBps)} Base Fee
             </div>
-            <div className="text-[10px] text-zinc-400">
+            <div className="text-[10px] text-[#B8A9CC]">
               {input.dynamicFeeEnabled ? 'Dynamic Fee Engine active' : 'Flat fee'}
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 space-y-1">
-            <span className="text-zinc-500 text-[11px]">Liquidity Lock</span>
-            <div className="font-semibold text-zinc-200 font-mono">
+          <div className="p-3 rounded-xl bg-[#1C0142]/60 border border-[#670CDC]/25 space-y-1">
+            <span className="text-[#B8A9CC] text-[11px]">Liquidity Lock</span>
+            <div className="font-semibold text-[#F7F3FF] font-mono">
               {input.creatorPermanentLockedLpPct === 100 ? '100% Permanent Lock' : 'Unlocked LP'}
             </div>
-            <div className="text-[10px] text-zinc-400">
+            <div className="text-[10px] text-[#B8A9CC]">
               Anti-sniper protection: {input.antiSniperSlots} slots
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 space-y-1">
-            <span className="text-zinc-500 text-[11px]">Target Program</span>
-            <div className="font-semibold text-zinc-200 font-mono">
+          <div className="p-3 rounded-xl bg-[#1C0142]/60 border border-[#670CDC]/25 space-y-1">
+            <span className="text-[#B8A9CC] text-[11px]">Target Program</span>
+            <div className="font-semibold text-[#F7F3FF] font-mono">
               Meteora DBC (Solana Devnet)
             </div>
-            <div className="text-[10px] text-zinc-400 font-mono truncate">
+            <div className="text-[10px] text-[#B8A9CC] font-mono truncate">
               {METEORA_DBC_PROGRAM_ID}
             </div>
           </div>
@@ -311,7 +312,7 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium cursor-pointer transition-colors flex items-center gap-1.5 border border-zinc-800"
+          className="px-4 py-2 rounded-lg bg-[#140130] hover:bg-[#1C0142] text-[#B8A9CC] hover:text-[#F7F3FF] text-xs font-medium cursor-pointer transition-colors flex items-center gap-1.5 border border-[#670CDC]/25"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
@@ -320,7 +321,7 @@ export const Step3ReviewMarket: React.FC<Step3ReviewMarketProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold cursor-pointer transition-colors flex items-center gap-1.5 shadow-xs shadow-amber-500/20"
+          className="px-5 py-2 rounded-lg bg-[#670CDC] hover:bg-[#7818EE] text-white text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5 shadow-md shadow-[#670CDC]/30"
         >
           <span>Create market</span>
           <ArrowRight className="w-3.5 h-3.5" />

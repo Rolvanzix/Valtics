@@ -53,22 +53,22 @@ export const Drawer: React.FC<DrawerProps> = ({
     <div className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-xs">
       <div className="fixed inset-0" onClick={onClose} />
       <div
-        className={`relative z-10 w-full ${widthStyles} h-full bg-[#0d121c] border-l border-zinc-800 shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-200 ${className}`}
+        className={`relative z-10 w-full ${widthStyles} h-full bg-[#140130] border-l border-[#670CDC]/30 shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-200 ${className}`}
       >
         {/* Drawer Header */}
-        <div className="p-5 border-b border-zinc-800/80 flex items-start justify-between gap-3 bg-[#0a0d14]/80">
+        <div className="p-5 border-b border-[#670CDC]/20 flex items-start justify-between gap-3 bg-[#100126]/90">
           <div className="space-y-1 min-w-0">
             {title && (
-              <h3 className="font-semibold text-base text-zinc-100 tracking-tight">{title}</h3>
+              <h3 className="font-semibold text-base text-[#F7F3FF] tracking-tight">{title}</h3>
             )}
             {description && (
-              <p className="text-xs text-zinc-400 leading-normal">{description}</p>
+              <p className="text-xs text-[#B8A9CC] leading-normal">{description}</p>
             )}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-md hover:bg-zinc-800/60 transition-colors"
+            className="text-[#B8A9CC] hover:text-[#F7F3FF] p-1.5 rounded-md hover:bg-[#1C0142] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -79,7 +79,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 
         {/* Drawer Footer */}
         {footer && (
-          <div className="p-4 border-t border-zinc-800/80 bg-[#090d14]/90 flex items-center justify-end gap-2.5">
+          <div className="p-4 border-t border-[#670CDC]/20 bg-[#100126]/95 flex items-center justify-end gap-2.5">
             {footer}
           </div>
         )}

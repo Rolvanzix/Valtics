@@ -21,7 +21,7 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
 
   if (!points || points.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-zinc-500 text-xs bg-[#090d14] rounded-xl border border-zinc-800">
+      <div className="h-64 flex items-center justify-center text-[#B8A9CC] text-xs bg-[#140130] rounded-xl border border-[#670CDC]/25 font-mono">
         No bonding curve simulation points available
       </div>
     );
@@ -240,8 +240,8 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
               opacity="0.4"
             />
             {/* Outer ring and solid center */}
-            <circle r="7" fill="#f59e0b" fillOpacity="0.25" />
-            <circle r="4" fill="#f59e0b" stroke="#090d14" strokeWidth="1.5" />
+            <circle r="7" fill="#F99225" fillOpacity="0.25" />
+            <circle r="4" fill="#F99225" stroke="#140130" strokeWidth="1.5" />
           </g>
 
           {/* Invisible interactive hover slices */}
@@ -264,7 +264,7 @@ export const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
         </svg>
 
         {/* X-Axis Description */}
-        <div className="flex justify-between items-center text-[10px] text-zinc-500 font-mono px-4 pt-1">
+        <div className="flex justify-between items-center text-[10px] text-[#7E6D96] font-mono px-4 pt-1">
           <span>Starting Allocation (0 Tokens Sold)</span>
           <span>Target Curve Capacity (100% Tokens Sold)</span>
         </div>

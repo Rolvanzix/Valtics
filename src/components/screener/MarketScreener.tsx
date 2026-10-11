@@ -154,32 +154,32 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
   // Helper for sorting header arrows
   const renderSortIndicator = (field: ScreenerSortField) => {
     if (sortBy !== field) {
-      return <ArrowUpDown className="w-3 h-3 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity ml-1" />;
+      return <ArrowUpDown className="w-3 h-3 text-[#7E6D96] opacity-0 group-hover:opacity-100 transition-opacity ml-1" />;
     }
     return sortDirection === 'asc' ? (
-      <ArrowUp className="w-3 h-3 text-white ml-1" />
+      <ArrowUp className="w-3 h-3 text-[#F99225] ml-1" />
     ) : (
-      <ArrowDown className="w-3 h-3 text-white ml-1" />
+      <ArrowDown className="w-3 h-3 text-[#F99225] ml-1" />
     );
   };
 
   return (
-    <div className="space-y-4 font-sans text-zinc-200">
+    <div className="space-y-4 font-sans text-[#EDE4FA]">
       {/* 1. Terminal Header: Title, Live Status, Search & Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-1 border-b border-zinc-800/80">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[rgba(138,32,255,0.18)]">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#F5F5F7] tracking-tight font-sans">
               Market Screener
             </h1>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400">
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#080821] border border-[rgba(138,32,255,0.25)] text-[11px] font-mono text-[#F5F5F7]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Pyth Live</span>
-              <span className="text-zinc-600">·</span>
-              <span>DevNet</span>
+              <span>Pyth Live Feeds</span>
+              <span className="text-[#66667A]">·</span>
+              <span className="text-[#A7A7B8]">Solana Devnet</span>
             </div>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-[#A7A7B8] mt-1">
             Standardized reference benchmarks and tokenized assets powered by Pyth Network oracle feeds.
           </p>
         </div>
@@ -187,19 +187,19 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
         {/* Right Utility: Search & Manual Refresh */}
         <div className="flex items-center gap-2.5">
           <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#66667A] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search ticker, name, or issuer..."
-              className="w-full bg-[#0a0e17] border border-zinc-800 focus:border-zinc-600 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 outline-none font-sans transition-colors"
+              className="w-full bg-[#080821] border border-[rgba(138,32,255,0.25)] focus:border-[#8A20FF] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#F5F5F7] placeholder-[#66667A] outline-none font-sans transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 text-xs"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#66667A] hover:text-[#F5F5F7] text-xs cursor-pointer"
               >
                 ✕
               </button>
@@ -211,16 +211,16 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
             onClick={() => loadData(true)}
             disabled={isRefreshing}
             title={`Last updated: ${lastRefreshedAt.toLocaleTimeString()}`}
-            className="p-2 rounded-lg bg-[#0a0e17] border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+            className="p-2 rounded-lg bg-[#080821] border border-[rgba(138,32,255,0.25)] hover:border-[#8A20FF] text-[#A7A7B8] hover:text-[#F5F5F7] transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-white' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#FF8A20]' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* 2. Standardized Category Filter Tabs (Zero-pill discipline: segmented interactive controls) */}
       <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <div className="flex items-center gap-1 p-1 bg-[#090d15] border border-zinc-800/80 rounded-lg shrink-0">
+        <div className="flex items-center gap-1 p-1 bg-[#080821] border border-[rgba(138,32,255,0.25)] rounded-lg shrink-0">
           {categories.map((cat) => (
             <button
               key={cat.id}
@@ -231,8 +231,8 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
               }}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap ${
                 category === cat.id
-                  ? 'bg-zinc-800 text-white shadow-xs font-semibold'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
+                  ? 'bg-[#6010F0] text-white font-semibold shadow-xs'
+                  : 'text-[#A7A7B8] hover:text-[#F5F5F7] hover:bg-[#140130]'
               }`}
             >
               {cat.label}
@@ -241,7 +241,7 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
         </div>
 
         {/* Total Assets Count Display */}
-        <div className="hidden sm:flex items-center text-xs font-mono text-zinc-500 shrink-0">
+        <div className="hidden sm:flex items-center text-xs font-mono text-[#66667A] shrink-0">
           <span>{totalCount} instruments listed</span>
         </div>
       </div>
@@ -249,44 +249,44 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
       {/* 3. Main Market Screener View */}
       {hasError ? (
         /* Error State */
-        <div className="rounded-xl border border-red-900/40 bg-red-950/10 p-8 text-center space-y-3">
-          <div className="w-10 h-10 rounded-full bg-red-950/40 border border-red-800/50 flex items-center justify-center mx-auto text-red-400">
+        <div className="rounded-xl border border-[#BA3351]/40 bg-[#1C0142] p-8 text-center space-y-3">
+          <div className="w-10 h-10 rounded-full bg-[#BA3351]/20 border border-[#BA3351]/50 flex items-center justify-center mx-auto text-[#FF9EAF]">
             <AlertCircle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-zinc-100 text-sm">Pyth Oracle Connection Error</h3>
-            <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">{errorMessage}</p>
+            <h3 className="font-semibold text-[#F7F3FF] text-sm">Pyth Oracle Connection Error</h3>
+            <p className="text-xs text-[#B8A9CC] mt-1 max-w-md mx-auto">{errorMessage}</p>
           </div>
           <button
             type="button"
             onClick={() => loadData(true)}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-medium transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#670CDC] hover:bg-[#7C18F0] text-[#F7F3FF] rounded-lg text-xs font-medium transition-colors cursor-pointer"
           >
             Retry Connection
           </button>
         </div>
       ) : isLoading ? (
         /* Loading Skeleton Table */
-        <div className="rounded-xl border border-zinc-800 bg-[#0a0e17] overflow-hidden">
-          <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between text-xs text-zinc-500 font-mono">
+        <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] overflow-hidden shadow-xl shadow-[#09011B]/60">
+          <div className="p-4 border-b border-[#670CDC]/20 flex items-center justify-between text-xs text-[#7E6D96] font-mono">
             <span className="flex items-center gap-2">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-zinc-400" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#F99225]" />
               Loading real-time market data from Pyth API...
             </span>
           </div>
-          <div className="divide-y divide-zinc-800/50">
+          <div className="divide-y divide-[#670CDC]/15">
             {Array.from({ length: 10 }).map((_, idx) => (
               <div key={idx} className="p-3.5 flex items-center justify-between animate-pulse">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800/70" />
+                  <div className="w-8 h-8 rounded-lg bg-[#1A0140]" />
                   <div className="space-y-1.5">
-                    <div className="w-24 h-3 rounded bg-zinc-800/70" />
-                    <div className="w-12 h-2.5 rounded bg-zinc-800/50" />
+                    <div className="w-24 h-3 rounded bg-[#1A0140]" />
+                    <div className="w-12 h-2.5 rounded bg-[#1A0140]/60" />
                   </div>
                 </div>
                 <div className="space-y-1.5 text-right">
-                  <div className="w-20 h-3 rounded bg-zinc-800/70 ml-auto" />
-                  <div className="w-14 h-2.5 rounded bg-zinc-800/50 ml-auto" />
+                  <div className="w-20 h-3 rounded bg-[#1A0140] ml-auto" />
+                  <div className="w-14 h-2.5 rounded bg-[#1A0140]/60 ml-auto" />
                 </div>
               </div>
             ))}
@@ -294,12 +294,12 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
         </div>
       ) : assets.length === 0 ? (
         /* Empty State */
-        <div className="rounded-xl border border-zinc-800 bg-[#0a0e17] p-12 text-center space-y-3">
-          <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-500">
+        <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-12 text-center space-y-3 shadow-xl shadow-[#09011B]/60">
+          <div className="w-10 h-10 rounded-full bg-[#100126] border border-[#670CDC]/30 flex items-center justify-center mx-auto text-[#D76EDD]">
             <Search className="w-5 h-5" />
           </div>
-          <h3 className="font-semibold text-zinc-200 text-sm">No tokenized assets found</h3>
-          <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+          <h3 className="font-semibold text-[#F7F3FF] text-sm">No tokenized assets found</h3>
+          <p className="text-xs text-[#B8A9CC] max-w-sm mx-auto">
             No instruments match the selected filter or search query. Try clearing your filters or changing your search terms.
           </p>
           {(searchQuery || category !== 'all') && (
@@ -310,7 +310,7 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                 setCategory('all');
                 setPage(1);
               }}
-              className="px-3.5 py-1.5 rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700 text-xs font-medium transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-[#670CDC]/20 text-[#EDE4FA] border border-[#670CDC]/30 hover:bg-[#670CDC]/30 text-xs font-medium transition-colors cursor-pointer"
             >
               Reset filters
             </button>
@@ -321,17 +321,17 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
           {/* ======================================================== */}
           {/* DESKTOP TABLE VIEW: Wide, Standardized, Information-Dense */}
           {/* ======================================================== */}
-          <div className="hidden md:block rounded-xl border border-zinc-800/90 bg-[#090d16] overflow-x-auto shadow-sm">
+          <div className="hidden md:block rounded-xl border border-[#670CDC]/25 bg-[#140130] overflow-x-auto shadow-sm">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-zinc-800 bg-[#0c111c] text-zinc-400 font-medium select-none text-[11px]">
+                <tr className="border-b border-[#670CDC]/25 bg-[#100126] text-[#B8A9CC] font-medium select-none text-[11px]">
                   {/* # Index */}
-                  <th className="py-2.5 px-3 w-10 text-center text-zinc-600 font-mono">#</th>
+                  <th className="py-2.5 px-3 w-10 text-center text-[#7E6D96] font-mono">#</th>
 
                   {/* Asset & Symbol */}
                   <th
                     onClick={() => handleSort('name')}
-                    className="py-2.5 px-3 min-w-[200px] cursor-pointer hover:text-white transition-colors group"
+                    className="py-2.5 px-3 min-w-[200px] cursor-pointer hover:text-[#F7F3FF] transition-colors group"
                   >
                     <div className="flex items-center">
                       <span>Asset / Symbol</span>
@@ -452,10 +452,10 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                     <tr
                       key={asset.id}
                       onClick={() => onSelectAsset(asset)}
-                      className="hover:bg-[#111724] transition-colors cursor-pointer group"
+                      className="hover:bg-[#26035A] transition-colors cursor-pointer group"
                     >
                       {/* Row Index */}
-                      <td className="py-2.5 px-3 text-center text-zinc-600 font-mono text-[11px]">
+                      <td className="py-2.5 px-3 text-center text-[#7E6D96] font-mono text-[11px]">
                         {rowNumber}
                       </td>
 
@@ -468,15 +468,15 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                             size="md"
                           />
                           <div className="min-w-0">
-                            <div className="font-semibold text-zinc-100 group-hover:text-white transition-colors truncate max-w-[200px]">
+                            <div className="font-semibold text-[#F7F3FF] group-hover:text-white transition-colors truncate max-w-[200px]">
                               {asset.name}
                             </div>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="font-mono text-zinc-400 font-medium text-[11px]">
+                              <span className="font-mono text-[#F99225] font-medium text-[11px]">
                                 {asset.symbol}
                               </span>
                               {asset.poolAddress && (
-                                <span className="text-[10px] text-amber-400 font-mono bg-amber-950/30 px-1 rounded border border-amber-800/40">
+                                <span className="text-[10px] text-[#F99225] font-mono bg-[#240A36] px-1 rounded border border-[#F99225]/30 font-semibold">
                                   DBC
                                 </span>
                               )}
@@ -487,14 +487,14 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
 
                       {/* Category */}
                       <td className="py-2.5 px-3">
-                        <span className="text-zinc-400 text-xs truncate block max-w-[130px]">
+                        <span className="text-[#B8A9CC] text-xs truncate block max-w-[130px]">
                           {asset.category}
                         </span>
                       </td>
 
                       {/* Price */}
                       <td className="py-2.5 px-3 text-right">
-                        <span className="font-mono font-bold text-zinc-100 text-xs tracking-tight">
+                        <span className="font-mono font-bold text-[#F7F3FF] text-xs tracking-tight">
                           {asset.price !== null && asset.price > 0 ? formatCurrency(asset.price) : '—'}
                         </span>
                       </td>
@@ -508,56 +508,56 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                                 ? 'text-emerald-400'
                                 : isNegative
                                 ? 'text-rose-400'
-                                : 'text-zinc-400'
+                                : 'text-[#B8A9CC]'
                             }`}
                           >
                             {isPositive ? '+' : ''}
                             {asset.change24hPct.toFixed(2)}%
                           </span>
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-[#7E6D96]">—</span>
                         )}
                       </td>
 
                       {/* 24h High */}
-                      <td className="py-2.5 px-3 text-right font-mono text-xs text-zinc-300">
+                      <td className="py-2.5 px-3 text-right font-mono text-xs text-[#EDE4FA]">
                         {asset.high24h !== null && asset.high24h > 0 ? (
                           formatCurrency(asset.high24h)
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-[#7E6D96]">—</span>
                         )}
                       </td>
 
                       {/* 24h Low */}
-                      <td className="py-2.5 px-3 text-right font-mono text-xs text-zinc-300">
+                      <td className="py-2.5 px-3 text-right font-mono text-xs text-[#EDE4FA]">
                         {asset.low24h !== null && asset.low24h > 0 ? (
                           formatCurrency(asset.low24h)
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-[#7E6D96]">—</span>
                         )}
                       </td>
 
                       {/* 24h Volume */}
-                      <td className="py-2.5 px-3 text-right font-mono text-xs text-zinc-300">
+                      <td className="py-2.5 px-3 text-right font-mono text-xs text-[#EDE4FA]">
                         {asset.volume !== null && asset.volume > 0 ? (
                           formatCurrency(asset.volume)
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-[#7E6D96]">—</span>
                         )}
                       </td>
 
                       {/* Valuation / Market Cap */}
-                      <td className="py-2.5 px-3 text-right font-mono text-xs text-zinc-300">
+                      <td className="py-2.5 px-3 text-right font-mono text-xs text-[#EDE4FA]">
                         {asset.marketCap !== null && asset.marketCap > 0 ? (
                           formatCurrency(asset.marketCap)
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-[#7E6D96]">—</span>
                         )}
                       </td>
 
                       {/* Issuer */}
                       <td className="py-2.5 px-3">
-                        <span className="text-zinc-400 text-xs truncate block max-w-[140px]" title={asset.issuer}>
+                        <span className="text-[#B8A9CC] text-xs truncate block max-w-[140px]" title={asset.issuer}>
                           {asset.issuer}
                         </span>
                       </td>
@@ -572,16 +572,16 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                             </>
                           ) : asset.marketStatus === 'Market Closed' ? (
                             <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-                              <span className="text-amber-400/90 text-[11px]">Closed</span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#F99225] shrink-0" />
+                              <span className="text-[#F99225] text-[11px]">Closed</span>
                             </>
                           ) : asset.marketStatus === 'Unsupported' ? (
                             <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 shrink-0" />
-                              <span className="text-zinc-500 text-[11px]">Institutional</span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#670CDC] shrink-0" />
+                              <span className="text-[#B8A9CC] text-[11px]">Institutional</span>
                             </>
                           ) : (
-                            <span className="text-zinc-600 text-[11px]">—</span>
+                            <span className="text-[#7E6D96] text-[11px]">—</span>
                           )}
                         </div>
                       </td>
@@ -592,7 +592,7 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                           type="button"
                           onClick={(e) => handleCopyAddress(e, asset.mintAddress || asset.id, asset.id)}
                           title="Copy mint/feed address"
-                          className="p-1 rounded hover:bg-zinc-800 text-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer"
+                          className="p-1 rounded hover:bg-[#670CDC]/20 text-[#7E6D96] hover:text-[#F7F3FF] transition-colors cursor-pointer"
                         >
                           {copiedId === asset.id ? (
                             <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -611,14 +611,14 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
           {/* ======================================================== */}
           {/* MOBILE RESPONSIVE VIEW: Preserves Asset, Price, 24h & Vol */}
           {/* ======================================================== */}
-          <div className="md:hidden rounded-xl border border-zinc-800 bg-[#090d16] divide-y divide-zinc-800/70 overflow-hidden shadow-sm">
+          <div className="md:hidden rounded-xl border border-[#670CDC]/25 bg-[#140130] divide-y divide-[#670CDC]/20 overflow-hidden shadow-sm">
             {assets.map((asset) => {
               const isPositive = asset.change24hPct !== null && asset.change24hPct >= 0;
               const isNegative = asset.change24hPct !== null && asset.change24hPct < 0;
               const isExpanded = expandedMobileRow === asset.id;
 
               return (
-                <div key={asset.id} className="p-3.5 hover:bg-[#0e1320] transition-colors">
+                <div key={asset.id} className="p-3.5 hover:bg-[#26035A] transition-colors">
                   {/* Primary Row: Tap to navigate or expand */}
                   <div
                     onClick={() => onSelectAsset(asset)}
@@ -628,18 +628,18 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                     <div className="flex items-center gap-3 min-w-0 pr-3">
                       <AssetLogo symbol={asset.symbol} category={asset.category} size="md" />
                       <div className="min-w-0">
-                        <div className="font-semibold text-zinc-100 text-sm truncate">{asset.name}</div>
-                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-zinc-400 font-mono">
-                          <span className="font-bold text-zinc-300">{asset.symbol}</span>
+                        <div className="font-semibold text-[#F7F3FF] text-sm truncate">{asset.name}</div>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-[#B8A9CC] font-mono">
+                          <span className="font-bold text-[#F99225]">{asset.symbol}</span>
                           <span>·</span>
-                          <span className="text-zinc-500 truncate max-w-[90px]">{asset.issuer}</span>
+                          <span className="text-[#7E6D96] truncate max-w-[90px]">{asset.issuer}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Right: Price & 24h Change */}
                     <div className="text-right shrink-0">
-                      <div className="font-mono font-bold text-sm text-zinc-100">
+                      <div className="font-mono font-bold text-sm text-[#F7F3FF]">
                         {asset.price !== null && asset.price > 0 ? formatCurrency(asset.price) : '—'}
                       </div>
                       <div className="mt-0.5 font-mono text-xs">
@@ -650,24 +650,24 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                                 ? 'text-emerald-400'
                                 : isNegative
                                 ? 'text-rose-400'
-                                : 'text-zinc-400'
+                                : 'text-[#B8A9CC]'
                             }`}
                           >
                             {isPositive ? '+' : ''}
                             {asset.change24hPct.toFixed(2)}%
                           </span>
                         ) : (
-                          <span className="text-zinc-500">—</span>
+                          <span className="text-[#7E6D96]">—</span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Mobile Quick Drawer Toggle */}
-                  <div className="mt-2.5 pt-2 border-t border-zinc-800/40 flex items-center justify-between text-[11px] text-zinc-500">
+                  <div className="mt-2.5 pt-2 border-t border-[#670CDC]/20 flex items-center justify-between text-[11px] text-[#7E6D96]">
                     <div className="flex items-center gap-2 font-mono">
                       <span>Vol:</span>
-                      <span className="text-zinc-300">
+                      <span className="text-[#EDE4FA]">
                         {asset.volume !== null && asset.volume > 0 ? formatCurrency(asset.volume) : '—'}
                       </span>
                     </div>
@@ -679,7 +679,7 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                           e.stopPropagation();
                           setExpandedMobileRow(isExpanded ? null : asset.id);
                         }}
-                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-zinc-200 transition-colors p-1"
+                        className="inline-flex items-center gap-1 text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors p-1"
                       >
                         <span>{isExpanded ? 'Less' : 'Details'}</span>
                         {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -688,7 +688,7 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                       <button
                         type="button"
                         onClick={(e) => handleCopyAddress(e, asset.mintAddress || asset.id, asset.id)}
-                        className="inline-flex items-center gap-1 p-1 text-zinc-400 hover:text-zinc-200"
+                        className="inline-flex items-center gap-1 p-1 text-[#B8A9CC] hover:text-[#F7F3FF]"
                         title="Copy mint/feed"
                       >
                         {copiedId === asset.id ? (
@@ -702,32 +702,32 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
 
                   {/* Expandable Secondary Info on Mobile */}
                   {isExpanded && (
-                    <div className="mt-3 pt-3 border-t border-zinc-800/60 grid grid-cols-2 gap-2 text-xs font-mono bg-zinc-900/40 p-2.5 rounded-lg">
+                    <div className="mt-3 pt-3 border-t border-[#670CDC]/20 grid grid-cols-2 gap-2 text-xs font-mono bg-[#100126] p-2.5 rounded-lg border border-[#670CDC]/20">
                       <div>
-                        <span className="text-zinc-500 block text-[10px]">24H HIGH</span>
-                        <span className="text-zinc-200">
+                        <span className="text-[#7E6D96] block text-[10px]">24H HIGH</span>
+                        <span className="text-[#EDE4FA]">
                           {asset.high24h !== null && asset.high24h > 0 ? formatCurrency(asset.high24h) : '—'}
                         </span>
                       </div>
                       <div>
-                        <span className="text-zinc-500 block text-[10px]">24H LOW</span>
-                        <span className="text-zinc-200">
+                        <span className="text-[#7E6D96] block text-[10px]">24H LOW</span>
+                        <span className="text-[#EDE4FA]">
                           {asset.low24h !== null && asset.low24h > 0 ? formatCurrency(asset.low24h) : '—'}
                         </span>
                       </div>
                       <div>
-                        <span className="text-zinc-500 block text-[10px]">VALUATION</span>
-                        <span className="text-zinc-200">
+                        <span className="text-[#7E6D96] block text-[10px]">VALUATION</span>
+                        <span className="text-[#EDE4FA]">
                           {asset.marketCap !== null && asset.marketCap > 0 ? formatCurrency(asset.marketCap) : '—'}
                         </span>
                       </div>
                       <div>
-                        <span className="text-zinc-500 block text-[10px]">MARKET STATUS</span>
-                        <span className="text-zinc-200">{asset.marketStatus}</span>
+                        <span className="text-[#7E6D96] block text-[10px]">MARKET STATUS</span>
+                        <span className="text-[#EDE4FA]">{asset.marketStatus}</span>
                       </div>
-                      <div className="col-span-2 pt-1 border-t border-zinc-800/40 flex items-center justify-between text-[11px]">
-                        <span className="text-zinc-500">Contract / Feed ID:</span>
-                        <span className="text-zinc-400 truncate max-w-[150px] font-mono">
+                      <div className="col-span-2 pt-1 border-t border-[#670CDC]/15 flex items-center justify-between text-[11px]">
+                        <span className="text-[#7E6D96]">Contract / Feed ID:</span>
+                        <span className="text-[#B8A9CC] truncate max-w-[150px] font-mono">
                           {asset.mintAddress.slice(0, 6)}...{asset.mintAddress.slice(-6)}
                         </span>
                       </div>
@@ -739,8 +739,8 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
           </div>
 
           {/* 4. Pagination & Terminal Metrics Footer */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs font-sans text-zinc-400">
-            <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-500">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs font-sans text-[#B8A9CC]">
+            <div className="flex items-center gap-2 font-mono text-[11px] text-[#7E6D96]">
               <span>Showing {assets.length} of {totalCount} assets</span>
               <span>·</span>
               <span>Source: Pyth Network Verified Oracle</span>
@@ -752,13 +752,13 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-2.5 py-1.5 rounded-md bg-[#0a0e17] border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-mono text-xs"
+                className="px-2.5 py-1.5 rounded-lg bg-[#140130] border border-[#670CDC]/30 hover:border-[#670CDC]/60 disabled:opacity-40 disabled:cursor-not-allowed text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer flex items-center gap-1 font-mono text-xs"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Prev</span>
               </button>
 
-              <span className="font-mono text-xs px-2 text-zinc-300">
+              <span className="font-mono text-xs px-2 text-[#F7F3FF]">
                 Page {page} of {totalPages}
               </span>
 
@@ -766,7 +766,7 @@ export const MarketScreener: React.FC<MarketScreenerProps> = ({
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="px-2.5 py-1.5 rounded-md bg-[#0a0e17] border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-mono text-xs"
+                className="px-2.5 py-1.5 rounded-lg bg-[#140130] border border-[#670CDC]/30 hover:border-[#670CDC]/60 disabled:opacity-40 disabled:cursor-not-allowed text-[#B8A9CC] hover:text-[#F7F3FF] transition-colors cursor-pointer flex items-center gap-1 font-mono text-xs"
               >
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />

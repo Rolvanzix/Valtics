@@ -60,18 +60,18 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     >
       <div
         id="wallet-modal-container"
-        className="w-full max-w-md bg-[#0c101a] border border-zinc-800 rounded-xl p-5 text-zinc-200 shadow-2xl space-y-4"
+        className="w-full max-w-md bg-[#160136] border border-[#670CDC]/30 rounded-2xl p-5 text-[#F7F3FF] shadow-2xl shadow-[#09011B]/95 space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+        <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-3">
           <div className="flex items-center gap-2.5">
             <ValticsMark size={24} glow />
             <div>
-              <h3 className="font-bold text-base tracking-tight text-white font-sans">
+              <h3 className="font-bold text-base tracking-tight text-[#F7F3FF] font-sans">
                 {connected ? 'Solana Devnet Wallet' : 'Connect Devnet Wallet'}
               </h3>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[#B8A9CC]">
                 Solana Devnet (Test Cluster)
               </p>
             </div>
@@ -82,7 +82,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               clearError();
               onClose();
             }}
-            className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="text-[#B8A9CC] hover:text-[#F7F3FF] p-1.5 rounded-lg hover:bg-[#1C0142] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -90,13 +90,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
         {/* Wrong Network Warning Banner */}
         {isWrongNetwork && (
-          <div className="bg-rose-950/40 border border-rose-800/70 rounded-lg p-3 text-xs text-rose-200 flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+          <div className="bg-[#BA3351]/20 border border-[#BA3351]/50 rounded-xl p-3 text-xs text-[#FF9EAF] flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-[#BA3351]" />
             <div>
-              <span className="font-semibold block text-rose-300">
+              <span className="font-semibold block text-[#FF9EAF]">
                 Solana Devnet Required
               </span>
-              <span>
+              <span className="text-[#B8A9CC]">
                 {networkError || 'Your wallet or RPC is not on Solana Devnet. All transactions are blocked.'}
               </span>
             </div>
@@ -105,26 +105,26 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
         {/* Connected State */}
         {connected ? (
-          <div className="space-y-4">
-            <div className="bg-zinc-950/70 border border-zinc-800/80 rounded-lg p-3.5 space-y-2.5">
-              <div className="flex items-center justify-between text-xs text-zinc-400">
+          <div className="space-y-4 font-sans">
+            <div className="bg-[#120128] border border-[#670CDC]/25 rounded-xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-[#B8A9CC]">
                 <span>Active Provider</span>
-                <div className="flex items-center gap-1.5 font-medium text-zinc-200">
-                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                <div className="flex items-center gap-1.5 font-medium text-[#F7F3FF]">
+                  <span className="w-2 h-2 rounded-full bg-[#F99225]"></span>
                   <span>{walletName || 'Solana Wallet'}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1C0142] text-[#D76EDD] font-mono border border-[#670CDC]/30">
                     Devnet
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-zinc-400">
+              <div className="flex items-center justify-between text-xs text-[#B8A9CC]">
                 <span>Public Address</span>
                 <AddressBadge address={publicKeyStr || ''} head={6} tail={6} />
               </div>
-              <div className="flex items-center justify-between text-xs text-zinc-400">
+              <div className="flex items-center justify-between text-xs text-[#B8A9CC]">
                 <span>Native Balance</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-mono-nums font-semibold text-zinc-100">
+                  <span className="font-mono-nums font-semibold text-[#F7F3FF]">
                     {balanceLoading ? (
                       'Refreshing...'
                     ) : balanceSol !== null ? (
@@ -138,7 +138,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     onClick={() => refreshBalance()}
                     disabled={balanceLoading}
                     title="Refresh on-chain balance"
-                    className="text-zinc-500 hover:text-zinc-300 p-0.5 rounded transition-colors cursor-pointer"
+                    className="text-[#B8A9CC] hover:text-[#F7F3FF] p-0.5 rounded transition-colors cursor-pointer"
                   >
                     <RefreshCw className={`w-3 h-3 ${balanceLoading ? 'animate-spin' : ''}`} />
                   </button>
@@ -162,13 +162,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       : 'Devnet airdrop faucet rate limit reached. Please use a devnet web faucet or transfer test SOL.'
                   );
                 }}
-                className="w-full py-2 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+                className="w-full py-2 px-3 rounded-lg bg-[#F99225]/15 hover:bg-[#F99225]/25 border border-[#F99225]/40 text-[#F99225] text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
               >
                 {airdropping ? 'Requesting 1 Devnet SOL...' : 'Request 1 Devnet SOL'}
               </button>
 
               {airdropMsg && (
-                <p className="text-[11px] text-zinc-400 text-center">{airdropMsg}</p>
+                <p className="text-[11px] text-[#B8A9CC] text-center">{airdropMsg}</p>
               )}
             </div>
 
@@ -179,21 +179,21 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   href={getExplorerUrl(publicKeyStr, 'address', 'devnet')}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1 transition-colors"
+                  className="text-xs text-[#B8A9CC] hover:text-[#F7F3FF] inline-flex items-center gap-1 transition-colors"
                 >
                   <span>
                     View account on Solana Explorer (Devnet)
                   </span>
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3 text-[#D76EDD]" />
                 </a>
               </div>
             )}
 
-            <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-lg p-3 text-xs text-emerald-300 flex items-start gap-2">
+            <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-xl p-3 text-xs text-emerald-300 flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
               <div>
-                <span className="font-semibold block">Non-Custodial Architecture</span>
-                Valtics interfaces solely via your browser wallet. Private keys are never requested or stored.
+                <span className="font-semibold block text-emerald-200">Non-Custodial Architecture</span>
+                <span className="text-[#B8A9CC]">Valtics interfaces solely via your browser wallet. Private keys are never requested or stored.</span>
               </div>
             </div>
 
@@ -204,27 +204,27 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 await disconnect();
                 onClose();
               }}
-              className="w-full py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-rose-950 hover:text-rose-300 hover:border-rose-900/60 border border-zinc-700 text-sm font-medium transition-colors cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#1C0142] hover:bg-[#BA3351]/20 hover:text-[#FF9EAF] hover:border-[#BA3351]/60 border border-[#670CDC]/30 text-sm font-medium transition-colors cursor-pointer text-[#F7F3FF]"
             >
               Disconnect wallet
             </button>
           </div>
         ) : (
           /* Disconnected State */
-          <div className="space-y-4">
-            <p className="text-xs text-zinc-400 leading-relaxed">
+          <div className="space-y-4 font-sans">
+            <p className="text-xs text-[#B8A9CC] leading-relaxed">
               Connect a real Solana browser extension on{' '}
-              <strong className="text-zinc-200">Solana Devnet</strong>{' '}
+              <strong className="text-[#F7F3FF]">Solana Devnet</strong>{' '}
               to create Meteora Dynamic Bonding Curves and deploy verifiable liquidity.
             </p>
 
             {/* Error Display */}
             {error && (
-              <div className="bg-rose-950/30 border border-rose-900/50 rounded-lg p-3 text-xs text-rose-300 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+              <div className="bg-[#BA3351]/20 border border-[#BA3351]/50 rounded-xl p-3 text-xs text-[#FF9EAF] flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#BA3351]" />
                 <div className="flex-1">
-                  <span className="block font-medium">Connection Error</span>
-                  <span className="text-[11px] text-rose-300/90 leading-normal">{error}</span>
+                  <span className="block font-medium text-[#FF9EAF]">Connection Error</span>
+                  <span className="text-[11px] text-[#B8A9CC] leading-normal">{error}</span>
                 </div>
               </div>
             )}
@@ -243,15 +243,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       handleExternalLink(w.installUrl);
                     }
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 hover:border-zinc-700 transition-all text-left cursor-pointer group"
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-[#670CDC]/25 bg-[#140130] hover:bg-[#1C0142] hover:border-[#670CDC]/50 transition-all text-left cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{w.icon}</span>
                     <div>
-                      <span className="font-medium text-sm text-zinc-200 block group-hover:text-white">
+                      <span className="font-medium text-sm text-[#F7F3FF] block group-hover:text-white">
                         {w.name}
                       </span>
-                      <span className="text-[10px] text-zinc-500">{w.description}</span>
+                      <span className="text-[10px] text-[#7E6D96]">{w.description}</span>
                     </div>
                   </div>
                   <div>
@@ -260,7 +260,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                         Connect
                       </span>
                     ) : (
-                      <span className="text-xs font-mono text-zinc-400 group-hover:text-zinc-200">
+                      <span className="text-xs font-mono text-[#B8A9CC] group-hover:text-[#F7F3FF]">
                         Install ↗
                       </span>
                     )}

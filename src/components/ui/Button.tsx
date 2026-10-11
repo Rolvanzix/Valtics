@@ -43,7 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyles = {
       // Primary: High-visibility brand orange action with dark purple text
       primary:
-        'bg-[#F99225] hover:bg-[#FFA33D] active:bg-[#E8831A] text-[#09011B] font-bold shadow-md shadow-[#F99225]/20',
+        'bg-[#F99225] hover:bg-[#FFA742] active:bg-[#E8831A] text-[#09011B] font-bold shadow-md shadow-[#F99225]/20',
       // Secondary: Dark purple container with electric violet border
       secondary:
         'bg-[#1C0142] hover:bg-[#26035A] active:bg-[#1C0142] text-[#F7F3FF] border border-[#670CDC]/35 hover:border-[#670CDC]/60 shadow-xs',

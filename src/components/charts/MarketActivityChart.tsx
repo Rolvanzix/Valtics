@@ -29,11 +29,11 @@ export const MarketActivityChart: React.FC<MarketActivityChartProps> = ({ data }
   const maxVol = Math.max(...steps.map((s) => s.volumeSol), 1);
 
   return (
-    <div className="rounded-xl border border-zinc-800/90 bg-[#0c1018] p-4 sm:p-5 space-y-4">
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+    <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-4 sm:p-5 space-y-4">
+      <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-3">
         <div className="flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-amber-400" />
-          <h4 className="font-semibold text-xs uppercase tracking-wider text-zinc-200">
+          <BarChart3 className="w-4 h-4 text-[#F99225]" />
+          <h4 className="font-semibold text-xs uppercase tracking-wider text-[#F7F3FF]">
             Market Flow & Trade Execution Volume
           </h4>
         </div>
@@ -56,11 +56,11 @@ export const MarketActivityChart: React.FC<MarketActivityChartProps> = ({ data }
           return (
             <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 group relative">
               {/* Hover Tooltip */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 bg-[#090d14] border border-zinc-700 p-2 rounded text-[10px] font-mono pointer-events-none z-20 whitespace-nowrap shadow-xl">
-                <div className="font-semibold text-zinc-200 uppercase">{step.type} Order</div>
-                <div className="text-amber-400">{step.volumeSol} SOL</div>
-                <div className="text-zinc-400">{formatCurrency(step.priceUsd)}</div>
-                <div className="text-zinc-500">{step.timeLabel}</div>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 bg-[#0E0124] border border-[#670CDC]/40 p-2.5 rounded-lg text-[10px] font-mono pointer-events-none z-20 whitespace-nowrap shadow-2xl">
+                <div className="font-semibold text-[#F7F3FF] uppercase">{step.type} Order</div>
+                <div className="text-[#F99225] font-semibold">{step.volumeSol} SOL</div>
+                <div className="text-[#B8A9CC]">{formatCurrency(step.priceUsd)}</div>
+                <div className="text-[#7E6D96]">{step.timeLabel}</div>
               </div>
 
               {/* Bar */}
@@ -74,7 +74,7 @@ export const MarketActivityChart: React.FC<MarketActivityChartProps> = ({ data }
               />
 
               {/* Time Label */}
-              <span className="text-[9px] font-mono text-zinc-500 truncate max-w-[40px]">
+              <span className="text-[9px] font-mono text-[#7E6D96] truncate max-w-[40px]">
                 {step.timeLabel}
               </span>
             </div>

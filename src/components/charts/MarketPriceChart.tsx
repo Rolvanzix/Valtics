@@ -133,9 +133,9 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
   // Timeframe selector header
   const timeframeHeader = (
     <div className="flex items-center justify-between">
-      <div className="text-xs font-mono text-zinc-500">
+      <div className="text-xs font-mono text-[#B8A9CC]">
         {hoveredIndex !== null && activePoint ? (
-          <span>
+          <span className="text-[#F7F3FF] font-semibold">
             {activePoint.time} • {formatCurrency(activePoint.close, quoteSymbol)}
           </span>
         ) : (
@@ -143,16 +143,16 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
         )}
       </div>
 
-      <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-0.5 rounded-lg">
+      <div className="flex items-center gap-1 bg-[#100126] border border-[#670CDC]/25 p-0.5 rounded-lg">
         {(['24H', '7D', 'ALL'] as const).map((tf) => (
           <button
             key={tf}
             type="button"
             onClick={() => setTimeframe(tf)}
-            className={`px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer ${
+            className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors cursor-pointer ${
               timeframe === tf
-                ? 'bg-zinc-800 text-white font-medium'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-[#670CDC] text-white font-semibold shadow-xs'
+                : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
             }`}
           >
             {tf}
@@ -166,9 +166,9 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
     return (
       <div className="space-y-3">
         {timeframeHeader}
-        <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-500 font-mono text-xs select-none" style={{ height }}>
-          <RefreshCw className="w-4 h-4 animate-spin text-zinc-400 mb-2" />
-          <span className="text-zinc-400">Loading Pyth historical data...</span>
+        <div className="flex flex-col items-center justify-center py-16 text-center text-[#7E6D96] font-mono text-xs select-none" style={{ height }}>
+          <RefreshCw className="w-4 h-4 animate-spin text-[#670CDC] mb-2" />
+          <span className="text-[#B8A9CC]">Loading Pyth historical data...</span>
         </div>
       </div>
     );
@@ -178,9 +178,9 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
     return (
       <div className="space-y-3">
         {timeframeHeader}
-        <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-500 font-mono text-xs select-none" style={{ height }}>
-          <span className="text-zinc-300 font-medium">Pyth feed not entitled</span>
-          <span className="text-[11px] text-zinc-500 mt-1 max-w-md">
+        <div className="flex flex-col items-center justify-center py-16 text-center text-[#7E6D96] font-mono text-xs select-none" style={{ height }}>
+          <span className="text-[#EDE4FA] font-medium">Pyth feed not entitled</span>
+          <span className="text-[11px] text-[#7E6D96] mt-1 max-w-md">
             This asset requires an institutional exchange license grant (e.g. Cboe BZX equities) under Pyth Network.
           </span>
         </div>
@@ -192,9 +192,9 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
     return (
       <div className="space-y-3">
         {timeframeHeader}
-        <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-500 font-mono text-xs select-none" style={{ height }}>
-          <span className="text-zinc-400">Historical performance unavailable</span>
-          <span className="text-[11px] text-zinc-600 mt-1">
+        <div className="flex flex-col items-center justify-center py-16 text-center text-[#7E6D96] font-mono text-xs select-none" style={{ height }}>
+          <span className="text-[#B8A9CC]">Historical performance unavailable</span>
+          <span className="text-[11px] text-[#7E6D96] mt-1">
             Pyth historical OHLC data is not currently published for this interval.
           </span>
         </div>
@@ -234,7 +234,7 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
                   y1={y}
                   x2={chartWidth - paddingX}
                   y2={y}
-                  stroke="#27272a"
+                  stroke="rgba(103, 12, 220, 0.2)"
                   strokeWidth="0.75"
                   strokeDasharray="4 4"
                 />
@@ -242,7 +242,7 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
                   x={chartWidth - paddingX}
                   y={y - 4}
                   textAnchor="end"
-                  fill="#71717a"
+                  fill="#7E6D96"
                   fontSize="10"
                   fontFamily="monospace"
                 >
@@ -271,7 +271,7 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
                 y1={paddingY}
                 x2={getX(hoveredIndex)}
                 y2={paddingY + chartHeight}
-                stroke="#52525b"
+                stroke="#670CDC"
                 strokeWidth="1"
                 strokeDasharray="3 3"
               />
@@ -280,7 +280,7 @@ export const MarketPriceChart: React.FC<MarketPriceChartProps> = ({
                 cy={getY(activePoint.close)}
                 r="4"
                 fill={strokeColor}
-                stroke="#090d14"
+                stroke="#140130"
                 strokeWidth="2"
               />
             </g>

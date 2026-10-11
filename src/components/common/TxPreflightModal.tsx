@@ -75,7 +75,7 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
       title={
         <div className="flex items-center gap-2.5">
           <ValticsMark size={22} glow />
-          <span className="text-zinc-100 font-bold">Preflight Transaction Verification</span>
+          <span className="text-[#F7F3FF] font-bold">Preflight Transaction Verification</span>
         </div>
       }
       description={`Meteora DBC Smart Contract Instruction · Solana ${intent.network.toUpperCase()}`}
@@ -91,11 +91,11 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
                 <h4 className="text-sm font-semibold text-emerald-200">
                   Transaction Confirmed on Solana Ledger
                 </h4>
-                <p className="text-xs text-zinc-300">
+                <p className="text-xs text-[#EDE4FA]">
                   Your instruction has been cryptographically signed, committed, and finalized on-chain.
                 </p>
                 <div className="mt-3 pt-2 border-t border-emerald-900/40 flex items-center justify-between">
-                  <span className="text-xs text-zinc-400 font-mono">Signature:</span>
+                  <span className="text-xs text-[#B8A9CC] font-mono">Signature:</span>
                   <AddressBadge address={txSignature} type="tx" />
                 </div>
               </div>
@@ -109,9 +109,9 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
           <>
             {/* Safety Invariant Audit Report */}
             {safetyReport && (
-              <div className="p-3 rounded-xl bg-[#090d16] border border-zinc-800 space-y-2">
+              <div className="p-3.5 rounded-xl bg-[#1C0142] border border-[#670CDC]/30 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-semibold tracking-wider flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono uppercase text-[#B8A9CC] font-semibold tracking-wider flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                     Transaction Safety Verification Checklist
                   </span>
@@ -126,20 +126,20 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
                       key={chk.id}
                       className={`p-2 rounded-lg border flex items-start gap-2 ${
                         chk.status === 'verified'
-                          ? 'border-emerald-900/30 bg-emerald-950/10 text-zinc-300'
+                          ? 'border-emerald-900/30 bg-emerald-950/20 text-[#F7F3FF]'
                           : chk.status === 'warning'
-                          ? 'border-amber-900/50 bg-amber-950/20 text-amber-200'
-                          : 'border-rose-900/50 bg-rose-950/20 text-rose-200'
+                          ? 'border-[#F99225]/40 bg-[#F99225]/15 text-[#F99225]'
+                          : 'border-[#BA3351]/40 bg-[#BA3351]/20 text-[#FF9EAF]'
                       }`}
                     >
                       {chk.status === 'verified' ? (
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                       ) : (
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#F99225] shrink-0 mt-0.5" />
                       )}
                       <div>
-                        <span className="font-semibold block text-zinc-200">{chk.label}</span>
-                        <span className="text-[10px] text-zinc-400 leading-tight block mt-0.5">
+                        <span className="font-semibold block text-[#F7F3FF]">{chk.label}</span>
+                        <span className="text-[10px] text-[#B8A9CC] leading-tight block mt-0.5">
                           {chk.detail}
                         </span>
                       </div>
@@ -148,8 +148,8 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
                 </div>
 
                 {!safetyReport.isSafeToProceed && safetyReport.blockReason && (
-                  <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-900/60 text-xs text-rose-300 flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div className="p-2.5 rounded-lg bg-[#BA3351]/20 border border-[#BA3351]/50 text-xs text-[#FF9EAF] flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-[#BA3351] shrink-0" />
                     <span>
                       <strong>Execution Blocked:</strong> {safetyReport.blockReason}
                     </span>
@@ -159,46 +159,46 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
             )}
 
             {/* Pillar 1: What am I doing? */}
-            <div className="p-3.5 rounded-xl bg-[#090d14] border border-zinc-800 space-y-1.5">
+            <div className="p-3.5 rounded-xl bg-[#140130] border border-[#670CDC]/25 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase text-amber-400 font-semibold tracking-wider flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span className="text-[10px] font-mono uppercase text-[#F99225] font-semibold tracking-wider flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F99225]" />
                   Pillar 1 · What am I doing?
                 </span>
                 <Badge variant="accent" size="xs">
                   {intent.network}
                 </Badge>
               </div>
-              <h4 className="text-sm font-bold text-zinc-100 font-sans">{intent.title}</h4>
-              <p className="text-xs text-zinc-300 leading-relaxed font-normal">
+              <h4 className="text-sm font-bold text-[#F7F3FF] font-sans">{intent.title}</h4>
+              <p className="text-xs text-[#B8A9CC] leading-relaxed font-normal">
                 {intent.description}
               </p>
             </div>
 
             {/* Pillar 2 & 3: Why am I doing it? & What will happen? */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-[#090d14] border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-mono uppercase text-zinc-400 font-semibold tracking-wider">
+              <div className="p-3 rounded-xl bg-[#140130] border border-[#670CDC]/25 space-y-1">
+                <span className="text-[10px] font-mono uppercase text-[#B8A9CC] font-semibold tracking-wider">
                   Pillar 2 · Why am I doing it?
                 </span>
-                <p className="text-xs text-zinc-300 leading-relaxed">
+                <p className="text-xs text-[#B8A9CC] leading-relaxed">
                   Establish an algorithmic liquidity pool and deterministic pricing curve for tokenized real-world assets on Meteora DBC without capital fragmentation.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#090d14] border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-mono uppercase text-zinc-400 font-semibold tracking-wider">
+              <div className="p-3 rounded-xl bg-[#140130] border border-[#670CDC]/25 space-y-1">
+                <span className="text-[10px] font-mono uppercase text-[#B8A9CC] font-semibold tracking-wider">
                   Pillar 3 · What will happen?
                 </span>
-                <p className="text-xs text-zinc-300 leading-relaxed">
+                <p className="text-xs text-[#B8A9CC] leading-relaxed">
                   The program derives pool and vault PDAs, initializes curve parameters, deposits the base reserve, and locks trading configurations until graduation.
                 </p>
               </div>
             </div>
 
             {/* Critical Financial & Protocol Parameters */}
-            <div className="rounded-xl border border-zinc-800 bg-[#090d14] p-3.5 space-y-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block font-sans">
+            <div className="rounded-xl border border-[#670CDC]/25 bg-[#1C0142] p-3.5 space-y-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#B8A9CC] block font-sans">
                 Boundaries & Operational Parameters
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
@@ -207,14 +207,14 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
                     key={param.label}
                     className={`p-2 rounded-lg border ${
                       param.flagged
-                        ? 'border-amber-900/60 bg-amber-950/20 text-amber-200'
-                        : 'border-zinc-800/80 bg-zinc-900/40 text-zinc-300'
+                        ? 'border-[#F99225]/40 bg-[#F99225]/15 text-[#F99225]'
+                        : 'border-[#670CDC]/20 bg-[#120128] text-[#B8A9CC]'
                     }`}
                   >
-                    <span className="text-[10px] text-zinc-400 block font-sans truncate">
+                    <span className="text-[10px] text-[#7E6D96] block font-sans truncate">
                       {param.label}
                     </span>
-                    <span className="font-mono-nums font-semibold text-zinc-100 text-xs mt-0.5 block truncate">
+                    <span className="font-mono-nums font-semibold text-[#F7F3FF] text-xs mt-0.5 block truncate">
                       {param.value}
                     </span>
                   </div>
@@ -223,26 +223,26 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
             </div>
 
             {/* Target Program & Required Accounts */}
-            <div className="rounded-xl border border-zinc-800 bg-[#090d14] p-3.5 space-y-2 text-xs">
+            <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-3.5 space-y-2 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 font-sans">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#B8A9CC] font-sans">
                   Target Program (Verified Meteora DBC)
                 </span>
                 <AddressBadge address={intent.programId} label="Meteora DBC" />
               </div>
 
-              <div className="border-t border-zinc-800/80 pt-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5 font-sans">
+              <div className="border-t border-[#670CDC]/20 pt-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#B8A9CC] block mb-1.5 font-sans">
                   Target Accounts & Authorities ({intent.accounts.length})
                 </span>
                 <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
                   {intent.accounts.map((acc, idx) => (
                     <div
                       key={`${acc.pubkey}-${idx}`}
-                      className="flex items-center justify-between text-[11px] p-1.5 rounded bg-zinc-900/60 border border-zinc-800/60 font-mono-nums"
+                      className="flex items-center justify-between text-[11px] p-1.5 rounded-lg bg-[#120128] border border-[#670CDC]/20 font-mono-nums"
                     >
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="text-zinc-400 font-sans text-[10px]">{acc.label}:</span>
+                        <span className="text-[#B8A9CC] font-sans text-[10px]">{acc.label}:</span>
                         <AddressBadge address={acc.pubkey} head={4} tail={4} />
                       </div>
                       <div className="flex items-center gap-1 shrink-0 text-[10px]">
@@ -264,21 +264,21 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
             </div>
 
             {/* Pillar 4: What will it cost? */}
-            <div className="rounded-xl border border-zinc-800 bg-[#090d14] p-3.5 space-y-2">
+            <div className="rounded-xl border border-[#670CDC]/25 bg-[#1C0142] p-3.5 space-y-2">
               <span className="text-[10px] font-mono uppercase text-emerald-400 font-semibold tracking-wider flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 Pillar 4 · What will it cost?
               </span>
-              <div className="grid grid-cols-2 gap-3 text-xs bg-zinc-900/40 p-2.5 rounded-lg border border-zinc-800/80 font-mono-nums">
+              <div className="grid grid-cols-2 gap-3 text-xs bg-[#120128] p-2.5 rounded-lg border border-[#670CDC]/20 font-mono-nums">
                 <div>
-                  <span className="text-[10px] text-zinc-400 font-sans block">Network Tx Fee</span>
-                  <span className="text-zinc-100 font-semibold mt-0.5 block">
+                  <span className="text-[10px] text-[#7E6D96] font-sans block">Network Tx Fee</span>
+                  <span className="text-[#F7F3FF] font-semibold mt-0.5 block">
                     ~{intent.estimatedFeeSol} SOL (<span className="text-emerald-400">&lt;$0.001</span>)
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-zinc-400 font-sans block">Rent-Exempt Storage Reserve</span>
-                  <span className="text-zinc-100 font-semibold mt-0.5 block">
+                  <span className="text-[10px] text-[#7E6D96] font-sans block">Rent-Exempt Storage Reserve</span>
+                  <span className="text-[#F7F3FF] font-semibold mt-0.5 block">
                     ~{intent.rentExemptReserveSol} SOL
                   </span>
                 </div>
@@ -287,29 +287,29 @@ export const TxPreflightModal: React.FC<TxPreflightModalProps> = ({
 
             {/* Sanitized Error display */}
             {sanitizedError && (
-              <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-900/60 text-xs text-rose-300 flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-lg bg-[#BA3351]/20 border border-[#BA3351]/50 text-xs text-[#FF9EAF] flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-[#BA3351] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold block">Execution Failed</span>
-                  <span>{sanitizedError}</span>
+                  <span className="font-semibold block text-[#FF9EAF]">Execution Failed</span>
+                  <span className="text-[#B8A9CC]">{sanitizedError}</span>
                 </div>
               </div>
             )}
 
             {/* Pillar 5: What do I need to confirm? */}
-            <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-              <span className="text-[10px] font-mono uppercase text-amber-400 font-semibold tracking-wider">
+            <div className="p-3 rounded-xl bg-[#F99225]/10 border border-[#F99225]/30 space-y-2">
+              <span className="text-[10px] font-mono uppercase text-[#F99225] font-semibold tracking-wider">
                 Pillar 5 · Explicit Approval Required (No Auto-Signing)
               </span>
-              <label className="flex items-start gap-2.5 text-xs text-zinc-300 cursor-pointer select-none">
+              <label className="flex items-start gap-2.5 text-xs text-[#B8A9CC] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={confirmedRisk}
                   onChange={(e) => setConfirmedRisk(e.target.checked)}
-                  className="mt-0.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-0 cursor-pointer"
+                  className="mt-0.5 rounded border-[#670CDC]/40 bg-[#120128] text-[#F99225] focus:ring-0 cursor-pointer"
                 />
                 <span className="leading-snug">
-                  I have independently verified the target accounts, network fees, bonding curve formulas, and authoritatively instruct this transaction on Solana <strong>{intent.network}</strong>.
+                  I have independently verified the target accounts, network fees, bonding curve formulas, and authoritatively instruct this transaction on Solana <strong className="text-[#F7F3FF]">{intent.network}</strong>.
                 </span>
               </label>
             </div>

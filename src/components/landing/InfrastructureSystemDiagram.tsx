@@ -103,7 +103,7 @@ export const InfrastructureSystemDiagram: React.FC = () => {
         </div>
 
         {/* 1. BIG ARCHITECTURAL SCHEMATIC VISUAL */}
-        <div className="relative w-full aspect-[1.6/1] sm:aspect-[2.5/1] min-h-[290px] sm:min-h-[360px] lg:min-h-[380px] flex items-center justify-center rounded-xl bg-[#06080e] border border-white/[0.08] p-3 sm:p-6 shadow-2xl overflow-hidden">
+        <div className="relative w-full aspect-[1.6/1] sm:aspect-[2.5/1] min-h-[290px] sm:min-h-[360px] lg:min-h-[380px] flex items-center justify-center rounded-xl bg-[#140130] border border-[#670CDC]/30 p-3 sm:p-6 shadow-2xl shadow-[#09011B]/95 overflow-hidden">
           {/* Subtle Grid Watermark */}
           <div
             className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -120,9 +120,9 @@ export const InfrastructureSystemDiagram: React.FC = () => {
           >
             <defs>
               <linearGradient id="systemBusGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
-                <stop offset="50%" stopColor="#10b981" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#34d399" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#8023EC" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#D11CA5" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#F99225" stopOpacity="0.9" />
               </linearGradient>
 
               <filter id="nodeGlow" x="-20%" y="-20%" width="140%" height="140%">
@@ -137,7 +137,7 @@ export const InfrastructureSystemDiagram: React.FC = () => {
               y1={yAxis}
               x2={nodes[nodes.length - 1].x}
               y2={yAxis}
-              stroke="#27272a"
+              stroke="#350968"
               strokeWidth="2"
             />
             <line
@@ -167,7 +167,7 @@ export const InfrastructureSystemDiagram: React.FC = () => {
                   <circle
                     r="44"
                     fill="none"
-                    stroke={isSelected ? '#10b981' : '#27272a'}
+                    stroke={isSelected ? '#F99225' : 'rgba(103, 12, 220, 0.25)'}
                     strokeWidth="1"
                     strokeDasharray={isSelected ? 'none' : '2 4'}
                     className="transition-colors duration-300"
@@ -176,31 +176,31 @@ export const InfrastructureSystemDiagram: React.FC = () => {
                   {/* Inner Solid Capsule */}
                   <circle
                     r="32"
-                    fill="#080b12"
-                    stroke={isSelected ? '#e4e4e7' : '#3f3f46'}
+                    fill="#100126"
+                    stroke={isSelected ? '#F99225' : '#670CDC'}
                     strokeWidth={isSelected ? '1.5' : '1'}
                     className="transition-colors duration-300"
                   />
 
                   {/* Central Geometric Glyph matching shared visual language */}
                   {node.id === 'asset' && (
-                    <polygon points="0,-12 12,0 0,12 -12,0" fill="#06080d" stroke="#e4e4e7" strokeWidth="1.2" />
+                    <polygon points="0,-12 12,0 0,12 -12,0" fill="#19013D" stroke="#EDE4FA" strokeWidth="1.2" />
                   )}
                   {node.id === 'rules' && (
-                    <rect x="-8" y="-8" width="16" height="16" fill="#06080d" stroke="#e4e4e7" strokeWidth="1.2" rx="2" />
+                    <rect x="-8" y="-8" width="16" height="16" fill="#19013D" stroke="#EDE4FA" strokeWidth="1.2" rx="2" />
                   )}
                   {node.id === 'liquidity' && (
-                    <path d="M -9 5 Q 0 -11 9 5 Z" fill="#06080d" stroke="#e4e4e7" strokeWidth="1.2" />
+                    <path d="M -9 5 Q 0 -11 9 5 Z" fill="#19013D" stroke="#EDE4FA" strokeWidth="1.2" />
                   )}
                   {node.id === 'market' && (
-                    <circle r="9" fill="#06080d" stroke="#e4e4e7" strokeWidth="1.2" />
+                    <circle r="9" fill="#19013D" stroke="#EDE4FA" strokeWidth="1.2" />
                   )}
                   {node.id === 'value' && (
-                    <polygon points="0,-12 11,-6 11,6 0,12 -11,6 -11,-6" fill="#06080d" stroke="#e4e4e7" strokeWidth="1.2" />
+                    <polygon points="0,-12 11,-6 11,6 0,12 -11,6 -11,-6" fill="#19013D" stroke="#EDE4FA" strokeWidth="1.2" />
                   )}
 
-                  {/* Emerald Core Status Dot */}
-                  <circle r="3" fill="#10b981" />
+                  {/* Status Dot */}
+                  <circle r="3" fill="#F99225" />
 
                   {/* Active Indicator Pulse Ring */}
                   {isSelected && (
@@ -219,7 +219,7 @@ export const InfrastructureSystemDiagram: React.FC = () => {
                     x="0"
                     y="64"
                     textAnchor="middle"
-                    fill={isSelected ? '#ffffff' : '#e4e4e7'}
+                    fill={isSelected ? '#F7F3FF' : '#B8A9CC'}
                     fontSize="11"
                     fontFamily="monospace"
                     fontWeight="600"
@@ -231,7 +231,7 @@ export const InfrastructureSystemDiagram: React.FC = () => {
                     x="0"
                     y="78"
                     textAnchor="middle"
-                    fill={isSelected ? '#10b981' : '#71717a'}
+                    fill={isSelected ? '#F99225' : '#7E6D96'}
                     fontSize="9"
                     fontFamily="monospace"
                   >
@@ -244,25 +244,25 @@ export const InfrastructureSystemDiagram: React.FC = () => {
         </div>
 
         {/* 2. DYNAMIC TECHNICAL METADATA STRIP */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-8 border-t border-white/[0.08] text-xs font-mono">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-8 border-t border-[#670CDC]/20 text-xs font-mono">
           <div className="space-y-1 max-w-xl">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-semibold">
+              <span className="text-[10px] text-[#F99225] uppercase tracking-widest font-semibold">
                 STAGE {currentMeta.step} · {currentMeta.name}
               </span>
-              <span className="text-zinc-600">/</span>
-              <span className="text-zinc-400">{currentMeta.subtitle}</span>
+              <span className="text-[#670CDC]/40">/</span>
+              <span className="text-[#B8A9CC]">{currentMeta.subtitle}</span>
             </div>
-            <p className="text-zinc-300 text-sm font-light leading-relaxed">
+            <p className="text-[#EDE4FA] text-sm font-light leading-relaxed">
               {currentMeta.desc}
             </p>
           </div>
 
-          <div className="shrink-0 bg-white/[0.03] px-4 py-2.5 rounded border border-white/[0.08]">
-            <span className="text-[10px] text-zinc-500 block uppercase tracking-wider mb-0.5">
+          <div className="shrink-0 bg-[#100126] px-4 py-2.5 rounded border border-[#670CDC]/30">
+            <span className="text-[10px] text-[#7E6D96] block uppercase tracking-wider mb-0.5">
               INVARIANT / METRIC
             </span>
-            <span className="text-emerald-400 font-medium font-mono text-xs sm:text-sm">
+            <span className="text-[#F99225] font-medium font-mono text-xs sm:text-sm">
               {currentMeta.formula}
             </span>
           </div>

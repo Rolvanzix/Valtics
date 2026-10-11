@@ -69,9 +69,9 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-zinc-800/80 pb-4">
-        <h2 className="text-xl font-bold text-white tracking-tight">Step 3 — Curve Configuration</h2>
-        <p className="text-xs text-zinc-400 mt-1">
+      <div className="border-b border-[#670CDC]/20 pb-4">
+        <h2 className="text-xl font-bold text-[#F7F3FF] tracking-tight">Step 3 — Curve Configuration</h2>
+        <p className="text-xs text-[#B8A9CC] mt-1">
           Adjust verified parameters supported by the official Meteora Dynamic Bonding Curve smart contract and SDK.
         </p>
       </div>
@@ -79,16 +79,16 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
       {/* Grid of DBC Parameter Sections */}
       <div className="space-y-5">
         {/* Section 1: Spot Pricing & Graduation Threshold */}
-        <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-bold text-white border-b border-zinc-800/80 pb-3">
-            <Coins className="w-4 h-4 text-amber-400" />
+        <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#F7F3FF] border-b border-[#670CDC]/20 pb-3">
+            <Coins className="w-4 h-4 text-[#F99225]" />
             <span>1. Pricing & Graduation Threshold</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Starting Price */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">
+              <label className="block text-xs font-medium text-[#EDE4FA]">
                 Starting Spot Price ({input.quoteSymbol}) <span className="text-rose-400">*</span>
               </label>
               <div className="relative">
@@ -98,17 +98,17 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                   min="0.000001"
                   value={input.startingPriceQuote}
                   onChange={(e) => handleStartPriceChange(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500 transition-colors"
+                  className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3 py-2 text-sm font-mono text-[#F7F3FF] focus:outline-none focus:border-[#670CDC] transition-colors"
                 />
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[#B8A9CC]">
                 Genesis price per token. {input.referencePrice ? `Reference NAV is $${input.referencePrice}.` : ''}
               </p>
             </div>
 
             {/* Migration / Graduation Threshold */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">
+              <label className="block text-xs font-medium text-[#EDE4FA]">
                 Graduation Reserve Threshold ({input.quoteSymbol}) <span className="text-rose-400">*</span>
               </label>
               <input
@@ -117,14 +117,14 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 min="100"
                 value={input.migrationQuoteThreshold}
                 onChange={(e) => onChange({ ...input, migrationQuoteThreshold: parseFloat(e.target.value) || 0 })}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3 py-2 text-sm font-mono text-[#F7F3FF] focus:outline-none focus:border-[#670CDC] transition-colors"
               />
-              <p className="text-[11px] text-zinc-400">Total quote accumulated in vault to trigger DAMM v2 migration.</p>
+              <p className="text-[11px] text-[#B8A9CC]">Total quote accumulated in vault to trigger DAMM v2 migration.</p>
             </div>
 
             {/* Migration Target Spot Price */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">
+              <label className="block text-xs font-medium text-[#EDE4FA]">
                 Migration Spot Price ({input.quoteSymbol})
               </label>
               <input
@@ -133,9 +133,9 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 min={input.startingPriceQuote}
                 value={input.migrationPriceQuote}
                 onChange={(e) => handleMigrationPriceChange(parseFloat(e.target.value) || 0)}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full bg-[#0C001C] border border-[#670CDC]/30 rounded-lg px-3 py-2 text-sm font-mono text-[#F7F3FF] focus:outline-none focus:border-[#670CDC] transition-colors"
               />
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[#B8A9CC]">
                 End price at 100% curve completion (+
                 {(((input.migrationPriceQuote - input.startingPriceQuote) / input.startingPriceQuote) * 100).toFixed(1)}
                 % delta).
@@ -145,31 +145,31 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
         </div>
 
         {/* Section 2: Curve Shape & Supply Allocation */}
-        <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-bold text-white border-b border-zinc-800/80 pb-3">
-            <Layers className="w-4 h-4 text-amber-400" />
+        <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#F7F3FF] border-b border-[#670CDC]/20 pb-3">
+            <Layers className="w-4 h-4 text-[#F99225]" />
             <span>2. Curve Shape & Token Supply Allocation</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Total Supply */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Total Asset Token Supply</label>
+              <label className="block text-xs font-medium text-[#B8A9CC]">Total Asset Token Supply</label>
               <input
                 type="number"
                 min="1000"
                 value={input.totalSupply}
                 onChange={(e) => onChange({ ...input, totalSupply: parseInt(e.target.value) || 0 })}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg px-3 py-2 text-sm font-mono text-[#EDE4FA] focus:outline-hidden transition-colors"
               />
-              <p className="text-[11px] text-zinc-400">Total authorized tokens minted by the issuer.</p>
+              <p className="text-[11px] text-[#7E6D96]">Total authorized tokens minted by the issuer.</p>
             </div>
 
             {/* Percentage Supply on Curve */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-zinc-300">Curve Allocation</label>
-                <span className="text-xs font-mono font-bold text-amber-400">{input.curveAllocationPct}%</span>
+                <label className="block text-xs font-medium text-[#B8A9CC]">Curve Allocation</label>
+                <span className="text-xs font-mono font-bold text-[#F99225]">{input.curveAllocationPct}%</span>
               </div>
               <input
                 type="range"
@@ -178,54 +178,54 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 step="5"
                 value={input.curveAllocationPct}
                 onChange={(e) => onChange({ ...input, curveAllocationPct: parseInt(e.target.value) || 75 })}
-                className="w-full accent-amber-500 cursor-pointer"
+                className="w-full accent-[#F99225] cursor-pointer"
               />
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[#7E6D96]">
                 {formatNumber(curveTokenAllocation)} tokens allocated to the bonding curve vault.
               </p>
             </div>
 
             {/* Implied Market Cap at Migration */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Implied Valuation at Migration</label>
-              <div className="bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 font-mono text-sm text-zinc-200">
+              <label className="block text-xs font-medium text-[#B8A9CC]">Implied Valuation at Migration</label>
+              <div className="bg-[#100126] border border-[#670CDC]/20 rounded-lg px-3 py-2 font-mono text-sm text-[#EDE4FA]">
                 {formatCurrency(impliedMarketCapAtMigration, input.quoteSymbol)}
               </div>
-              <p className="text-[11px] text-zinc-400">Calculated as: Total Supply × Migration Spot Price.</p>
+              <p className="text-[11px] text-[#7E6D96]">Calculated as: Total Supply × Migration Spot Price.</p>
             </div>
           </div>
         </div>
 
         {/* Section 3: Fee Architecture (Official Meteora SDK) */}
-        <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-            <div className="flex items-center gap-2 text-sm font-bold text-white">
-              <Sliders className="w-4 h-4 text-amber-400" />
+        <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+          <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-3">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#F7F3FF]">
+              <Sliders className="w-4 h-4 text-[#F99225]" />
               <span>3. Dynamic Fee Architecture & Scheduler</span>
             </div>
-            <span className="text-[11px] text-zinc-400">Supported by Meteora DBC FeeScheduler</span>
+            <span className="text-[11px] text-[#B8A9CC]">Supported by Meteora DBC FeeScheduler</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Base Fee Mode */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Fee Scheduler Algorithm</label>
+              <label className="block text-xs font-medium text-[#B8A9CC]">Fee Scheduler Algorithm</label>
               <select
                 value={input.baseFeeMode}
                 onChange={(e) => onChange({ ...input, baseFeeMode: e.target.value as any })}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg px-3 py-2 text-sm text-[#EDE4FA] focus:outline-hidden"
               >
                 <option value="FeeSchedulerLinear">FeeSchedulerLinear (Smooth linear decay)</option>
                 <option value="FeeSchedulerExponential">FeeSchedulerExponential (Accelerated decay)</option>
               </select>
-              <p className="text-[11px] text-zinc-400">Governs the mathematical curve of fee reduction over time.</p>
+              <p className="text-[11px] text-[#7E6D96]">Governs the mathematical curve of fee reduction over time.</p>
             </div>
 
             {/* Starting Fee BPS */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-zinc-300">Starting Fee (bps)</label>
-                <span className="text-xs font-mono font-semibold text-zinc-200">
+                <label className="block text-xs font-medium text-[#B8A9CC]">Starting Fee (bps)</label>
+                <span className="text-xs font-mono font-semibold text-[#EDE4FA]">
                   {input.startingFeeBps} bps ({(input.startingFeeBps / 100).toFixed(2)}%)
                 </span>
               </div>
@@ -236,16 +236,16 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 step="5"
                 value={input.startingFeeBps}
                 onChange={(e) => onChange({ ...input, startingFeeBps: parseInt(e.target.value) || 50 })}
-                className="w-full accent-amber-500 cursor-pointer"
+                className="w-full accent-[#F99225] cursor-pointer"
               />
-              <p className="text-[11px] text-zinc-400">Initial trading fee applied at curve genesis.</p>
+              <p className="text-[11px] text-[#7E6D96]">Initial trading fee applied at curve genesis.</p>
             </div>
 
             {/* Ending Fee BPS */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-zinc-300">Ending Fee (bps)</label>
-                <span className="text-xs font-mono font-semibold text-zinc-200">
+                <label className="block text-xs font-medium text-[#B8A9CC]">Ending Fee (bps)</label>
+                <span className="text-xs font-mono font-semibold text-[#EDE4FA]">
                   {input.endingFeeBps} bps ({(input.endingFeeBps / 100).toFixed(2)}%)
                 </span>
               </div>
@@ -256,32 +256,32 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 step="5"
                 value={input.endingFeeBps}
                 onChange={(e) => onChange({ ...input, endingFeeBps: parseInt(e.target.value) || 25 })}
-                className="w-full accent-amber-500 cursor-pointer"
+                className="w-full accent-[#F99225] cursor-pointer"
               />
-              <p className="text-[11px] text-zinc-400">Terminal trading fee post-decay duration.</p>
+              <p className="text-[11px] text-[#7E6D96]">Terminal trading fee post-decay duration.</p>
             </div>
 
             {/* Scheduler Decay Duration */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Decay Window Duration</label>
+              <label className="block text-xs font-medium text-[#B8A9CC]">Decay Window Duration</label>
               <select
                 value={input.feeDecaySeconds}
                 onChange={(e) => onChange({ ...input, feeDecaySeconds: parseInt(e.target.value) || 86400 })}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg px-3 py-2 text-sm text-[#EDE4FA] focus:outline-hidden"
               >
                 <option value={43200}>12 Hours (Rapid normalization)</option>
                 <option value={86400}>24 Hours (1 Day — Standard)</option>
                 <option value={172800}>48 Hours (2 Days)</option>
                 <option value={604800}>7 Days (Extended curve launch)</option>
               </select>
-              <p className="text-[11px] text-zinc-400">Time elapsed before fee reaches the minimum ending BPS.</p>
+              <p className="text-[11px] text-[#7E6D96]">Time elapsed before fee reaches the minimum ending BPS.</p>
             </div>
 
             {/* Creator Trading Fee Share Percentage */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-zinc-300">Creator Revenue Share</label>
-                <span className="text-xs font-mono font-semibold text-amber-400">
+                <label className="block text-xs font-medium text-[#B8A9CC]">Creator Revenue Share</label>
+                <span className="text-xs font-mono font-semibold text-[#F99225]">
                   {input.creatorTradingFeePercentage}%
                 </span>
               </div>
@@ -292,37 +292,37 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 step="5"
                 value={input.creatorTradingFeePercentage}
                 onChange={(e) => onChange({ ...input, creatorTradingFeePercentage: parseInt(e.target.value) || 20 })}
-                className="w-full accent-amber-500 cursor-pointer"
+                className="w-full accent-[#F99225] cursor-pointer"
               />
-              <p className="text-[11px] text-zinc-400">Percentage of trading fees claimable by the issuer wallet.</p>
+              <p className="text-[11px] text-[#7E6D96]">Percentage of trading fees claimable by the issuer wallet.</p>
             </div>
 
             {/* Dynamic Volatility Fee Toggle */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Dynamic Volatility Surcharge</label>
+              <label className="block text-xs font-medium text-[#B8A9CC]">Dynamic Volatility Surcharge</label>
               <div className="pt-1 flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => onChange({ ...input, dynamicFeeEnabled: !input.dynamicFeeEnabled })}
                   className={`px-4 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer flex items-center gap-2 ${
                     input.dynamicFeeEnabled
-                      ? 'bg-amber-500/20 border-amber-500/60 text-amber-300'
-                      : 'bg-zinc-900 border-zinc-700 text-zinc-400'
+                      ? 'bg-[#F99225]/20 border-[#F99225]/60 text-[#F99225]'
+                      : 'bg-[#100126] border-[#670CDC]/25 text-[#B8A9CC]'
                   }`}
                 >
                   <Zap className="w-3.5 h-3.5" />
                   <span>{input.dynamicFeeEnabled ? 'Enabled (Active)' : 'Disabled'}</span>
                 </button>
               </div>
-              <p className="text-[11px] text-zinc-400">Dynamically spikes trading fees during rapid price fluctuations.</p>
+              <p className="text-[11px] text-[#7E6D96]">Dynamically spikes trading fees during rapid price fluctuations.</p>
             </div>
           </div>
         </div>
 
         {/* Section 4: Liquidity Distribution (Enforced 100% Invariant) */}
-        <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-            <div className="flex items-center gap-2 text-sm font-bold text-white">
+        <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+          <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-3">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#F7F3FF]">
               <Lock className="w-4 h-4 text-emerald-400" />
               <span>4. Post-Graduation Liquidity Distribution</span>
             </div>
@@ -338,15 +338,15 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
             </div>
           </div>
 
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-[#B8A9CC]">
             Governs the ownership and permanent lockup of LP tokens upon DAMM v2 graduation. By default, 100% is locked in Meteora's non-custodial LP locker.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Creator Permanent Locked LP */}
-            <div className="space-y-1.5 bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+            <div className="space-y-1.5 bg-[#100126] p-3 rounded-lg border border-[#670CDC]/20">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-300">Creator Permanent Locked LP</span>
+                <span className="text-xs font-medium text-[#B8A9CC]">Creator Permanent Locked LP</span>
                 <span className="text-xs font-mono font-bold text-emerald-400">
                   {input.creatorPermanentLockedLpPct}%
                 </span>
@@ -367,16 +367,16 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                 }}
                 className="w-full accent-emerald-500 cursor-pointer"
               />
-              <p className="text-[10px] text-zinc-400">
+              <p className="text-[10px] text-[#7E6D96]">
                 Permanently locked in non-custodial contract. Generates ongoing fee yield without withdrawal risk.
               </p>
             </div>
 
             {/* Creator Unlocked LP */}
-            <div className="space-y-1.5 bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+            <div className="space-y-1.5 bg-[#100126] p-3 rounded-lg border border-[#670CDC]/20">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-300">Creator Unlocked Liquid LP</span>
-                <span className="text-xs font-mono font-bold text-zinc-300">
+                <span className="text-xs font-medium text-[#B8A9CC]">Creator Unlocked Liquid LP</span>
+                <span className="text-xs font-mono font-bold text-[#EDE4FA]">
                   {input.creatorUnlockedLpPct}%
                 </span>
               </div>
@@ -394,9 +394,9 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
                     creatorPermanentLockedLpPct: 100 - val - input.partnerPermanentLockedLpPct - input.partnerUnlockedLpPct,
                   });
                 }}
-                className="w-full accent-zinc-500 cursor-pointer"
+                className="w-full accent-[#670CDC] cursor-pointer"
               />
-              <p className="text-[10px] text-zinc-400">
+              <p className="text-[10px] text-[#7E6D96]">
                 Immediately transferable LP position delivered to creator wallet post-graduation.
               </p>
             </div>
@@ -404,62 +404,62 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
         </div>
 
         {/* Section 5: Relevant Migration Settings */}
-        <div className="bg-[#0c101a] border border-zinc-800 rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-bold text-white border-b border-zinc-800/80 pb-3">
-            <ShieldCheck className="w-4 h-4 text-blue-400" />
+        <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-5 space-y-4 shadow-xl shadow-[#09011B]/60">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#F7F3FF] border-b border-[#670CDC]/20 pb-3">
+            <ShieldCheck className="w-4 h-4 text-[#D76EDD]" />
             <span>5. Migration Destination & Protection Settings</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Migration Target Option */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Migration Target Protocol</label>
-              <div className="bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-200">
+              <label className="block text-xs font-medium text-[#B8A9CC]">Migration Target Protocol</label>
+              <div className="bg-[#100126] border border-[#670CDC]/20 rounded-lg px-3 py-2 text-xs font-mono text-[#EDE4FA]">
                 MET_DAMM_V2 (Meteora Dynamic AMM v2 with DLMM Bins)
               </div>
-              <p className="text-[11px] text-zinc-400">Official Meteora concentrated liquidity engine (DAMM v1 is deprecated).</p>
+              <p className="text-[11px] text-[#7E6D96]">Official Meteora concentrated liquidity engine (DAMM v1 is deprecated).</p>
             </div>
 
             {/* Migration Fee Option */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Post-Migration Pool Fee Tier</label>
+              <label className="block text-xs font-medium text-[#B8A9CC]">Post-Migration Pool Fee Tier</label>
               <select
                 value={input.migrationFeeOptionBps}
                 onChange={(e) => onChange({ ...input, migrationFeeOptionBps: parseInt(e.target.value) as any })}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg px-3 py-2 text-sm text-[#EDE4FA] focus:outline-hidden"
               >
                 <option value={25}>Fixed 25 bps (0.25% — Institutional Tier)</option>
                 <option value={30}>Fixed 30 bps (0.30% — Standard RWA Tier)</option>
                 <option value={100}>Fixed 100 bps (1.00% — Growth Tier)</option>
               </select>
-              <p className="text-[11px] text-zinc-400">Trading fee charged by the graduated Meteora DAMM v2 pool.</p>
+              <p className="text-[11px] text-[#7E6D96]">Trading fee charged by the graduated Meteora DAMM v2 pool.</p>
             </div>
 
             {/* Anti-Sniper Slots */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-300">Anti-Sniper Rate Limiter</label>
+              <label className="block text-xs font-medium text-[#B8A9CC]">Anti-Sniper Rate Limiter</label>
               <select
                 value={input.antiSniperSlots}
                 onChange={(e) => onChange({ ...input, antiSniperSlots: parseInt(e.target.value) || 100 })}
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-[#100126] border border-[#670CDC]/25 focus:border-[#670CDC]/60 rounded-lg px-3 py-2 text-sm text-[#EDE4FA] focus:outline-hidden"
               >
                 <option value={50}>50 Slots (~20 Seconds)</option>
                 <option value={100}>100 Slots (~40 Seconds)</option>
                 <option value={200}>200 Slots (~80 Seconds)</option>
                 <option value={500}>500 Slots (~3.5 Minutes)</option>
               </select>
-              <p className="text-[11px] text-zinc-400">Dampens MEV sandwich bots during initial trading slots.</p>
+              <p className="text-[11px] text-[#7E6D96]">Dampens MEV sandwich bots during initial trading slots.</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+      <div className="flex items-center justify-between pt-4 border-t border-[#670CDC]/20">
         <button
           type="button"
           onClick={onBack}
-          className="py-2.5 px-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-2 cursor-pointer"
+          className="py-2.5 px-4 rounded-lg bg-[#1C0142] hover:bg-[#26035A] text-[#EDE4FA] font-medium text-xs transition-colors flex items-center gap-2 border border-[#670CDC]/30 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
@@ -469,7 +469,7 @@ export const Step3CurveConfig: React.FC<Step3CurveConfigProps> = ({
           type="button"
           disabled={!isConfigValid}
           onClick={onNext}
-          className="py-2.5 px-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-xs shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="py-2.5 px-6 rounded-lg bg-[#F99225] hover:bg-[#FFA33D] text-[#09011B] font-bold text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-md shadow-[#F99225]/20 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <span>Continue</span>
           <ArrowRight className="w-4 h-4" />

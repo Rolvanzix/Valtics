@@ -612,7 +612,7 @@ export async function executeAndConfirmPoolTransaction(
   // Never infer success merely because the wallet returned a signature
   if (onStatusChange) onStatusChange('verifying');
   let txInfo = null;
-  for (let attempt = 0; attempt < 5; attempt++) {
+  for (let attempt = 0; attempt < 6; attempt++) {
     try {
       txInfo = await connection.getTransaction(signature, {
         commitment: 'confirmed',
@@ -629,17 +629,64 @@ export async function executeAndConfirmPoolTransaction(
     throw new Error(`On-chain transaction execution failed: ${JSON.stringify(txInfo.meta.err)}`);
   }
 
-  // Verify that the pool account was successfully created on ledger
-  try {
-    const poolAccountInfo = await connection.getAccountInfo(
-      new PublicKey(prepared.poolAddress),
-      'confirmed'
-    );
-    if (!poolAccountInfo || poolAccountInfo.data.length === 0) {
-      throw new Error(`Pool account ${prepared.poolAddress} was not initialized on ledger.`);
+  // 1. Verify pool account exists on Solana ledger
+  let poolAccountInfo = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      poolAccountInfo = await connection.getAccountInfo(
+        new PublicKey(prepared.poolAddress),
+        'confirmed'
+      );
+      if (poolAccountInfo && poolAccountInfo.data.length > 0) break;
+    } catch {
+      // Retry
     }
-  } catch (accErr: any) {
-    console.warn('Pool ledger verification note:', accErr?.message);
+    await new Promise((res) => setTimeout(res, 1000));
+  }
+
+  if (!poolAccountInfo || poolAccountInfo.data.length === 0) {
+    throw new Error(
+      `MARKET CREATION REQUIRES VERIFICATION: Pool account ${prepared.poolAddress} was not verified on ledger. Tx Signature: ${signature}`
+    );
+  }
+
+  // Verify program ownership
+  if (poolAccountInfo.owner.toBase58() !== DYNAMIC_BONDING_CURVE_PROGRAM_ID.toBase58()) {
+    throw new Error(
+      `Pool account owner mismatch: owned by ${poolAccountInfo.owner.toBase58()}, expected Meteora DBC Program ${DYNAMIC_BONDING_CURVE_PROGRAM_ID.toBase58()}`
+    );
+  }
+
+  // 2. Verify on-chain Meteora pool state & parameters match user's intended configuration
+  const client = getMeteoraDbcClient(connection);
+  try {
+    const onChainPool = await client.state.getPool(new PublicKey(prepared.poolAddress));
+    if (onChainPool) {
+      const stateObj = (onChainPool as any).poolState || onChainPool;
+      if (stateObj.baseMint && stateObj.baseMint.toBase58() !== prepared.baseMintAddress) {
+        throw new Error(
+          `On-chain base mint mismatch: expected ${prepared.baseMintAddress}, got ${stateObj.baseMint.toBase58()}`
+        );
+      }
+      if (stateObj.quoteMint && input?.quoteMint && stateObj.quoteMint.toBase58() !== input.quoteMint) {
+        throw new Error(
+          `On-chain quote mint mismatch: expected ${input.quoteMint}, got ${stateObj.quoteMint.toBase58()}`
+        );
+      }
+      if (stateObj.config && stateObj.config.toBase58() !== prepared.configPubkey) {
+        throw new Error(
+          `On-chain config account mismatch: expected ${prepared.configPubkey}, got ${stateObj.config.toBase58()}`
+        );
+      }
+    }
+  } catch (stateErr: any) {
+    if (stateErr.message?.includes('mismatch')) {
+      throw stateErr;
+    }
+    // If SDK decoding hit transient RPC format, verify account size is valid for DBC pool
+    if (poolAccountInfo.data.length < 100) {
+      throw new Error(`Invalid DBC pool account size (${poolAccountInfo.data.length} bytes).`);
+    }
   }
 
   return {
@@ -650,7 +697,7 @@ export async function executeAndConfirmPoolTransaction(
     quoteVaultAddress: prepared.quoteVaultAddress,
     baseMint: input?.baseMint || '',
     quoteMint: input?.quoteMint || '',
-    network,
+    network: 'devnet',
     timestamp: new Date().toISOString(),
     slot: txInfo?.slot || confirmation.context?.slot || 0,
   };
@@ -691,7 +738,7 @@ export function createPoolStateFromDeployment(
     tokenSymbol: input.ticker,
     rwaCategory: input.assetCategory as any,
     tvlUsd: 0,
-    network,
+    network: 'devnet',
     curveType: 'linear',
     antiSniperSlots: input.antiSniperSlots,
     liquidityLockDays: 365,

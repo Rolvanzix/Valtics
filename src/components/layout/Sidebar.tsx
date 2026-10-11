@@ -10,6 +10,7 @@ import {
   Compass,
   HelpCircle,
   Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import { NavigationTab } from './Header';
 import { ValticsLogo } from '../brand/ValticsLogo';
@@ -41,23 +42,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'explore-assets', label: 'Screener', icon: Compass },
     { id: 'markets', label: 'Markets', icon: Layers },
+    { id: 'predictions', label: 'Predictions', icon: TrendingUp },
+    { id: 'portfolio', label: 'Portfolio', icon: Coins },
     { id: 'agent', label: 'Valtics Agent', icon: Sparkles, badge: 'AI' },
     { id: 'create', label: 'Create', icon: PlusCircle },
-    { id: 'my-markets', label: 'Portfolio', icon: Coins },
+    { id: 'my-markets', label: 'DBC Dashboard', icon: Activity },
     { id: 'activity', label: 'Activity', icon: Activity },
   ];
 
   return (
     <>
       <aside
-        className={`hidden lg:flex flex-col justify-between border-r border-[#670CDC]/20 bg-[#0E0124] transition-all duration-200 select-none z-30 shrink-0 ${
+        className={`hidden lg:flex flex-col justify-between border-r border-[rgba(138,32,255,0.18)] bg-[#05051a] transition-all duration-200 select-none z-30 shrink-0 ${
           collapsed ? 'w-16' : 'w-60'
         }`}
       >
         {/* Top Section: Brand & Nav */}
         <div className="flex flex-col">
           {/* Brand Header */}
-          <div className="h-14 px-4 flex items-center justify-between border-b border-[#670CDC]/20">
+          <div className="h-14 px-4 flex items-center justify-between border-b border-[rgba(138,32,255,0.18)]">
             <div
               onClick={onReturnToLanding || (() => onSelectTab('overview'))}
               title={onReturnToLanding ? 'Return to Valtics Website' : 'Overview'}
@@ -69,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               type="button"
               onClick={onToggleCollapse}
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              className="p-1 rounded text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142] transition-colors cursor-pointer"
+              className="p-1 rounded text-[#A7A7B8] hover:text-[#F5F5F7] hover:bg-[#080821] transition-colors cursor-pointer"
             >
               {collapsed ? (
                 <ChevronRight className="w-4 h-4" />
@@ -79,16 +82,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
 
-          {/* Obvious Primary Action */}
+          {/* Primary Action Button */}
           {!collapsed && (
             <div className="p-3">
               <button
                 type="button"
                 onClick={() => onSelectTab('create')}
-                className="w-full py-2 px-3 rounded-lg bg-[#F99225] hover:bg-[#FFA742] text-[#09011B] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-[#F99225]/20"
+                className="w-full valtics-button py-2.5 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
               >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span>Create market</span>
+                <PlusCircle className="w-3.5 h-3.5 text-white" />
+                <span>Create Market</span>
               </button>
             </div>
           )}
@@ -108,20 +111,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   title={collapsed ? item.label : undefined}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-[#3B0489]/70 text-[#F7F3FF] font-semibold border border-[#670CDC]/40 shadow-xs shadow-[#670CDC]/15'
-                      : 'text-[#B8A9CC] hover:text-[#F7F3FF] hover:bg-[#1C0142]/60 font-normal'
+                      ? 'bg-[rgba(138,32,255,0.18)] text-[#F5F5F7] font-semibold border border-[rgba(138,32,255,0.4)] shadow-xs'
+                      : 'text-[#A7A7B8] hover:text-[#F5F5F7] hover:bg-[#080821] font-normal'
                   } ${collapsed ? 'justify-center px-2' : ''}`}
                 >
                   <Icon
                     className={`w-4 h-4 shrink-0 ${
-                      isActive ? 'text-[#F99225]' : 'text-[#B8A9CC]'
+                      isActive ? 'text-[#FF8A20]' : 'text-[#A7A7B8]'
                     }`}
                   />
                   {!collapsed && (
                     <div className="flex items-center justify-between flex-1 min-w-0">
                       <span className="truncate">{item.label}</span>
                       {item.badge && (
-                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#D82AA8]/15 text-[#D82AA8] border border-[#D82AA8]/30">
                           {item.badge}
                         </span>
                       )}
@@ -133,20 +136,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Bottom Section: Clean, uncluttered single-line status & guide */}
-        <div className="p-3 border-t border-zinc-800/80">
+        {/* Bottom Section: Single-line status & guide */}
+        <div className="p-3 border-t border-[rgba(138,32,255,0.18)]">
           {!collapsed ? (
-            <div className="flex items-center justify-between text-xs text-zinc-400">
+            <div className="flex items-center justify-between text-xs text-[#A7A7B8]">
               <div className="flex items-center gap-1.5 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span className="text-[11px] font-semibold tracking-wide text-zinc-300">
-                  DEVNET
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] font-semibold tracking-wide text-[#F5F5F7]">
+                  SOLANA DEVNET
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setPrimerOpen(true)}
-                className="p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors"
+                className="p-1 rounded text-[#66667A] hover:text-[#F5F5F7] hover:bg-[#080821] transition-colors cursor-pointer"
                 title="Platform guide"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
@@ -155,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <div className="flex justify-center">
               <span
-                className="w-2 h-2 rounded-full bg-amber-400"
+                className="w-2 h-2 rounded-full bg-emerald-400"
                 title="Solana Devnet"
               />
             </div>

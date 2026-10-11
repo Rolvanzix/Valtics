@@ -90,14 +90,14 @@ export const ValticsAgentAvatar: React.FC<ValticsAgentAvatarProps> = ({
         <path
           d="M22 104C22 90 32 82 46 80L50 85L70 85L74 80C88 82 98 90 98 104C98 110 94 114 86 114H34C26 114 22 110 22 104Z"
           fill="url(#agent-hoodie)"
-          stroke="#27272a"
+          stroke="rgba(103, 12, 220, 0.4)"
           strokeWidth="1.5"
         />
 
         {/* Chest Valtics V emblem */}
         <path
           d="M54 94L60 102L66 94L63.5 94L60 99L56.5 94H54Z"
-          fill="#A855F7"
+          fill="#670CDC"
           opacity="0.9"
         />
 
@@ -125,16 +125,16 @@ export const ValticsAgentAvatar: React.FC<ValticsAgentAvatarProps> = ({
           cy="60"
           rx="32"
           ry="27"
-          fill="#11131a"
-          stroke="#3f3f46"
-          strokeWidth="1.8"
+          fill="#100126"
+          stroke="#670CDC"
+          strokeWidth="1.5"
         />
 
         {/* 4. Visor Glass */}
         <path
           d="M34 60C34 50 45 44 60 44C75 44 86 50 86 60C86 70 75 75 60 75C45 75 34 70 34 60Z"
           fill="url(#agent-visor)"
-          stroke="#581c87"
+          stroke="#3B0489"
           strokeWidth="1.5"
         />
 
@@ -164,7 +164,7 @@ export const ValticsAgentAvatar: React.FC<ValticsAgentAvatarProps> = ({
       {active && (
         <span className="absolute bottom-0 right-0 flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-zinc-900" />
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-[#09011B]" />
         </span>
       )}
     </div>

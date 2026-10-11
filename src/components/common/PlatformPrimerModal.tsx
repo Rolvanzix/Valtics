@@ -89,7 +89,7 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
       title={
         <div className="flex items-center gap-2.5">
           <ValticsMark size={24} glow />
-          <span className="text-zinc-100 font-bold text-base">
+          <span className="text-[#F7F3FF] font-bold text-base">
             VALTICS Architecture & Platform Guide
           </span>
           <Badge variant="brand" size="xs">
@@ -101,7 +101,7 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
       maxWidth="3xl"
       footer={
         <div className="flex items-center justify-between w-full">
-          <span className="text-xs text-zinc-500 font-mono">
+          <span className="text-xs text-[#7E6D96] font-mono">
             Meteora DBC · Solana Program Architecture
           </span>
           <Button
@@ -118,56 +118,56 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
         </div>
       }
     >
-      <div className="space-y-6 text-xs text-zinc-300 py-1">
+      <div className="space-y-6 text-xs text-[#B8A9CC] py-1 font-sans">
         {/* The 3-Phase Lifecycle Banner */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-violet-950/40 via-[#0c101a] to-amber-950/30 border border-zinc-800 space-y-3">
+        <div className="p-4 rounded-xl bg-gradient-to-r from-[#1C0142] via-[#140130] to-[#1C0142] border border-[#670CDC]/30 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-zinc-100 text-xs uppercase tracking-wider font-sans flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-semibold text-[#F7F3FF] text-xs uppercase tracking-wider font-sans flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#F99225]" />
               <span>The 3-Phase Market Lifecycle (Brand Spectrum)</span>
             </span>
-            <span className="text-[10px] font-mono text-zinc-400">Zero Impermanent Loss</span>
+            <span className="text-[10px] font-mono text-[#D76EDD]">Zero Impermanent Loss</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             {/* Phase 1 */}
-            <div className="p-3 rounded-lg bg-[#070a12] border border-violet-500/30 space-y-1.5">
+            <div className="p-3 rounded-lg bg-[#120128] border border-[#670CDC]/40 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-violet-400 uppercase">
+                <span className="text-[10px] font-mono font-bold text-[#670CDC] uppercase">
                   Phase 1 · Genesis
                 </span>
-                <span className="w-2 h-2 rounded-full bg-violet-400" />
+                <span className="w-2 h-2 rounded-full bg-[#670CDC]" />
               </div>
-              <h4 className="font-bold text-zinc-100 text-xs">Deterministic Pricing</h4>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
+              <h4 className="font-bold text-[#F7F3FF] text-xs">Deterministic Pricing</h4>
+              <p className="text-[11px] text-[#B8A9CC] leading-relaxed">
                 Initial supply is deposited in the pool vault PDA. Buyers execute deterministic swaps along the mathematical curve with 0 liquidity fragmentation.
               </p>
             </div>
 
             {/* Phase 2 */}
-            <div className="p-3 rounded-lg bg-[#070a12] border border-pink-500/30 space-y-1.5">
+            <div className="p-3 rounded-lg bg-[#120128] border border-[#D76EDD]/40 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-pink-400 uppercase">
+                <span className="text-[10px] font-mono font-bold text-[#D76EDD] uppercase">
                   Phase 2 · Dynamic Bonding
                 </span>
-                <span className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#D76EDD] animate-pulse" />
               </div>
-              <h4 className="font-bold text-zinc-100 text-xs">Autonomous Depth</h4>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
+              <h4 className="font-bold text-[#F7F3FF] text-xs">Autonomous Depth</h4>
+              <p className="text-[11px] text-[#B8A9CC] leading-relaxed">
                 As buy volume enters, quote currency accumulates in the vault. Trading fees (e.g. 0.25%) accrue dynamically to the creator authority.
               </p>
             </div>
 
             {/* Phase 3 */}
-            <div className="p-3 rounded-lg bg-[#070a12] border border-amber-500/30 space-y-1.5">
+            <div className="p-3 rounded-lg bg-[#120128] border border-[#F99225]/40 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-amber-400 uppercase">
+                <span className="text-[10px] font-mono font-bold text-[#F99225] uppercase">
                   Phase 3 · AMM Graduation
                 </span>
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span className="w-2 h-2 rounded-full bg-[#F99225]" />
               </div>
-              <h4 className="font-bold text-zinc-100 text-xs">Permanent DAMM Migration</h4>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
+              <h4 className="font-bold text-[#F7F3FF] text-xs">Permanent DAMM Migration</h4>
+              <p className="text-[11px] text-[#B8A9CC] leading-relaxed">
                 Reaching the graduation threshold automatically triggers LP migration to Meteora DAMM, locking perpetual deep liquidity forever.
               </p>
             </div>
@@ -176,7 +176,7 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
 
         {/* How to navigate the platform */}
         <div className="space-y-2.5">
-          <h3 className="font-bold text-zinc-100 text-xs uppercase tracking-wider font-sans">
+          <h3 className="font-bold text-[#F7F3FF] text-xs uppercase tracking-wider font-sans">
             How to Navigate VALTICS
           </h3>
           <div className="space-y-2">
@@ -189,7 +189,7 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
                     onClose();
                     onNavigate(step.tab);
                   }}
-                  className="p-3 rounded-lg bg-[#090d16] hover:bg-[#0f1524] border border-zinc-800 hover:border-zinc-700 transition-all flex items-center justify-between gap-3 cursor-pointer group"
+                  className="p-3 rounded-xl bg-[#140130] hover:bg-[#1C0142] border border-[#670CDC]/25 hover:border-[#670CDC]/60 transition-all flex items-center justify-between gap-3 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg border bg-gradient-to-br ${step.color} shrink-0`}>
@@ -197,17 +197,17 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] text-zinc-500">{step.num}</span>
-                        <h4 className="font-semibold text-zinc-200 text-xs group-hover:text-zinc-100 truncate">
+                        <span className="font-mono text-[10px] text-[#7E6D96]">{step.num}</span>
+                        <h4 className="font-semibold text-[#EDE4FA] text-xs group-hover:text-[#F7F3FF] truncate">
                           {step.title}
                         </h4>
                       </div>
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug line-clamp-1">
+                      <p className="text-[11px] text-[#B8A9CC] mt-0.5 leading-snug line-clamp-1">
                         {step.desc}
                       </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-amber-400 shrink-0 group-hover:translate-x-0.5 transition-all" />
+                  <ArrowRight className="w-4 h-4 text-[#7E6D96] group-hover:text-[#F99225] shrink-0 group-hover:translate-x-0.5 transition-all" />
                 </div>
               );
             })}
@@ -215,26 +215,26 @@ export const PlatformPrimerModal: React.FC<PlatformPrimerModalProps> = ({
         </div>
 
         {/* Institutional Safeguards Checklist */}
-        <div className="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 font-sans block">
+        <div className="p-3.5 rounded-xl bg-[#100126] border border-[#670CDC]/20 space-y-2">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6D96] font-sans block">
             Institutional Safeguards Embedded in Every Action
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#EDE4FA]">
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span><strong>Preflight Simulation:</strong> Every transaction previews required signers, writable accounts, and exact fees.</span>
+              <span><strong className="text-[#F7F3FF]">Preflight Simulation:</strong> Every transaction previews required signers, writable accounts, and exact fees.</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span><strong>Non-Custodial:</strong> Liquidity is held strictly by Solana Program Derived Addresses (PDAs).</span>
+              <span><strong className="text-[#F7F3FF]">Non-Custodial:</strong> Liquidity is held strictly by Solana Program Derived Addresses (PDAs).</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span><strong>Solana Devnet:</strong> Deploy and test verifiable bonding curve liquidity safely on Solana Devnet.</span>
+              <span><strong className="text-[#F7F3FF]">Solana Devnet:</strong> Deploy and test verifiable bonding curve liquidity safely on Solana Devnet.</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span><strong>Verifiable Ledger:</strong> Direct transaction hash inspection on the Solana ledger at any time.</span>
+              <span><strong className="text-[#F7F3FF]">Verifiable Ledger:</strong> Direct transaction hash inspection on the Solana ledger at any time.</span>
             </div>
           </div>
         </div>

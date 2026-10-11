@@ -87,21 +87,21 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-zinc-800/80 pb-3 flex items-center justify-between">
+      <div className="border-b border-[#670CDC]/20 pb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-white font-sans tracking-tight">Market parameters</h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <h2 className="text-lg font-bold text-[#F7F3FF] font-sans tracking-tight">Market Parameters</h2>
+          <p className="text-xs text-[#B8A9CC] mt-0.5">
             Configure the quote currency, operational profile, and liquidity fee tier.
           </p>
         </div>
-        <span className="text-[11px] font-mono text-zinc-400 px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700/60">
+        <span className="text-[11px] font-mono text-[#B8A9CC] px-2.5 py-1 rounded bg-[#100126] border border-[#670CDC]/30">
           Step 2 of 5
         </span>
       </div>
 
       {/* Quote Asset Selector */}
-      <div className="bg-[#090e18] border border-zinc-800/90 rounded-xl p-4 space-y-3">
-        <label className="block text-xs font-semibold text-zinc-200">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-4 space-y-3 shadow-md shadow-[#09011B]/60">
+        <label className="block text-xs font-semibold text-[#F7F3FF]">
           Quote Settlement Currency
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -114,20 +114,20 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
                 onClick={() => handleQuoteChange(sym)}
                 className={`p-3 rounded-lg border text-left flex items-center justify-between transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-amber-500/10 border-amber-500/60 text-white ring-1 ring-amber-500/30'
-                    : 'bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                    ? 'bg-[#1C0142] border-[#670CDC] text-[#F7F3FF] shadow-sm shadow-[#670CDC]/20'
+                    : 'bg-[#100126] border-[#670CDC]/20 text-[#B8A9CC] hover:border-[#670CDC]/40'
                 }`}
               >
                 <div>
-                  <div className="font-mono font-bold text-sm text-zinc-100">{sym}</div>
-                  <div className="text-[11px] text-zinc-400 font-sans">
+                  <div className="font-mono font-bold text-sm text-[#F7F3FF]">{sym}</div>
+                  <div className="text-[11px] text-[#B8A9CC] font-sans">
                     {sym === 'USDC' ? 'SPL Stablecoin (6 Decimals)' : 'Native Wrapped SOL'}
                   </div>
                 </div>
                 <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                  isSelected ? 'border-amber-400 bg-amber-400 text-zinc-950' : 'border-zinc-700'
+                  isSelected ? 'border-[#F99225] bg-[#F99225]' : 'border-[#670CDC]/40'
                 }`}>
-                  {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-zinc-950" />}
+                  {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#09011B]" />}
                 </div>
               </button>
             );
@@ -138,10 +138,10 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
       {/* Market Profile Presets Grid */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-semibold text-zinc-200">
+          <label className="block text-xs font-semibold text-[#F7F3FF]">
             Market Operational Profile
           </label>
-          <span className="text-[11px] text-zinc-400 font-sans">
+          <span className="text-[11px] text-[#7E6D96] font-sans">
             Presets automatically calculate optimal curve slope
           </span>
         </div>
@@ -154,29 +154,29 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
               <div
                 key={p.key}
                 onClick={() => handleProfileClick(p.key)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between space-y-2 shadow-md shadow-[#09011B]/60 ${
                   isSelected
-                    ? 'bg-violet-950/20 border-violet-500/60 ring-1 ring-violet-500/30'
-                    : 'bg-[#090e18] border-zinc-800/90 hover:border-zinc-700'
+                    ? 'bg-[#1C0142] border-[#670CDC] shadow-sm shadow-[#670CDC]/20'
+                    : 'bg-[#140130] border-[#670CDC]/25 hover:border-[#670CDC]/50'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                      isSelected ? 'bg-violet-500/20 text-violet-300' : 'bg-zinc-800 text-zinc-400'
+                      isSelected ? 'bg-[#670CDC]/20 text-[#D76EDD]' : 'bg-[#100126] text-[#7E6D96]'
                     }`}>
                       <Icon className="w-4 h-4" />
                     </div>
-                    <span className="font-semibold text-xs text-zinc-100 font-sans">
+                    <span className="font-semibold text-xs text-[#F7F3FF] font-sans">
                       {p.title}
                     </span>
                   </div>
-                  <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                  <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#100126] text-[#D76EDD] border border-[#670CDC]/25">
                     {p.tag}
                   </span>
                 </div>
 
-                <p className="text-[11px] text-zinc-400 font-sans leading-snug">
+                <p className="text-[11px] text-[#B8A9CC] font-sans leading-snug">
                   {p.desc}
                 </p>
               </div>
@@ -186,12 +186,12 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
       </div>
 
       {/* Trading Fee Schedule */}
-      <div className="bg-[#090e18] border border-zinc-800/90 rounded-xl p-4 space-y-3">
+      <div className="bg-[#140130] border border-[#670CDC]/25 rounded-xl p-4 space-y-3 shadow-md shadow-[#09011B]/60">
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-semibold text-zinc-200">
+          <label className="block text-xs font-semibold text-[#F7F3FF]">
             Base Swap Fee
           </label>
-          <span className="text-[11px] font-mono text-amber-400 font-semibold">
+          <span className="text-[11px] font-mono text-[#F99225] font-semibold">
             {formatBps(input.baseFeeBps)}
           </span>
         </div>
@@ -210,12 +210,12 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
                 onClick={() => handleFeeChange(tier.bps)}
                 className={`py-2 px-3 rounded-lg border text-center transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-amber-500/10 border-amber-500/60 text-amber-300 font-medium'
-                    : 'bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                    ? 'bg-[#1C0142] border-[#670CDC] text-[#F7F3FF] font-medium'
+                    : 'bg-[#100126] border-[#670CDC]/20 text-[#B8A9CC] hover:border-[#670CDC]/40'
                 }`}
               >
                 <div className="text-xs font-semibold">{tier.label}</div>
-                <div className="text-[10px] text-zinc-400">{tier.desc}</div>
+                <div className="text-[10px] text-[#7E6D96]">{tier.desc}</div>
               </button>
             );
           })}
@@ -223,11 +223,11 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-4 border-t border-zinc-800/80">
+      <div className="flex items-center justify-between pt-4 border-t border-[#670CDC]/20">
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 min-h-[44px] rounded-lg border border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 text-zinc-300 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+          className="px-4 py-2 min-h-[44px] rounded-lg border border-[#670CDC]/30 bg-[#1C0142] hover:bg-[#26035A] text-[#EDE4FA] text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back</span>
@@ -236,9 +236,9 @@ export const Step2MarketParameters: React.FC<Step2MarketParametersProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="px-5 py-2 min-h-[44px] rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg shadow-amber-500/20"
+          className="px-5 py-2 min-h-[44px] rounded-lg bg-[#F99225] hover:bg-[#FFA742] text-[#09011B] text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg shadow-[#F99225]/20 active:scale-[0.99]"
         >
-          <span>Next: Bonding curve</span>
+          <span>Next: Bonding Curve</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

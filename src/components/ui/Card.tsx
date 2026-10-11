@@ -134,7 +134,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
                     ? 'text-emerald-400'
                     : isNegative
                     ? 'text-rose-400'
-                    : 'text-zinc-400'
+                    : 'text-[#B8A9CC]'
                 }`}
               >
                 {isPositive && <TrendingUp className="w-2.5 h-2.5" />}
@@ -146,11 +146,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             )}
 
             {changeLabel && (
-              <span className="text-[11px] text-zinc-500">{changeLabel}</span>
+              <span className="text-[11px] text-[#7E6D96]">{changeLabel}</span>
             )}
 
             {subValue && !changeLabel && (
-              <span className="text-[11px] text-zinc-400 truncate">
+              <span className="text-[11px] text-[#B8A9CC] truncate">
                 {subValue}
               </span>
             )}

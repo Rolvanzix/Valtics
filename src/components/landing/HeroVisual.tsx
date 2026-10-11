@@ -113,27 +113,27 @@ export const HeroVisual: React.FC = () => {
     <div className="w-full max-w-5xl mx-auto select-none mt-10 sm:mt-14">
       {/* Visual Header Strip: Narrative Flow & Model Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-white/[0.06] text-xs font-mono">
-        <div className="flex items-center gap-2 sm:gap-3 text-zinc-500 text-[10px] sm:text-[11px] overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center gap-2 sm:gap-3 text-[#7E6D96] text-[10px] sm:text-[11px] overflow-x-auto no-scrollbar py-0.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <span className={`transition-colors ${hoveredTarget === 'curve' ? 'text-emerald-400 font-semibold' : 'text-zinc-300 font-medium'}`}>
+          <span className={`transition-colors ${hoveredTarget === 'curve' ? 'text-[#F99225] font-semibold' : 'text-[#EDE4FA] font-medium'}`}>
             MARKET
           </span>
-          <span className="text-zinc-600">→</span>
-          <span className={`transition-colors ${hoveredTarget === 'asset' ? 'text-emerald-400 font-semibold' : 'text-zinc-400'}`}>
+          <span className="text-[#670CDC]/40">→</span>
+          <span className={`transition-colors ${hoveredTarget === 'asset' ? 'text-[#F99225] font-semibold' : 'text-[#B8A9CC]'}`}>
             ASSET
           </span>
-          <span className="text-zinc-600">→</span>
-          <span className="text-zinc-400">RULES</span>
-          <span className="text-zinc-600">→</span>
-          <span className="text-zinc-400">LIQUIDITY</span>
-          <span className="text-zinc-600">→</span>
-          <span className={`transition-colors ${hoveredTarget === 'value' ? 'text-emerald-400 font-semibold' : 'text-zinc-300 font-medium'}`}>
+          <span className="text-[#670CDC]/40">→</span>
+          <span className="text-[#B8A9CC]">RULES</span>
+          <span className="text-[#670CDC]/40">→</span>
+          <span className="text-[#B8A9CC]">LIQUIDITY</span>
+          <span className="text-[#670CDC]/40">→</span>
+          <span className={`transition-colors ${hoveredTarget === 'value' ? 'text-[#F99225] font-semibold' : 'text-[#EDE4FA] font-medium'}`}>
             VALUE
           </span>
         </div>
 
         {/* Minimal Model Switcher */}
-        <div className="flex items-center gap-1 self-start sm:self-auto bg-white/[0.02] p-0.5 rounded border border-white/[0.06]">
+        <div className="flex items-center gap-1 self-start sm:self-auto bg-[#100126] p-0.5 rounded border border-[#670CDC]/30">
           {[
             { id: 'exponential', label: 'Exponential' },
             { id: 'linear', label: 'Linear' },
@@ -145,8 +145,8 @@ export const HeroVisual: React.FC = () => {
               onClick={() => setCurveModel(m.id as CurveType)}
               className={`px-2.5 py-1 text-[10px] sm:text-[11px] rounded transition-all cursor-pointer ${
                 curveModel === m.id
-                  ? 'bg-white/[0.1] text-white font-medium shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-300'
+                  ? 'bg-[#670CDC]/30 text-[#F7F3FF] font-medium border border-[#670CDC]/40 shadow-xs'
+                  : 'text-[#B8A9CC] hover:text-[#F7F3FF]'
               }`}
             >
               {m.label}
@@ -195,16 +195,16 @@ export const HeroVisual: React.FC = () => {
           </defs>
 
           {/* Coordinate Grid Lines */}
-          <line x1={originX} y1={originY} x2={originX + graphW} y2={originY} stroke="#27272a" strokeWidth="1" />
-          <line x1={originX} y1={originY} x2={originX} y2={originY - graphH} stroke="#27272a" strokeWidth="1" />
+          <line x1={originX} y1={originY} x2={originX + graphW} y2={originY} stroke="rgba(103, 12, 220, 0.25)" strokeWidth="1" />
+          <line x1={originX} y1={originY} x2={originX} y2={originY - graphH} stroke="rgba(103, 12, 220, 0.25)" strokeWidth="1" />
 
           {/* Horizontal Level Guides */}
           {[0.25, 0.5, 0.75, 1.0].map((frac) => {
             const y = originY - frac * graphH;
             return (
               <g key={frac}>
-                <line x1={originX} y1={y} x2={originX + graphW} y2={y} stroke="#18181b" strokeWidth="1" strokeDasharray="2 4" />
-                <text x={originX - 12} y={y + 3} textAnchor="end" fill="#52525b" fontSize="8.5" fontFamily="monospace">
+                <line x1={originX} y1={y} x2={originX + graphW} y2={y} stroke="rgba(103, 12, 220, 0.12)" strokeWidth="1" strokeDasharray="2 4" />
+                <text x={originX - 12} y={y + 3} textAnchor="end" fill="#7E6D96" fontSize="8.5" fontFamily="monospace">
                   {(frac * 100).toFixed(0)}%
                 </text>
               </g>
@@ -216,8 +216,8 @@ export const HeroVisual: React.FC = () => {
             const x = originX + frac * graphW;
             return (
               <g key={frac}>
-                <line x1={x} y1={originY} x2={x} y2={originY - graphH} stroke="#18181b" strokeWidth="1" strokeDasharray="2 4" />
-                <text x={x} y={originY + 16} textAnchor="middle" fill="#52525b" fontSize="8" fontFamily="monospace">
+                <line x1={x} y1={originY} x2={x} y2={originY - graphH} stroke="rgba(103, 12, 220, 0.12)" strokeWidth="1" strokeDasharray="2 4" />
+                <text x={x} y={originY + 16} textAnchor="middle" fill="#7E6D96" fontSize="8" fontFamily="monospace">
                   {(frac * 1000).toFixed(0)}k S
                 </text>
               </g>
@@ -290,14 +290,14 @@ export const HeroVisual: React.FC = () => {
             y1={currentEq.y + tangentDy}
             x2={currentEq.x + tangentDx}
             y2={currentEq.y - tangentDy}
-            stroke="#71717a"
+            stroke="#D76EDD"
             strokeWidth="1.2"
             strokeDasharray="2 2"
           />
 
           {/* Drop Lines to Axes */}
-          <line x1={currentEq.x} y1={currentEq.y} x2={currentEq.x} y2={originY} stroke="#3f3f46" strokeWidth="1" strokeDasharray="1 3" />
-          <line x1={originX} y1={currentEq.y} x2={currentEq.x} y2={currentEq.y} stroke="#3f3f46" strokeWidth="1" strokeDasharray="1 3" />
+          <line x1={currentEq.x} y1={currentEq.y} x2={currentEq.x} y2={originY} stroke="rgba(103, 12, 220, 0.3)" strokeWidth="1" strokeDasharray="1 3" />
+          <line x1={originX} y1={currentEq.y} x2={currentEq.x} y2={currentEq.y} stroke="rgba(103, 12, 220, 0.3)" strokeWidth="1" strokeDasharray="1 3" />
 
           {/* Dynamic Equilibrium Point Indicator */}
           <circle cx={currentEq.x} cy={currentEq.y} r="4.5" fill="#10b981" />
@@ -306,8 +306,8 @@ export const HeroVisual: React.FC = () => {
 
           {/* Floating Coordinate Telemetry Box over Active Equilibrium */}
           <g transform={`translate(${currentEq.x}, ${currentEq.y - 34})`} className="pointer-events-none">
-            <rect x="-58" y="-16" width="116" height="24" rx="4" fill="#06080e" stroke="#27272a" strokeWidth="1" />
-            <text x="0" y="-1" textAnchor="middle" fill="#f4f4f5" fontSize="9" fontFamily="monospace" fontWeight="500">
+            <rect x="-58" y="-16" width="116" height="24" rx="4" fill="#140130" stroke="rgba(103, 12, 220, 0.4)" strokeWidth="1" />
+            <text x="0" y="-1" textAnchor="middle" fill="#F7F3FF" fontSize="9" fontFamily="monospace" fontWeight="500">
               P: ${currentEq.p.toFixed(6)}
             </text>
             <text x="0" y="7" textAnchor="middle" fill="#10b981" fontSize="7.5" fontFamily="monospace">
@@ -326,35 +326,35 @@ export const HeroVisual: React.FC = () => {
             <circle
               r="40"
               fill="none"
-              stroke={hoveredTarget === 'asset' ? '#10b981' : '#27272a'}
+              stroke={hoveredTarget === 'asset' ? '#F99225' : 'rgba(103, 12, 220, 0.3)'}
               strokeWidth="1"
               strokeDasharray="2 4"
               className="transition-colors duration-300"
             />
             <circle
               r="26"
-              fill="#090c14"
-              stroke={hoveredTarget === 'asset' ? '#e4e4e7' : '#52525b'}
+              fill="#100126"
+              stroke={hoveredTarget === 'asset' ? '#F99225' : '#670CDC'}
               strokeWidth="1.2"
               className="transition-colors duration-300"
             />
-            <polygon points="0,-12 12,0 0,12 -12,0" fill="none" stroke="#e4e4e7" strokeWidth="1.2" />
+            <polygon points="0,-12 12,0 0,12 -12,0" fill="none" stroke="#EDE4FA" strokeWidth="1.2" />
             <circle r="3" fill="#10b981" />
 
             {/* Hover Tooltip for Asset Node */}
             {hoveredTarget === 'asset' && (
               <g transform="translate(0, -42)" className="pointer-events-none">
-                <rect x="-64" y="-14" width="128" height="20" rx="3" fill="#06080e" stroke="#10b981" strokeWidth="1" />
-                <text x="0" y="0" textAnchor="middle" fill="#10b981" fontSize="8" fontFamily="monospace">
+                <rect x="-64" y="-14" width="128" height="20" rx="3" fill="#140130" stroke="#F99225" strokeWidth="1" />
+                <text x="0" y="0" textAnchor="middle" fill="#F99225" fontSize="8" fontFamily="monospace">
                   SPL Collateral: 1,000,000 Units
                 </text>
               </g>
             )}
 
-            <text x="0" y="52" textAnchor="middle" fill="#e4e4e7" fontSize="10.5" fontFamily="monospace" fontWeight="600">
+            <text x="0" y="52" textAnchor="middle" fill="#F7F3FF" fontSize="10.5" fontFamily="monospace" fontWeight="600">
               ASSET
             </text>
-            <text x="0" y="66" textAnchor="middle" fill="#71717a" fontSize="8.5" fontFamily="monospace">
+            <text x="0" y="66" textAnchor="middle" fill="#7E6D96" fontSize="8.5" fontFamily="monospace">
               SPL · Collateral
             </text>
             <text x="0" y="78" textAnchor="middle" fill="#10b981" fontSize="7.5" fontFamily="monospace">
@@ -373,35 +373,35 @@ export const HeroVisual: React.FC = () => {
             <circle
               r="40"
               fill="none"
-              stroke={hoveredTarget === 'value' ? '#10b981' : '#27272a'}
+              stroke={hoveredTarget === 'value' ? '#F99225' : 'rgba(103, 12, 220, 0.3)'}
               strokeWidth="1"
               strokeDasharray="2 4"
               className="transition-colors duration-300"
             />
             <circle
               r="26"
-              fill="#090c14"
-              stroke={hoveredTarget === 'value' ? '#e4e4e7' : '#52525b'}
+              fill="#100126"
+              stroke={hoveredTarget === 'value' ? '#F99225' : '#670CDC'}
               strokeWidth="1.2"
               className="transition-colors duration-300"
             />
-            <polygon points="0,-12 12,-6 12,6 0,12 -12,6 -12,-6" fill="none" stroke="#e4e4e7" strokeWidth="1.2" />
+            <polygon points="0,-12 12,-6 12,6 0,12 -12,6 -12,-6" fill="none" stroke="#EDE4FA" strokeWidth="1.2" />
             <circle r="3" fill="#10b981" />
 
             {/* Hover Tooltip for Value Node */}
             {hoveredTarget === 'value' && (
               <g transform="translate(0, -42)" className="pointer-events-none">
-                <rect x="-68" y="-14" width="136" height="20" rx="3" fill="#06080e" stroke="#10b981" strokeWidth="1" />
-                <text x="0" y="0" textAnchor="middle" fill="#10b981" fontSize="8" fontFamily="monospace">
+                <rect x="-68" y="-14" width="136" height="20" rx="3" fill="#140130" stroke="#F99225" strokeWidth="1" />
+                <text x="0" y="0" textAnchor="middle" fill="#F99225" fontSize="8" fontFamily="monospace">
                   Meteora DAMM Pool: $69k
                 </text>
               </g>
             )}
 
-            <text x="0" y="52" textAnchor="middle" fill="#e4e4e7" fontSize="10.5" fontFamily="monospace" fontWeight="600">
+            <text x="0" y="52" textAnchor="middle" fill="#F7F3FF" fontSize="10.5" fontFamily="monospace" fontWeight="600">
               VALUE
             </text>
-            <text x="0" y="66" textAnchor="middle" fill="#71717a" fontSize="8.5" fontFamily="monospace">
+            <text x="0" y="66" textAnchor="middle" fill="#7E6D96" fontSize="8.5" fontFamily="monospace">
               Liquid Clearing
             </text>
             <text x="0" y="78" textAnchor="middle" fill="#10b981" fontSize="7.5" fontFamily="monospace">
@@ -410,20 +410,20 @@ export const HeroVisual: React.FC = () => {
           </g>
 
           {/* Axes labels */}
-          <text x={originX + graphW} y={originY + 28} textAnchor="end" fill="#52525b" fontSize="8.5" fontFamily="monospace">
+          <text x={originX + graphW} y={originY + 28} textAnchor="end" fill="#7E6D96" fontSize="8.5" fontFamily="monospace">
             SUPPLY / CAPITAL DEPTH (S) →
           </text>
-          <text x={originX - 12} y={originY - graphH - 8} textAnchor="end" fill="#52525b" fontSize="8.5" fontFamily="monospace">
+          <text x={originX - 12} y={originY - graphH - 8} textAnchor="end" fill="#7E6D96" fontSize="8.5" fontFamily="monospace">
             PRICE (P) ↑
           </text>
         </svg>
       </div>
 
       {/* Whisper-Quiet Technical Telemetry Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-3 sm:pt-4 border-t border-white/[0.06] text-[10px] sm:text-[11px] font-mono text-zinc-500">
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-3 sm:pt-4 border-t border-[#670CDC]/20 text-[10px] sm:text-[11px] font-mono text-[#7E6D96]">
         <div>
-          <span className="text-zinc-600">INVARIANT: </span>
-          <span className="text-zinc-300 font-mono-nums">
+          <span className="text-[#7E6D96]">INVARIANT: </span>
+          <span className="text-[#EDE4FA] font-mono-nums">
             {curveModel === 'exponential' && 'P(S) = P₀ + α · (S / S_max)²·³'}
             {curveModel === 'linear' && 'P(S) = P₀ + m · S'}
             {curveModel === 'floor-rwa' && 'P(S) = P_floor + β · S^γ'}
@@ -431,11 +431,11 @@ export const HeroVisual: React.FC = () => {
         </div>
         <div className="flex items-center gap-4 sm:gap-6">
           <div>
-            <span className="text-zinc-600">EXECUTION: </span>
-            <span className="text-zinc-300">Solana Meteora DBC</span>
+            <span className="text-[#7E6D96]">EXECUTION: </span>
+            <span className="text-[#EDE4FA]">Solana Meteora DBC</span>
           </div>
           <div>
-            <span className="text-zinc-600">ORACLE: </span>
+            <span className="text-[#7E6D96]">ORACLE: </span>
             <span className="text-emerald-400">Pyth Hermes Live (0.3s)</span>
           </div>
         </div>

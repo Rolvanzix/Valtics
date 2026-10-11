@@ -67,7 +67,7 @@ const AgentWorkspaceInner: React.FC<AgentWorkspaceProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Utility Bar & Mode Navigation */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[rgba(138,32,255,0.18)] pb-4">
         {/* Left: Brand Identity with Persona Avatar */}
         <div className="flex items-center gap-3">
           <div
@@ -79,32 +79,32 @@ const AgentWorkspaceInner: React.FC<AgentWorkspaceProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-sans">
-                VALTICS AGENT
+              <h1 className="text-xl sm:text-2xl font-bold text-[#F5F5F7] tracking-tight font-sans">
+                Valtics Agent
               </h1>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 border border-purple-500/30">
-                MARKET INTELLIGENCE
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#D82AA8]/15 text-[#D82AA8] border border-[#D82AA8]/30">
+                Autonomous Core
               </span>
             </div>
-            <p className="text-xs text-zinc-400 font-sans">
-              AI-powered market intelligence, research and guidance inside VALTICS
+            <p className="text-xs text-[#A7A7B8] font-sans mt-0.5">
+              AI-powered market intelligence, curve architecture, and risk surveillance on Solana
             </p>
           </div>
         </div>
 
         {/* Right: Wallet Context Badges */}
         <div className="flex items-center gap-2 font-mono text-xs self-start md:self-auto">
-          <div className="bg-zinc-900/90 border border-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
-            <span className="text-zinc-500">Wallet:</span>
+          <div className="bg-[#080821] border border-[rgba(138,32,255,0.25)] px-3 py-1.5 rounded-lg flex items-center gap-2">
+            <span className="text-[#66667A]">Wallet:</span>
             {publicKeyStr ? (
               <AddressBadge address={publicKeyStr} showCopy={true} />
             ) : (
-              <span className="text-zinc-400">Connected</span>
+              <span className="text-[#F5F5F7]">Connected</span>
             )}
           </div>
 
-          <div className="bg-zinc-900/90 border border-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-            <span className="text-zinc-500">Devnet:</span>
+          <div className="bg-[#080821] border border-[rgba(138,32,255,0.25)] px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <span className="text-[#66667A]">Devnet:</span>
             <span className="text-emerald-400 font-semibold">
               {balanceSol !== null ? balanceSol.toFixed(3) : '0.000'} SOL
             </span>
@@ -119,13 +119,13 @@ const AgentWorkspaceInner: React.FC<AgentWorkspaceProps> = ({
           <div className="space-y-1">
             <h4 className="font-bold text-rose-300">Solana Devnet Required</h4>
             <p>{networkError || 'Your connected wallet is not on Solana Devnet. All intelligence scanning and curve preparation are restricted to Devnet.'}</p>
-            <p className="text-[11px] text-rose-400 font-mono">Please open your wallet extension (Phantom/Solflare) settings and select Developer Settings → Change Network to Testnet/Devnet.</p>
+            <p className="text-[11px] text-rose-400 font-mono">Please open your wallet settings and select Developer Settings → Change Network to Devnet.</p>
           </div>
         </div>
       )}
 
       {/* Mode Navigation Strip */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none select-none border-b border-zinc-800/60">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none select-none border-b border-[rgba(138,32,255,0.18)]">
         {navModes.map((mode) => {
           const Icon = mode.icon;
           const isActive = activeView === mode.id;
@@ -135,15 +135,15 @@ const AgentWorkspaceInner: React.FC<AgentWorkspaceProps> = ({
               key={mode.id}
               type="button"
               onClick={() => setActiveView(mode.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
                 isActive
-                  ? 'bg-zinc-800 text-white font-semibold border border-zinc-700 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent'
+                  ? 'bg-[#6010F0] text-white font-semibold shadow-xs'
+                  : 'text-[#A7A7B8] hover:text-[#F5F5F7] hover:bg-[#080821]'
               }`}
             >
               <Icon
                 className={`w-3.5 h-3.5 ${
-                  isActive ? 'text-purple-400' : 'text-zinc-500'
+                  isActive ? 'text-[#FF8A20]' : 'text-[#66667A]'
                 }`}
               />
               <span>{mode.label}</span>
@@ -187,97 +187,97 @@ const AgentWorkspaceInner: React.FC<AgentWorkspaceProps> = ({
         {/* Right Contextual Information Panel (1 col on desktop, clean collapsible / stacked) */}
         <div className="space-y-4">
           {/* Persona Card */}
-          <div className="rounded-xl border border-zinc-800 bg-[#090d14]/90 p-4 space-y-3">
+          <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-4 space-y-3 shadow-md shadow-[#09011B]/60">
             <div className="flex items-center gap-3">
               <ValticsAgentAvatar size="md" glow={true} active={true} />
               <div>
-                <h4 className="text-xs font-bold text-white font-sans">VALTICS Persona</h4>
-                <span className="text-[10px] text-purple-400 font-mono">Cybernetic Core v1.4</span>
+                <h4 className="text-xs font-bold text-[#F7F3FF] font-sans">VALTICS Persona</h4>
+                <span className="text-[10px] text-[#D76EDD] font-mono">Cybernetic Core v1.4</span>
               </div>
             </div>
 
-            <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+            <p className="text-[11px] text-[#B8A9CC] font-sans leading-relaxed">
               Specialized institutional intelligence analyst for Meteora Dynamic Bonding Curves and Solana tokenized assets.
             </p>
 
-            <div className="pt-2 border-t border-zinc-800/80 space-y-1.5 text-[11px] font-mono">
+            <div className="pt-2 border-t border-[#670CDC]/20 space-y-1.5 text-[11px] font-mono">
               <div className="flex justify-between">
-                <span className="text-zinc-500">Status:</span>
+                <span className="text-[#7E6D96]">Status:</span>
                 <span className="text-emerald-400 font-semibold">Online & Verified</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500">Cluster:</span>
-                <span className="text-amber-400">Solana Devnet</span>
+                <span className="text-[#7E6D96]">Cluster:</span>
+                <span className="text-[#F99225] font-semibold">Solana Devnet</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500">Authority:</span>
-                <span className="text-zinc-300">Non-Custodial</span>
+                <span className="text-[#7E6D96]">Authority:</span>
+                <span className="text-[#EDE4FA]">Non-Custodial</span>
               </div>
             </div>
           </div>
 
           {/* Observed Devnet Telemetry */}
-          <div className="rounded-xl border border-zinc-800 bg-[#090d14]/90 p-4 space-y-3 font-mono text-xs">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
-              <span className="text-zinc-400 font-semibold text-[11px] uppercase">Observed Telemetry</span>
+          <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-4 space-y-3 font-mono text-xs shadow-md shadow-[#09011B]/60">
+            <div className="flex items-center justify-between border-b border-[#670CDC]/20 pb-2">
+              <span className="text-[#B8A9CC] font-semibold text-[11px] uppercase">Observed Telemetry</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             </div>
 
             <div className="space-y-2 text-[11px]">
               <div className="flex justify-between">
-                <span className="text-zinc-500">Active DBC Pools:</span>
-                <span className="text-zinc-200 font-bold">{marketSummary?.totalMarkets ?? 0}</span>
+                <span className="text-[#7E6D96]">Active DBC Pools:</span>
+                <span className="text-[#F7F3FF] font-bold">{marketSummary?.totalMarkets ?? 0}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500">Avg Progress:</span>
+                <span className="text-[#7E6D96]">Avg Progress:</span>
                 <span className="text-emerald-400 font-bold">{marketSummary?.avgCurveProgress ?? 0}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500">Near DAMM:</span>
-                <span className="text-cyan-400 font-bold">{marketSummary?.nearGraduationCount ?? 0}</span>
+                <span className="text-[#7E6D96]">Near DAMM:</span>
+                <span className="text-[#F99225] font-bold">{marketSummary?.nearGraduationCount ?? 0}</span>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-zinc-800/80">
-              <span className="text-zinc-500 text-[10px] block uppercase mb-1">Meteora DBC Program</span>
-              <span className="text-[10px] text-zinc-300 break-all font-mono">
+            <div className="pt-2 border-t border-[#670CDC]/20">
+              <span className="text-[#7E6D96] text-[10px] block uppercase mb-1">Meteora DBC Program</span>
+              <span className="text-[10px] text-[#EDE4FA] break-all font-mono">
                 {METEORA_DBC_PROGRAM_ID}
               </span>
             </div>
           </div>
 
           {/* Non-Custodial Security Card */}
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-4 space-y-2.5 text-xs font-sans">
+          <div className="rounded-xl border border-emerald-500/30 bg-[#100126] p-4 space-y-2.5 text-xs font-sans shadow-md shadow-[#09011B]/60">
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs font-mono">
               <ShieldCheck className="w-4 h-4 shrink-0" />
               <span>TRANSACTION SECURITY BOUNDARY</span>
             </div>
             
-            <div className="space-y-1.5 font-mono text-[10px] text-zinc-300">
+            <div className="space-y-1.5 font-mono text-[10px] text-[#EDE4FA]">
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-[9px]">1</span>
-                <span className="text-zinc-400">READ:</span>
-                <span className="text-zinc-200">Public Devnet & Pyth state</span>
+                <span className="w-4 h-4 rounded bg-[#1C0142] border border-[#670CDC]/30 text-[#D76EDD] flex items-center justify-center font-bold text-[9px]">1</span>
+                <span className="text-[#7E6D96]">READ:</span>
+                <span className="text-[#EDE4FA]">Public Devnet & Pyth state</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-zinc-800 text-zinc-300 flex items-center justify-center font-bold text-[9px]">2</span>
-                <span className="text-zinc-400">PREPARE:</span>
-                <span className="text-zinc-200">Agent parameter draft</span>
+                <span className="w-4 h-4 rounded bg-[#1C0142] border border-[#670CDC]/30 text-[#D76EDD] flex items-center justify-center font-bold text-[9px]">2</span>
+                <span className="text-[#7E6D96]">PREPARE:</span>
+                <span className="text-[#EDE4FA]">Agent parameter draft</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-emerald-800/80 text-emerald-200 flex items-center justify-center font-bold text-[9px]">3</span>
+                <span className="w-4 h-4 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-[9px]">3</span>
                 <span className="text-emerald-400 font-semibold">APPROVE:</span>
-                <span className="text-zinc-200">Explicit user review</span>
+                <span className="text-[#EDE4FA]">Explicit user review</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-emerald-700 text-emerald-100 flex items-center justify-center font-bold text-[9px]">4</span>
+                <span className="w-4 h-4 rounded bg-emerald-900 border border-emerald-400/50 text-emerald-200 flex items-center justify-center font-bold text-[9px]">4</span>
                 <span className="text-emerald-300 font-semibold">EXECUTE:</span>
-                <span className="text-zinc-200">Connected browser wallet</span>
+                <span className="text-[#EDE4FA]">Connected browser wallet</span>
               </div>
             </div>
 
-            <p className="text-[10px] text-zinc-400 pt-1 border-t border-zinc-800/80 leading-relaxed">
-              VALTICS Agent operates zero-custody. The Agent will <strong>NEVER</strong> access private keys, sign transactions, or execute on-chain instructions autonomously.
+            <p className="text-[10px] text-[#B8A9CC] pt-1 border-t border-[#670CDC]/20 leading-relaxed">
+              VALTICS Agent operates zero-custody. The Agent will <strong className="text-[#F7F3FF]">NEVER</strong> access private keys, sign transactions, or execute on-chain instructions autonomously.
             </p>
           </div>
         </div>

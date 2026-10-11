@@ -227,7 +227,7 @@ export async function getRealPythMarketPrice(
           price: data.price,
           confidence: data.confidence,
           feedUpdateTimestamp: publishSec,
-          change24hPct: null,
+          change24hPct: data.change24hPct !== undefined ? data.change24hPct : null,
           status: 'ok',
           pythSymbol,
           feedId: data.id || feedId || undefined,
@@ -237,7 +237,7 @@ export async function getRealPythMarketPrice(
             isCarriedForward: !isOpen,
             nextOpenTimestamp: nextOpen,
           },
-          source: 'Pyth API Server',
+          source: (data.source as any) || 'Pyth API Server',
           isAvailable: true,
         };
         priceResultCache.set(normalized, { data: result, timestamp: now });
