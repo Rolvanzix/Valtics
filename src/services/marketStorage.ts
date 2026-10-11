@@ -30,12 +30,31 @@ export function isMarketAlreadyCreated(baseMint: string, poolAddress?: string): 
   };
 }
 
+export function isValidSolanaPubkeyString(address?: string | null): boolean {
+  if (!address || typeof address !== 'string') return false;
+  // Solana addresses are base58 and 32-44 characters
+  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address.trim())) return false;
+  try {
+    const pk = new PublicKey(address.trim());
+    return PublicKey.isOnCurve(pk.toBuffer());
+  } catch {
+    return false;
+  }
+}
+
 export function saveCreatedMarket(pool: DBCPoolState, _environment?: AppEnvironment): void {
   if (typeof window === 'undefined') return;
   try {
     const now = new Date();
     // Deterministic market identifier anchored to the on-chain pool address
     const marketId = (pool as any).marketId || `devnet-${pool.poolAddress.slice(0, 10)}`;
+
+    const isVerifiedAddress = isValidSolanaPubkeyString(pool.poolAddress);
+    const isExplicitlyVerified = pool.deploymentStatus === 'verified' && isVerifiedAddress;
+
+    const deploymentStatus: DBCPoolState['deploymentStatus'] = isExplicitlyVerified
+      ? 'verified'
+      : pool.deploymentStatus || (pool.txSignature ? 'submitted' : 'draft');
 
     const enriched: DBCPoolState = {
       ...pool,
@@ -44,11 +63,17 @@ export function saveCreatedMarket(pool: DBCPoolState, _environment?: AppEnvironm
       creationDate:
         pool.creationDate ||
         now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      deploymentStatus,
+      onChainVerified: isExplicitlyVerified,
+      isLocalRecord: !isExplicitlyVerified,
+      verificationTimestamp: isExplicitlyVerified ? (pool.verificationTimestamp || now.getTime()) : undefined,
+      verificationNote: isExplicitlyVerified
+        ? 'Verified on Solana Devnet ledger'
+        : (pool.txSignature ? 'Submitted, pending ledger account verification' : 'Local configuration draft'),
       ...({
         environment: 'devnet',
         marketId,
         authenticatedCreatorWallet: (pool as any).authenticatedCreatorWallet || pool.creator,
-        onChainVerified: true,
       } as any),
     };
 
@@ -77,18 +102,48 @@ export async function reconcileMarketWithBlockchain(
   const localPool = getMarketByAddress(poolAddress);
   const discrepancies: string[] = [];
 
+  if (!isValidSolanaPubkeyString(poolAddress)) {
+    discrepancies.push(`Invalid Solana public key format: "${poolAddress}". Cannot verify against on-chain cluster.`);
+    const failedPool = localPool
+      ? {
+          ...localPool,
+          deploymentStatus: 'verification_failed' as const,
+          onChainVerified: false,
+          verificationNote: 'Invalid Solana address format',
+        }
+      : null;
+    if (failedPool) {
+      saveCreatedMarket(failedPool, 'devnet');
+    }
+    return {
+      reconciled: false,
+      pool: failedPool,
+      differenceDetected: true,
+      discrepancies,
+    };
+  }
+
   try {
     const pubkey = new PublicKey(poolAddress);
     const onChainDetails = await getMeteoraPool(connection, pubkey);
 
     if (!onChainDetails) {
-      if (localPool) {
-        discrepancies.push('Pool exists in local cache but was not found on Solana Devnet ledger.');
+      discrepancies.push('Pool account does not exist on Solana Devnet ledger.');
+      const unconfirmedPool = localPool
+        ? {
+            ...localPool,
+            deploymentStatus: 'verification_failed' as const,
+            onChainVerified: false,
+            verificationNote: 'Account not found on Solana Devnet ledger',
+          }
+        : null;
+      if (unconfirmedPool) {
+        saveCreatedMarket(unconfirmedPool, 'devnet');
       }
       return {
         reconciled: false,
-        pool: localPool,
-        differenceDetected: discrepancies.length > 0,
+        pool: unconfirmedPool,
+        differenceDetected: true,
         discrepancies,
       };
     }
@@ -125,8 +180,13 @@ export async function reconcileMarketWithBlockchain(
       currentPrice: localPool?.currentPrice || 0,
       quoteReserve: onChainDetails.quoteReserve || localPool?.quoteReserve || '0',
       baseReserve: onChainDetails.baseReserve || localPool?.baseReserve || '0',
+      deploymentStatus: 'verified',
+      onChainVerified: true,
+      isLocalRecord: false,
+      verificationTimestamp: Date.now(),
+      verificationNote: 'Verified and reconciled against Solana Devnet ledger',
+      lastReconciledAt: new Date().toISOString(),
       ...({
-        onChainVerified: true,
         lastReconciledAt: new Date().toISOString(),
       } as any),
     };
@@ -140,12 +200,23 @@ export async function reconcileMarketWithBlockchain(
       discrepancies,
     };
   } catch (err: any) {
-    console.warn(`Failed to reconcile market ${poolAddress}:`, err?.message);
+    discrepancies.push(`RPC communication error during verification: ${err?.message || String(err)}`);
+    const pendingPool = localPool
+      ? {
+          ...localPool,
+          deploymentStatus: 'verification_required' as const,
+          onChainVerified: false,
+          verificationNote: `Verification inconclusive due to RPC error: ${err?.message || 'Network error'}`,
+        }
+      : null;
+    if (pendingPool) {
+      saveCreatedMarket(pendingPool, 'devnet');
+    }
     return {
       reconciled: false,
-      pool: localPool,
-      differenceDetected: false,
-      discrepancies: [err?.message || 'RPC communication failure during reconciliation'],
+      pool: pendingPool,
+      differenceDetected: true,
+      discrepancies,
     };
   }
 }

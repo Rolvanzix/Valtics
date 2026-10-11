@@ -40,15 +40,39 @@ export const MarketCard: React.FC<MarketCardProps> = ({
             </div>
           </div>
 
-          <span
-            className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-              pool.isMigrated
-                ? 'bg-[#670CDC]/25 text-[#E6DCFA] border border-[#670CDC]/40'
-                : 'bg-[#140130] text-[#B8A9CC] border border-[#670CDC]/25'
-            }`}
-          >
-            {pool.isMigrated ? 'Graduated' : 'Active'}
-          </span>
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            {pool.deploymentStatus === 'verified' ? (
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                VERIFIED
+              </span>
+            ) : pool.deploymentStatus === 'submitted' ? (
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                SUBMITTED
+              </span>
+            ) : pool.deploymentStatus === 'verification_required' || pool.deploymentStatus === 'verification_failed' ? (
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                UNVERIFIED
+              </span>
+            ) : pool.isLocalRecord || pool.deploymentStatus === 'draft' ? (
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                LOCAL DRAFT
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#140130] text-[#B8A9CC] border border-[#670CDC]/25">
+                REFERENCE
+              </span>
+            )}
+
+            <span
+              className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                pool.isMigrated
+                  ? 'bg-[#670CDC]/25 text-[#E6DCFA] border border-[#670CDC]/40 font-semibold'
+                  : 'bg-[#140130] text-[#7E6D96] border border-[#670CDC]/20'
+              }`}
+            >
+              {pool.isMigrated ? 'Graduated' : 'Active Curve'}
+            </span>
+          </div>
         </div>
 
         {/* Spot Price & Reference */}
@@ -88,7 +112,11 @@ export const MarketCard: React.FC<MarketCardProps> = ({
       {/* Action Footer */}
       <div className="mt-5 pt-3.5 border-t border-[#670CDC]/20 flex items-center justify-between text-xs">
         <span className="text-[#7E6D96] font-mono text-[11px]">
-          TVL: {formatCurrency(pool.tvlUsd || 0)}
+          {pool.onChainVerified && typeof pool.tvlUsd === 'number'
+            ? `TVL: ${formatCurrency(pool.tvlUsd)}`
+            : pool.isLocalRecord
+            ? 'TVL: — (Draft)'
+            : 'TVL: — (Reference)'}
         </span>
         <span className="text-[#B8A9CC] group-hover:text-[#F99225] font-medium flex items-center gap-1 transition-colors">
           <span>View market</span>

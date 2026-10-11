@@ -66,21 +66,33 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     };
   }, []);
 
-  // Aggregated Command Metrics
-  const totalMarkets = markets.length;
-  const activeMarkets = markets.filter((p) => !p.isMigrated).length;
+  // Aggregated Command Metrics: Only include verified on-chain deployments, never local drafts or reference items
+  const totalMarkets = markets.filter((p) => p.onChainVerified && p.deploymentStatus === 'verified').length;
+  const activeMarkets = markets.filter((p) => p.onChainVerified && p.deploymentStatus === 'verified' && !p.isMigrated).length;
   const totalLiquidityUsd = useMemo(() => {
-    return markets.reduce((sum, p) => sum + (p.tvlUsd || 0), 0);
+    return markets.reduce((sum, p) => {
+      if (p.onChainVerified && typeof p.tvlUsd === 'number') {
+        return sum + p.tvlUsd;
+      }
+      return sum;
+    }, 0);
   }, [markets]);
 
   const totalVolume24h = useMemo(() => {
-    return markets.reduce((sum, p) => sum + (p.activity24h?.volumeUsd || (p.currentPrice * 350)), 0);
+    return markets.reduce((sum, p) => {
+      // Strictly derive pool volume from verified on-chain pool trades; never synthetic heuristics
+      if (p.onChainVerified && p.activity24h?.volumeUsd) {
+        return sum + p.activity24h.volumeUsd;
+      }
+      return sum;
+    }, 0);
   }, [markets]);
 
   const averageProgressPct = useMemo(() => {
-    if (markets.length === 0) return 42;
-    const sum = markets.reduce((acc, m) => acc + (m.quoteCurveProgressPct || 40), 0);
-    return Math.round(sum / markets.length);
+    const verified = markets.filter((m) => m.onChainVerified);
+    if (verified.length === 0) return 0;
+    const sum = verified.reduce((acc, m) => acc + (m.quoteCurveProgressPct || 0), 0);
+    return Math.round(sum / verified.length);
   }, [markets]);
 
   const handlePoolClick = (poolAddress: string) => {

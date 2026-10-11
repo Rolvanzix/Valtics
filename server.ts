@@ -529,18 +529,56 @@ async function fetchLiveBenchmarkHistory(symbolOrFeedId: string, timeframe: stri
   }
 }
 
+interface PythFreshnessRule {
+  maxAgeSeconds: number;
+  assetClass: string;
+}
+
+function getPythFreshnessRule(feedObj?: any, feedIdOrSymbol?: string): PythFreshnessRule {
+  const assetType = (feedObj?.attributes?.asset_type || '').toLowerCase();
+  const symbol = (feedObj?.attributes?.symbol || feedIdOrSymbol || '').toUpperCase();
+
+  // Crypto: 24/7 continuous trading. Low-latency freshness window
+  if (assetType.includes('crypto') || symbol.includes('BTC') || symbol.includes('ETH') || symbol.includes('SOL')) {
+    return { maxAgeSeconds: 90, assetClass: 'Crypto' };
+  }
+
+  // FX / Currencies
+  if (assetType.includes('fx') || assetType.includes('forex')) {
+    return { maxAgeSeconds: 180, assetClass: 'FX' };
+  }
+
+  // Commodities & Precious Metals (Gold, Silver, Oil)
+  if (assetType.includes('metal') || assetType.includes('commodity') || symbol.includes('XAU') || symbol.includes('XAG')) {
+    return { maxAgeSeconds: 300, assetClass: 'Commodity/Metal' };
+  }
+
+  // Equities & Indices (US Stocks, ETFs)
+  if (assetType.includes('equity') || assetType.includes('index') || assetType.includes('fund')) {
+    return { maxAgeSeconds: 300, assetClass: 'Equity/Index' };
+  }
+
+  // General default
+  return { maxAgeSeconds: 300, assetClass: 'General' };
+}
+
 /**
- * Fetches latest price for a single Pyth feed ID
+ * Fetches latest price for a single Pyth feed ID with strict price freshness,
+ * confidence validation, and asset-class tailored thresholds.
  */
 async function fetchSingleFeedPrice(feedId: string): Promise<{
   id: string;
-  status: 'ok' | 'unsupported' | 'not_found' | 'error';
+  status: 'ok' | 'stale' | 'unsupported' | 'not_found' | 'error';
   price: number | null;
+  lastKnownPrice?: number | null;
   confidence: number | null;
   publishTime: number | null;
   expo?: number;
   rawPrice?: string;
   isAvailable: boolean;
+  isStale?: boolean;
+  ageSeconds?: number;
+  freshnessThresholdSeconds?: number;
   change24hPct?: number | null;
   change24hValue?: number | null;
   high24h?: number | null;
@@ -552,8 +590,39 @@ async function fetchSingleFeedPrice(feedId: string): Promise<{
 }> {
   const cleanId = feedId.replace(/^0x/, '').toLowerCase();
   const now = Date.now();
+  const nowSec = Math.floor(now / 1000);
+
+  // Retrieve feed metadata to determine asset class & freshness threshold
+  let resolvedFeed: any = null;
+  try {
+    const feeds = await getHermesPriceFeeds();
+    resolvedFeed = resolveFeedFromList(cleanId, feeds);
+  } catch {}
+
+  const freshnessRule = getPythFreshnessRule(resolvedFeed, cleanId);
+
+  // Cache Lookup: Verify both cache TTL AND feed publishTime freshness
   const cached = priceCache.get(cleanId);
   if (cached && now - cached.timestamp < PRICE_CACHE_TTL_MS) {
+    if (cached.data.status === 'ok' && typeof cached.data.publishTime === 'number') {
+      const currentAge = Math.max(0, nowSec - cached.data.publishTime);
+      if (currentAge > freshnessRule.maxAgeSeconds) {
+        // Cached entry has expired its freshness window; mark as stale
+        const staleCached = {
+          ...cached.data,
+          status: 'stale' as const,
+          price: null,
+          lastKnownPrice: cached.data.price || cached.data.lastKnownPrice,
+          isAvailable: false,
+          isStale: true,
+          ageSeconds: currentAge,
+          freshnessThresholdSeconds: freshnessRule.maxAgeSeconds,
+          reason: `Pyth feed publish timestamp (${currentAge}s ago) has exceeded freshness threshold of ${freshnessRule.maxAgeSeconds}s for ${freshnessRule.assetClass}`,
+          source: 'Pyth Hermes API (Stale)',
+        };
+        return staleCached;
+      }
+    }
     return cached.data;
   }
 
@@ -578,15 +647,78 @@ async function fetchSingleFeedPrice(feedId: string): Promise<{
         const confidence = Number(rawConf) * Math.pow(10, expo);
         const stats = stats24hCache.get(cleanId);
 
-        const result = {
+        // Validation A1: Validate price is finite and strictly positive where required
+        if (!Number.isFinite(price) || price <= 0) {
+          const invalidPriceResult = {
+            id: cleanId,
+            status: 'error' as const,
+            price: null,
+            confidence: null,
+            publishTime: Number.isFinite(publishTime) ? publishTime : null,
+            isAvailable: false,
+            reason: `Invalid non-positive or non-finite price from Pyth oracle: ${price}`,
+          };
+          return invalidPriceResult;
+        }
+
+        // Validation A2: Validate confidence
+        const validConf = Number.isFinite(confidence) && confidence >= 0 ? confidence : null;
+
+        // Validation A3: Validate publish timestamp
+        if (!Number.isFinite(publishTime) || publishTime < 1500000000) {
+          const invalidTsResult = {
+            id: cleanId,
+            status: 'error' as const,
+            price: null,
+            confidence: null,
+            publishTime: null,
+            isAvailable: false,
+            reason: 'Missing or corrupt publish timestamp from Pyth oracle',
+          };
+          return invalidTsResult;
+        }
+
+        const ageSeconds = Math.max(0, nowSec - publishTime);
+        const isStale = ageSeconds > freshnessRule.maxAgeSeconds;
+
+        if (isStale) {
+          const staleResult = {
+            id: cleanId,
+            status: 'stale' as const,
+            price: null, // Do not present as valid current price
+            lastKnownPrice: price, // Preserve legitimate last-known value
+            confidence: validConf,
+            publishTime,
+            expo,
+            rawPrice,
+            isAvailable: false,
+            isStale: true,
+            ageSeconds,
+            freshnessThresholdSeconds: freshnessRule.maxAgeSeconds,
+            change24hPct: null, // Avoid misrepresenting stale data
+            change24hValue: null,
+            high24h: stats?.high ?? null,
+            low24h: stats?.low ?? null,
+            volume: stats?.volume ?? null,
+            source: 'Pyth Hermes API (Stale)',
+            reason: `Pyth feed publish timestamp (${ageSeconds}s ago) exceeds freshness window of ${freshnessRule.maxAgeSeconds}s for ${freshnessRule.assetClass}`,
+          };
+          priceCache.set(cleanId, { data: staleResult, timestamp: now });
+          return staleResult;
+        }
+
+        const freshResult = {
           id: cleanId,
           status: 'ok' as const,
           price,
-          confidence,
+          confidence: validConf,
           publishTime,
           expo,
           rawPrice,
           isAvailable: true,
+          isStale: false,
+          ageSeconds,
+          freshnessThresholdSeconds: freshnessRule.maxAgeSeconds,
           change24hPct: stats?.change24hPct ?? null,
           change24hValue: stats?.change24hValue ?? null,
           high24h: stats?.high ?? null,
@@ -594,17 +726,45 @@ async function fetchSingleFeedPrice(feedId: string): Promise<{
           volume: stats?.volume ?? null,
           source: 'Pyth Hermes API',
         };
-        priceCache.set(cleanId, { data: result, timestamp: now });
-        return result;
+        priceCache.set(cleanId, { data: freshResult, timestamp: now });
+        return freshResult;
       }
     }
 
     // If Hermes returned 403 (unentitled/unlicensed) or 401 or price not in Hermes,
     // seamlessly fall back to live institutional market benchmark
     const fallback = await fetchLiveBenchmarkPrice(cleanId);
-    if (fallback && fallback.price != null && fallback.price > 0) {
-      priceCache.set(cleanId, { data: fallback, timestamp: now });
-      return fallback;
+    if (fallback && fallback.price != null && Number.isFinite(fallback.price) && fallback.price > 0) {
+      const fallbackAge = Math.max(0, nowSec - (fallback.publishTime || nowSec));
+      const isFallbackStale = fallbackAge > freshnessRule.maxAgeSeconds;
+
+      if (isFallbackStale) {
+        const staleFallback = {
+          id: cleanId,
+          status: 'stale' as const,
+          price: null,
+          lastKnownPrice: fallback.price,
+          confidence: fallback.confidence,
+          publishTime: fallback.publishTime,
+          isAvailable: false,
+          isStale: true,
+          ageSeconds: fallbackAge,
+          freshnessThresholdSeconds: freshnessRule.maxAgeSeconds,
+          reason: `Benchmark publish timestamp (${fallbackAge}s ago) exceeds freshness threshold of ${freshnessRule.maxAgeSeconds}s`,
+          source: 'Live Market Benchmark (Stale)',
+        };
+        priceCache.set(cleanId, { data: staleFallback, timestamp: now });
+        return staleFallback;
+      }
+
+      const freshFallback = {
+        ...fallback,
+        ageSeconds: fallbackAge,
+        freshnessThresholdSeconds: freshnessRule.maxAgeSeconds,
+        isStale: false,
+      };
+      priceCache.set(cleanId, { data: freshFallback, timestamp: now });
+      return freshFallback;
     }
 
     if (res.status === 403) {
@@ -650,9 +810,16 @@ async function fetchSingleFeedPrice(feedId: string): Promise<{
   } catch (err: any) {
     // On network failure to Hermes, try live benchmark
     const fallback = await fetchLiveBenchmarkPrice(cleanId);
-    if (fallback && fallback.price != null && fallback.price > 0) {
-      priceCache.set(cleanId, { data: fallback, timestamp: now });
-      return fallback;
+    if (fallback && fallback.price != null && Number.isFinite(fallback.price) && fallback.price > 0) {
+      const fallbackAge = Math.max(0, nowSec - (fallback.publishTime || nowSec));
+      const freshFallback = {
+        ...fallback,
+        ageSeconds: fallbackAge,
+        freshnessThresholdSeconds: freshnessRule.maxAgeSeconds,
+        isStale: fallbackAge > freshnessRule.maxAgeSeconds,
+      };
+      priceCache.set(cleanId, { data: freshFallback, timestamp: now });
+      return freshFallback;
     }
 
     return {
@@ -670,37 +837,23 @@ async function fetchSingleFeedPrice(feedId: string): Promise<{
 // ==========================================
 // 1. Health Endpoint
 // ==========================================
-app.get('/api/health', (req, res) => {
-  const isPantaConfigured = !!PANTA_API_KEY;
-  const pantaKeyFingerprint = isPantaConfigured
-    ? `${PANTA_API_KEY.slice(0, 12)}...${PANTA_API_KEY.slice(-6)}`
-    : null;
-
+app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     pythConfigured: !!PYTH_API_KEY,
-    keyLength: PYTH_API_KEY.length,
-    pantaConfigured: isPantaConfigured,
-    pantaKeyFingerprint,
-    pantaKeyLength: PANTA_API_KEY.length,
-    pantaApiUrl: PANTA_API_URL,
+    pantaConfigured: !!PANTA_API_KEY,
+    cluster: 'devnet',
     timestamp: Date.now(),
   });
 });
 
-// Panta Status & Diagnostics Endpoint
-app.get('/api/panta/status', (req, res) => {
+// Panta Status & Diagnostics Endpoint (No secret/key-length disclosure)
+app.get('/api/panta/status', (_req, res) => {
   const isPantaConfigured = !!PANTA_API_KEY;
-  const keyFingerprint = isPantaConfigured
-    ? `${PANTA_API_KEY.slice(0, 12)}...${PANTA_API_KEY.slice(-6)}`
-    : null;
 
   res.json({
     success: true,
     configured: isPantaConfigured,
-    keyFingerprint,
-    keyLength: PANTA_API_KEY.length,
-    apiUrl: PANTA_API_URL,
     status: isPantaConfigured ? 'synced' : 'missing_key',
     timestamp: Date.now(),
   });
@@ -738,12 +891,29 @@ const agentScanRateLimiter = createRateLimiter({ windowMs: 60000, maxRequests: 3
 // Rate Limiter for Panta Prediction Market Proxy: 60 req/min per client IP
 const pantaRateLimiter = createRateLimiter({ windowMs: 60000, maxRequests: 60 });
 
+// Configured list of trusted reverse proxy IPs (e.g. Google Cloud Run load balancer / Cloudflare)
+const TRUSTED_PROXIES = (process.env.TRUSTED_PROXIES || '127.0.0.1,::1,::ffff:127.0.0.1')
+  .split(',')
+  .map((ip) => ip.trim().toLowerCase());
+
+/**
+ * Resolves client identifier securely.
+ * ONLY trusts 'X-Forwarded-For' if the direct socket connection is from an explicitly configured trusted proxy.
+ * Otherwise, uses the direct socket remote address to prevent IP spoofing attacks.
+ */
 function getClientIdentifier(req: express.Request): string {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string') {
-    return forwarded.split(',')[0].trim();
+  const directRemoteIp = (req.socket.remoteAddress || '127.0.0.1').toLowerCase();
+
+  const isFromTrustedProxy = TRUSTED_PROXIES.includes(directRemoteIp);
+  if (isFromTrustedProxy) {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string' && forwarded.trim().length > 0) {
+      const firstHop = forwarded.split(',')[0].trim();
+      if (firstHop) return firstHop;
+    }
   }
-  return req.socket.remoteAddress || '127.0.0.1';
+
+  return directRemoteIp;
 }
 
 // Agent Chat & Research Endpoint
@@ -1062,6 +1232,22 @@ app.get('/api/pyth/resolve', async (req, res) => {
       });
     }
 
+    const hasReliableHours = feed.market_hours && typeof feed.market_hours.is_open === 'boolean';
+    const marketHours = hasReliableHours
+      ? {
+          is_open: feed.market_hours.is_open,
+          status: feed.market_hours.is_open ? 'open' : 'closed',
+          next_open: feed.market_hours.next_open ?? null,
+          next_close: feed.market_hours.next_close ?? null,
+        }
+      : {
+          is_open: null,
+          status: 'unknown',
+          next_open: null,
+          next_close: null,
+          note: 'Provider does not supply reliable exchange market-hours metadata; on-chain token pool trades independently 24/7',
+        };
+
     return res.json({
       found: true,
       feed: {
@@ -1071,7 +1257,7 @@ app.get('/api/pyth/resolve', async (req, res) => {
         description: feed.attributes?.description || symbol,
         assetType: feed.attributes?.asset_type || 'Unknown',
         minChannel: feed.attributes?.min_channel || 'real_time',
-        marketHours: feed.market_hours || { is_open: true, next_open: null, next_close: null },
+        marketHours,
         schedule: feed.attributes?.schedule,
       },
     });
@@ -1286,7 +1472,10 @@ app.get('/api/pyth/history', async (req, res) => {
       });
     }
 
-    // If market was closed over the weekend (commodities, FX, etc.), query the most recent trading period
+    let isMultiDayFallback = false;
+    let actualTimeframe = timeframe;
+
+    // If market was closed over the weekend (commodities, FX, etc.), query the most recent trading period as retrieval fallback
     if (
       (!historyJson || historyJson.s !== 'ok' || !Array.isArray(historyJson.t) || historyJson.t.length === 0) &&
       (timeframe === '24H' || timeframe === '1H')
@@ -1304,6 +1493,8 @@ app.get('/api/pyth/history', async (req, res) => {
             if (retryJson.s === 'ok' && Array.isArray(retryJson.t) && retryJson.t.length > 0) {
               historyJson = retryJson;
               successfulChannel = ch;
+              isMultiDayFallback = true;
+              actualTimeframe = '4D_FALLBACK';
               break;
             }
           }
@@ -1323,73 +1514,138 @@ app.get('/api/pyth/history', async (req, res) => {
         bars: [],
         symbol: pythSymbol,
         timeframe,
+        actualTimeframe,
+        change24hPct: null,
+        change24hValue: null,
         reason: 'No historical OHLC data available for this asset feed in requested interval',
       });
     }
 
     // Map UDF arrays (t, o, h, l, c, v) into structured price point bars
+    // Validate timestamps, numeric candle values, and ordering before computing changes or chart summaries
     const count = historyJson.t.length;
-    const bars: Array<{
+    const validatedBars: Array<{
       time: string;
       timestamp: number;
       open: number;
       high: number;
       low: number;
       close: number;
-      price?: number;
+      price: number;
       volume?: number;
     }> = [];
 
-    let minLow = Infinity;
-    let maxHigh = -Infinity;
-
     for (let i = 0; i < count; i++) {
-      const ts = historyJson.t[i] * 1000;
-      const d = new Date(ts);
-      const timeStr =
-        timeframe === '24H' || timeframe === '1H'
-          ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-
+      const ts = Number(historyJson.t[i]) * 1000;
       const o = Number(historyJson.o[i]);
       const h = Number(historyJson.h[i]);
       const l = Number(historyJson.l[i]);
       const c = Number(historyJson.c[i]);
       const v = historyJson.v ? Number(historyJson.v[i]) : undefined;
 
-      if (l < minLow) minLow = l;
-      if (h > maxHigh) maxHigh = h;
+      // Validate valid numeric candle values: positive and finite
+      if (
+        Number.isFinite(ts) && ts > 0 &&
+        Number.isFinite(o) && o > 0 &&
+        Number.isFinite(c) && c > 0
+      ) {
+        const validH = Number.isFinite(h) && h >= Math.min(o, c) ? h : Math.max(o, c);
+        const validL = Number.isFinite(l) && l > 0 ? l : Math.min(o, c);
 
-      bars.push({
-        time: timeStr,
-        timestamp: ts,
-        open: o,
-        high: h,
-        low: l,
-        close: c,
-        price: c,
-        volume: v,
+        const d = new Date(ts);
+        const timeStr =
+          timeframe === '24H' || timeframe === '1H'
+            ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+        validatedBars.push({
+          time: timeStr,
+          timestamp: ts,
+          open: o,
+          high: validH,
+          low: validL,
+          close: c,
+          price: c,
+          volume: Number.isFinite(v) ? v : undefined,
+        });
+      }
+    }
+
+    // Ensure ordering is strictly chronological ascending
+    validatedBars.sort((a, b) => a.timestamp - b.timestamp);
+
+    if (validatedBars.length === 0) {
+      return res.json({
+        status: 'unavailable',
+        bars: [],
+        symbol: pythSymbol,
+        timeframe,
+        actualTimeframe,
+        change24hPct: null,
+        change24hValue: null,
+        reason: 'Dataset contains no valid positive numeric price candles',
       });
     }
 
-    // Slice to 24 bars for 24H timeframe if expanded window was queried
-    const finalBars = timeframe === '24H' && bars.length > 24 ? bars.slice(-24) : bars;
-    const firstBar = finalBars[0];
-    const lastBar = finalBars[finalBars.length - 1];
-    const change24hPct = firstBar && firstBar.open > 0 ? ((lastBar.close - firstBar.open) / firstBar.open) * 100 : 0;
-    const change24hValue = firstBar && lastBar ? lastBar.close - firstBar.open : 0;
+    let minLow = Infinity;
+    let maxHigh = -Infinity;
+    for (const b of validatedBars) {
+      if (b.low < minLow) minLow = b.low;
+      if (b.high > maxHigh) maxHigh = b.high;
+    }
+
+    // Distinct timeframe handling & accurate 24-hour performance calculation
+    const latestBar = validatedBars[validatedBars.length - 1];
+    let change24hPct: number | null = null;
+    let change24hValue: number | null = null;
+    let change24hReason: string | null = null;
 
     if (timeframe === '24H') {
-      const statsObj: Stats24h = {
-        change24hPct,
-        change24hValue,
-        high: maxHigh !== -Infinity ? maxHigh : null,
-        low: minLow !== Infinity ? minLow : null,
-        volume: finalBars.reduce((sum, b) => sum + (b.volume || 0), 0) || null,
-        timestamp: Date.now(),
-      };
-      if (pythSymbol) stats24hCache.set(pythSymbol.toLowerCase(), statsObj);
-      if (feedId) stats24hCache.set(feedId.toLowerCase(), statsObj);
+      if (isMultiDayFallback) {
+        // Multi-day fallback interval retrieved: NEVER misrepresent multi-day span as 24-hour performance!
+        // Attempt to find a candle corresponding to approximately 24 hours prior to latest candle
+        const target24hAgo = latestBar.timestamp - 24 * 3600 * 1000;
+        const candleIn24hWindow = validatedBars.find(
+          (b) => Math.abs(b.timestamp - target24hAgo) <= 3 * 3600 * 1000
+        );
+
+        if (candleIn24hWindow && candleIn24hWindow.open > 0) {
+          change24hPct = ((latestBar.close - candleIn24hWindow.open) / candleIn24hWindow.open) * 100;
+          change24hValue = latestBar.close - candleIn24hWindow.open;
+        } else {
+          // If no candle exists in true 24-hour window, return null with clear reason. Never fabricate or return 0%
+          change24hPct = null;
+          change24hValue = null;
+          change24hReason = 'Market was closed over recent period; candles represent multi-day fallback interval and cannot be labeled as 24-hour performance.';
+        }
+      } else {
+        // Standard 24H interval: verify coverage span
+        const firstBar = validatedBars[0];
+        const spanHours = (latestBar.timestamp - firstBar.timestamp) / (3600 * 1000);
+
+        if (spanHours >= 16 && firstBar.open > 0) {
+          change24hPct = ((latestBar.close - firstBar.open) / firstBar.open) * 100;
+          change24hValue = latestBar.close - firstBar.open;
+        } else {
+          // Incomplete candle coverage: return null with clear reason
+          change24hPct = null;
+          change24hValue = null;
+          change24hReason = `Insufficient continuous candle coverage for 24-hour calculation (covered ${spanHours.toFixed(1)}h)`;
+        }
+      }
+
+      if (change24hPct !== null) {
+        const statsObj: Stats24h = {
+          change24hPct,
+          change24hValue: change24hValue || 0,
+          high: maxHigh !== -Infinity ? maxHigh : null,
+          low: minLow !== Infinity ? minLow : null,
+          volume: validatedBars.reduce((sum, b) => sum + (b.volume || 0), 0) || null,
+          timestamp: Date.now(),
+        };
+        if (pythSymbol) stats24hCache.set(pythSymbol.toLowerCase(), statsObj);
+        if (feedId) stats24hCache.set(feedId.toLowerCase(), statsObj);
+      }
     }
 
     return res.json({
@@ -1397,13 +1653,15 @@ app.get('/api/pyth/history', async (req, res) => {
       symbol: pythSymbol,
       channel: successfulChannel,
       timeframe,
+      actualTimeframe,
       resolution,
-      bars: finalBars,
+      bars: validatedBars,
       change24hPct,
       change24hValue,
+      change24hReason,
       high: maxHigh !== -Infinity ? maxHigh : null,
       low: minLow !== Infinity ? minLow : null,
-      currentPrice: lastBar ? lastBar.close : null,
+      currentPrice: latestBar ? latestBar.close : null,
     });
   } catch (err: any) {
     return res.status(500).json({ status: 'error', bars: [], error: err.message });

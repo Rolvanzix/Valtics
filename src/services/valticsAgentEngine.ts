@@ -9,6 +9,11 @@ import {
   validateDevnetClusterStrict,
   safeServerLog,
 } from './agentSecurityGuard';
+import {
+  isGeminiAvailable,
+  isGeminiQuotaOrRateLimit,
+  markGeminiQuotaExhausted,
+} from './marketIntelligenceEngine';
 
 const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim();
 
@@ -217,8 +222,8 @@ Devnet SOL Balance: ${walletContext?.balanceSol !== null && walletContext?.balan
 Active Cluster: Solana Devnet
 `;
 
-  // 4. Try Gemini API first if configured
-  if (genAI) {
+  // 4. Try Gemini API first if configured and within active quota
+  if (isGeminiAvailable()) {
     try {
       // Build structured chat history for Gemini API with untrusted boundaries
       const chatTurns: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
@@ -238,7 +243,7 @@ Active Cluster: Solana Devnet
         });
       }
 
-      const response = await genAI.models.generateContent({
+      const response = await genAI!.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: chatTurns,
         config: {
@@ -255,7 +260,11 @@ Active Cluster: Solana Devnet
         recommendation,
       };
     } catch (apiError: any) {
-      safeServerLog('GeminiError', 'Gemini API call failed or unconfigured, employing internal domain intelligence engine:', apiError?.message || apiError);
+      if (isGeminiQuotaOrRateLimit(apiError)) {
+        markGeminiQuotaExhausted(apiError, 'ValticsAgent');
+      } else {
+        safeServerLog('IntelligenceNotice', 'Gemini session deferred; employing internal domain intelligence engine.');
+      }
     }
   }
 

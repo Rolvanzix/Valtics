@@ -15,6 +15,47 @@ if (GEMINI_API_KEY) {
   });
 }
 
+// Global Gemini rate limit / quota exhaustion cooldown tracker
+let geminiQuotaBlockedUntil = 0;
+
+export function isGeminiQuotaOrRateLimit(err: any): boolean {
+  if (!err) return false;
+  const str = String(err?.message || err || '');
+  return (
+    err?.status === 429 ||
+    str.includes('429') ||
+    str.includes('RESOURCE_EXHAUSTED') ||
+    str.includes('Quota exceeded') ||
+    str.includes('quota')
+  );
+}
+
+export function markGeminiQuotaExhausted(err: any, source: string): void {
+  let cooldownMs = 15 * 60 * 1000; // default 15 minutes
+  try {
+    const str = String(err?.message || err || '');
+    const match = str.match(/retry in\s+([0-9.]+)s/i) || str.match(/retryDelay"?:\s*"?([0-9]+)s?/i);
+    if (match && match[1]) {
+      const parsedSeconds = parseFloat(match[1]);
+      if (!isNaN(parsedSeconds) && parsedSeconds > 0) {
+        cooldownMs = Math.min(parsedSeconds * 1000, 3600 * 1000); // capped at 1h
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  geminiQuotaBlockedUntil = Date.now() + cooldownMs;
+  safeServerLog(
+    'IntelligenceNotice',
+    `Gemini API free-tier quota active. Serving deterministic domain engine (${source}) for ${Math.round(cooldownMs / 1000)}s.`
+  );
+}
+
+export function isGeminiAvailable(): boolean {
+  return Boolean(genAI && Date.now() >= geminiQuotaBlockedUntil);
+}
+
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   return Promise.race([
     promise,
@@ -119,7 +160,7 @@ export async function generateMarketSuggestion(
     suggestedPriceTarget: roundTarget,
   };
 
-  if (!genAI) {
+  if (!isGeminiAvailable()) {
     return fallbackResult;
   }
 
@@ -156,7 +197,7 @@ Respond with strict JSON matching this structure:
 }`;
 
     const res = await withTimeout(
-      genAI.models.generateContent({
+      genAI!.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
@@ -180,8 +221,12 @@ Respond with strict JSON matching this structure:
         };
       }
     }
-  } catch (err) {
-    safeServerLog('IntelligenceError', 'Error calling Gemini for market suggestion: ' + String(err));
+  } catch (err: any) {
+    if (isGeminiQuotaOrRateLimit(err)) {
+      markGeminiQuotaExhausted(err, 'MarketSuggestion');
+    } else {
+      safeServerLog('IntelligenceNotice', 'AI market suggestion request deferred; using deterministic intelligence engine.');
+    }
   }
 
   return fallbackResult;
@@ -328,7 +373,7 @@ export async function generateMarketBrief(
     `Liquidity depth in the ${isPrimary ? 'primary AMM pool' : 'secondary order book'} indicates active protocol participation without artificial wash activity.`,
   ];
 
-  if (!genAI) {
+  if (!isGeminiAvailable()) {
     return {
       facts,
       marketData: {
@@ -369,7 +414,7 @@ Respond with strict JSON matching:
 }`;
 
     const res = await withTimeout(
-      genAI.models.generateContent({
+      genAI!.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
@@ -393,8 +438,12 @@ Respond with strict JSON matching:
         };
       }
     }
-  } catch (err) {
-    safeServerLog('IntelligenceBriefError', 'Error generating AI brief: ' + String(err));
+  } catch (err: any) {
+    if (isGeminiQuotaOrRateLimit(err)) {
+      markGeminiQuotaExhausted(err, 'MarketBrief');
+    } else {
+      safeServerLog('IntelligenceNotice', 'AI market brief request deferred; using deterministic analytical synthesis.');
+    }
   }
 
   return {

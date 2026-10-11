@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "test": "tsx test/integrity-audit.test.ts",
     "postinstall": "node scripts/patch-bigint-buffer.cjs"
   },
   "dependencies": {

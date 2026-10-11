@@ -52,17 +52,17 @@ export const OverviewCommandRadar: React.FC<OverviewCommandRadarProps> = ({
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-              +12.4%
+              Verified DevNet
             </span>
           </div>
 
           <div>
             <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#F5F5F7] tracking-tight">
-              {formatCurrency(tvlUsd > 0 ? tvlUsd : 2480000)}
+              {formatCurrency(tvlUsd)}
             </div>
             <div className="flex items-center gap-2 mt-1 text-xs text-[#A7A7B8] font-mono">
               <span>24h Vol:</span>
-              <span className="text-[#F5F5F7] font-semibold">{formatCurrency(volume24h > 0 ? volume24h : 385420)}</span>
+              <span className="text-[#F5F5F7] font-semibold">{volume24h > 0 ? formatCurrency(volume24h) : '$0.00'}</span>
             </div>
           </div>
         </div>

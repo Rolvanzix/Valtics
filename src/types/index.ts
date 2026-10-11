@@ -70,6 +70,15 @@ export interface DBCPoolState {
   description?: string;
   createdAt?: string; // ISO string or human date
   creationDate?: string; // Formatted date string (e.g. 2026-03-15)
+  deploymentStatus?: 'draft' | 'simulated' | 'submitted' | 'confirmed' | 'verified' | 'verification_required' | 'verification_failed';
+  onChainVerified?: boolean;
+  isLocalRecord?: boolean;
+  txSignature?: string;
+  verificationTimestamp?: number;
+  verificationNote?: string;
+  lastReconciledAt?: string;
+  isReferenceOnly?: boolean;
+  provenance?: string;
   recentTxs?: OnChainActivityLog[];
   riskNotes?: {
     impermanentLossRisk: string;

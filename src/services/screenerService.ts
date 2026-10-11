@@ -140,16 +140,23 @@ export function buildScreenerAsset(
   const low24h = priceData?.low24h !== undefined ? priceData.low24h : null;
   const volume = priceData?.volume !== undefined ? priceData.volume : null;
 
-  const isOpen = item.market_hours ? item.market_hours.is_open : true;
+  const hasReliableHours = item.market_hours && typeof item.market_hours.is_open === 'boolean';
+  const isOpen = hasReliableHours ? item.market_hours.is_open : null;
   let marketStatus: ScreenerAsset['marketStatus'] = 'Live';
   let statusText = 'Live Pyth Feed';
 
   if (priceData?.status === 'unsupported') {
     marketStatus = 'Unsupported';
     statusText = 'Institutional license required';
-  } else if (!isOpen) {
+  } else if (priceData?.status === 'stale') {
+    marketStatus = 'Market Closed';
+    statusText = 'Stale oracle • Updates paused';
+  } else if (isOpen === false) {
     marketStatus = 'Market Closed';
     statusText = 'Market Closed • Carried forward';
+  } else if (isOpen === null) {
+    marketStatus = price !== null ? 'Live' : 'Unavailable';
+    statusText = price !== null ? 'Live • Exchange hours unknown (Pool 24/7)' : 'Exchange hours unknown';
   } else if (price === null) {
     marketStatus = 'Unavailable';
     statusText = 'Feed unavailable';
@@ -188,13 +195,15 @@ export function buildScreenerAsset(
 
 /**
  * Converts an on-chain DevNet DBC pool into a ScreenerAsset
+ * Strictly verified metrics: never fabricates trading volume or synthetic high/low estimates.
  */
 export function buildDevNetPoolAsset(pool: DBCPoolState): ScreenerAsset {
   const symbol = pool.tokenSymbol || 'DBC';
   const name = pool.tokenName || `Asset ${symbol}`;
   const price = pool.currentPrice || null;
   const changePct = pool.activity24h?.priceChange24hPct ?? null;
-  const volume = pool.activity24h?.volumeUsd ?? (pool.tvlUsd ? pool.tvlUsd * 0.12 : null);
+  // Strictly derive pool volume from verified on-chain pool trades; no fabricated 12% heuristic
+  const volume = pool.activity24h?.volumeUsd ?? (pool.onChainVerified ? 0 : null);
 
   let category: ScreenerAsset['category'] = 'Tokenized Real-World Assets';
   if (pool.rwaCategory === 'Treasuries') category = 'Tokenized Bonds';
@@ -203,8 +212,7 @@ export function buildDevNetPoolAsset(pool: DBCPoolState): ScreenerAsset {
     category = 'Tokenized Real-World Assets';
   }
 
-  const supplyNum = parseFloat(pool.baseReserve?.replace(/,/g, '') || '0') || 1000000;
-  const marketCap = price && price > 0 ? price * supplyNum : (pool.tvlUsd || null);
+  const marketCap = pool.tvlUsd || null;
 
   return {
     id: pool.poolAddress,
@@ -217,19 +225,21 @@ export function buildDevNetPoolAsset(pool: DBCPoolState): ScreenerAsset {
     confidence: null,
     change24hPct: changePct,
     change24hValue: null,
-    high24h: price ? price * 1.05 : null,
-    low24h: price ? price * 0.95 : null,
+    high24h: null, // Only populated from verified candles, never synthetic multipliers
+    low24h: null,
     volume,
     marketCap,
-    supply: pool.baseReserve || '1,000,000',
+    supply: pool.baseReserve || null,
     issuer: pool.creator ? `Issuer ${pool.creator.slice(0, 6)}...` : 'Valtics DevNet Issuer',
-    marketStatus: 'Live',
-    statusText: 'Valtics DevNet Bonding Curve',
-    isAvailable: true,
+    marketStatus: pool.onChainVerified ? 'Live' : 'Unavailable',
+    statusText: pool.onChainVerified
+      ? 'Valtics DevNet Bonding Curve (Verified)'
+      : (pool.deploymentStatus === 'draft' ? 'Local Studio Draft (Not Deployed)' : 'Pending On-Chain Verification'),
+    isAvailable: Boolean(pool.onChainVerified && price !== null && price > 0),
     mintAddress: pool.baseMint || pool.poolAddress,
     poolAddress: pool.poolAddress,
     poolState: pool,
-    provenance: 'Valtics DevNet',
+    provenance: pool.onChainVerified ? 'Valtics DevNet' : 'Issuer Disclosed',
   };
 }
 

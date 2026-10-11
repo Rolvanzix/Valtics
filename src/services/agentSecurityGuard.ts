@@ -174,6 +174,16 @@ export function validateDevnetClusterStrict(clusterOrUrl?: string): boolean {
  * Safe logging utility that redacts sensitive credentials before writing to logs.
  */
 export function safeServerLog(tag: string, message: string, meta?: any): void {
+  // If message contains raw Gemini quota exhaustion, convert to clean notice
+  if (
+    message.includes('RESOURCE_EXHAUSTED') ||
+    message.includes('Quota exceeded') ||
+    (message.includes('429') && message.includes('generativelanguage'))
+  ) {
+    console.log(`[Valtics SafeLog][QuotaNotice] External AI free-tier quota active. Internal domain intelligence engine serving requests.`);
+    return;
+  }
+
   const scan = scanAndRedactCredentials(message);
   let safeMessage = scan.redactedText;
 

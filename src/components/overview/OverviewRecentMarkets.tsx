@@ -133,7 +133,7 @@ export const OverviewRecentMarkets: React.FC<OverviewRecentMarketsProps> = ({
                 <div className="pt-3 border-t border-[rgba(138,32,255,0.15)] flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-1.5 text-[#A7A7B8]">
                     <TrendingUp className="w-3.5 h-3.5 text-[#FF8A20]" />
-                    <span>Vol: {formatCurrency(pool.activity24h?.volumeUsd || (pool.currentPrice * 420), 'USD', 0)}</span>
+                    <span>Vol: {pool.activity24h?.volumeUsd ? formatCurrency(pool.activity24h.volumeUsd, 'USD', 0) : pool.onChainVerified ? '$0' : '—'}</span>
                   </div>
 
                   <span className="text-[11px] text-[#8A20FF] group-hover:text-white flex items-center gap-1 transition-colors">

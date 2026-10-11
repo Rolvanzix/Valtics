@@ -32,7 +32,7 @@ import { fetchPythHistoricalOHLC } from '../../services/pyth';
 import { ScreenerAsset } from '../../services/screenerService';
 import { AssetLogo } from '../screener/AssetLogo';
 import { evaluateMarketHealth } from '../../services/marketHealth';
-import { reconcileMarketWithBlockchain } from '../../services/marketStorage';
+import { reconcileMarketWithBlockchain, isValidSolanaPubkeyString } from '../../services/marketStorage';
 import { ValticsPredictionMarket } from '../../types/panta';
 import { fetchPantaMarkets } from '../../services/pantaService';
 import { getMarketsRelatedToAsset } from '../../utils/pantaRelevance';
@@ -226,16 +226,17 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
   const category = screenerAsset?.category || pool.rwaCategory || 'Tokenized Asset';
   const issuer = screenerAsset?.issuer || assetProfile?.issuer?.name || (pool.creator ? `Issuer ${pool.creator.slice(0, 6)}...` : 'Benchmark Reference');
 
-  const high24h = stats24h.high ?? screenerAsset?.high24h ?? (currentPrice ? currentPrice * 1.02 : null);
-  const low24h = stats24h.low ?? screenerAsset?.low24h ?? (currentPrice ? currentPrice * 0.98 : null);
-  const volume24h = stats24h.volume ?? screenerAsset?.volume ?? pool.activity24h?.volumeUsd ?? null;
-  const marketCap = screenerAsset?.marketCap ?? (pool.tvlUsd || null);
-  const supply = screenerAsset?.supply ?? pool.baseReserve ?? null;
+  const isPoolDeployed = Boolean(pool.onChainVerified && pool.deploymentStatus === 'verified');
+  const high24h = stats24h.high ?? screenerAsset?.high24h ?? null;
+  const low24h = stats24h.low ?? screenerAsset?.low24h ?? null;
+  const poolVolume = isPoolDeployed ? (pool.activity24h?.volumeUsd ?? 0) : null;
+  const volume24h = poolVolume ?? (screenerAsset?.provenance === 'Pyth Oracle' ? screenerAsset.volume : null);
+  const marketCap = screenerAsset?.marketCap ?? (isPoolDeployed ? pool.tvlUsd : null) ?? null;
+  const supply = isPoolDeployed ? pool.baseReserve : (screenerAsset?.supply ?? null);
 
-  // Derived liquidity values
-  const quoteReserveNum =
-    parseFloat(pool.quoteReserve?.replace(/,/g, '') || '0') || ((currentPrice || 0) * 10000);
-  const totalLiquidity = pool.tvlUsd || quoteReserveNum;
+  // Real vault balance vs virtual reserves
+  const actualQuoteBalance = parseFloat(pool.quoteReserve?.replace(/,/g, '') || '0') || 0;
+  const totalLiquidity = isPoolDeployed ? (pool.tvlUsd || actualQuoteBalance) : null;
 
   const mintAddress = pool.baseMint || screenerAsset?.mintAddress || pool.poolAddress;
 
@@ -360,10 +361,15 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
 
         {/* 24h Volume */}
         <div className="rounded-xl border border-[#670CDC]/25 bg-[#140130] p-3.5 space-y-1">
-          <span className="text-[10px] font-mono text-[#B8A9CC] uppercase block">24h Volume</span>
+          <span className="text-[10px] font-mono text-[#B8A9CC] uppercase block">
+            {isPoolDeployed ? 'Pool Volume (24h)' : 'Benchmark Vol'}
+          </span>
           <div className="text-sm font-bold font-mono text-[#F7F3FF]">
-            {volume24h !== null && volume24h > 0 ? formatCurrency(volume24h) : '—'}
+            {volume24h !== null && volume24h > 0 ? formatCurrency(volume24h) : isPoolDeployed ? '$0.00' : '—'}
           </div>
+          <span className="text-[9px] font-mono text-[#7E6D96] block truncate">
+            {isPoolDeployed ? 'Verified pool trades' : (screenerAsset?.provenance === 'Pyth Oracle' ? 'External oracle ref' : 'No pool deployed')}
+          </span>
         </div>
 
         {/* Oracle Confidence */}
@@ -532,9 +538,31 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
               <RefreshCw className={`w-3 h-3 text-[#34D399] ${isReconciling ? 'animate-spin' : ''}`} />
               <span>{isReconciling ? 'Verifying...' : 'Reconcile Ledger'}</span>
             </button>
-            <span className="text-[11px] font-mono text-[#D76EDD] bg-[#100126] border border-[#670CDC]/30 px-2 py-0.5 rounded-md font-medium">
-              DEVNET VERIFIED
-            </span>
+            {pool.deploymentStatus === 'verified' ? (
+              <span className="text-[11px] font-mono text-emerald-300 bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 rounded-md font-bold">
+                DEVNET VERIFIED
+              </span>
+            ) : pool.deploymentStatus === 'submitted' ? (
+              <span className="text-[11px] font-mono text-amber-300 bg-amber-500/15 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold">
+                SUBMITTED (PENDING)
+              </span>
+            ) : pool.deploymentStatus === 'verification_required' ? (
+              <span className="text-[11px] font-mono text-amber-300 bg-amber-500/15 border border-amber-500/40 px-2 py-0.5 rounded-md font-bold">
+                VERIFICATION REQUIRED
+              </span>
+            ) : pool.deploymentStatus === 'verification_failed' ? (
+              <span className="text-[11px] font-mono text-rose-300 bg-rose-500/15 border border-rose-500/40 px-2 py-0.5 rounded-md font-bold">
+                VERIFICATION FAILED
+              </span>
+            ) : pool.isLocalRecord || pool.deploymentStatus === 'draft' ? (
+              <span className="text-[11px] font-mono text-purple-300 bg-purple-500/15 border border-purple-500/40 px-2 py-0.5 rounded-md font-medium">
+                LOCAL DRAFT (STUDIO)
+              </span>
+            ) : (
+              <span className="text-[11px] font-mono text-[#D76EDD] bg-[#100126] border border-[#670CDC]/30 px-2 py-0.5 rounded-md font-medium">
+                ORACLE BENCHMARK
+              </span>
+            )}
           </div>
         </div>
 
@@ -738,14 +766,21 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
                     <Copy className="w-3.5 h-3.5" />
                   )}
                 </button>
-                <a
-                  href={getExplorerUrl(pool.poolAddress, 'address', network)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#B8A9CC] hover:text-[#F7F3FF]"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+                {isValidSolanaPubkeyString(pool.poolAddress) ? (
+                  <a
+                    href={getExplorerUrl(pool.poolAddress, 'address', network)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#B8A9CC] hover:text-[#F7F3FF]"
+                    title="View on Solana Explorer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                ) : (
+                  <span className="text-[10px] font-mono text-[#7E6D96] px-1.5 py-0.5 bg-[#000010] rounded border border-[#670CDC]/20">
+                    Draft / Local Only
+                  </span>
+                )}
               </div>
             </div>
 
@@ -765,14 +800,21 @@ export const MarketDetailView: React.FC<MarketDetailViewProps> = ({
                       <Copy className="w-3.5 h-3.5" />
                     )}
                   </button>
-                  <a
-                    href={getExplorerUrl(pool.baseMint, 'address', network)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#B8A9CC] hover:text-[#F7F3FF]"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  {isValidSolanaPubkeyString(pool.baseMint) ? (
+                    <a
+                      href={getExplorerUrl(pool.baseMint, 'address', network)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#B8A9CC] hover:text-[#F7F3FF]"
+                      title="View on Solana Explorer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  ) : (
+                    <span className="text-[10px] font-mono text-[#7E6D96] px-1.5 py-0.5 bg-[#000010] rounded border border-[#670CDC]/20">
+                      Draft / Un-deployed
+                    </span>
+                  )}
                 </div>
               </div>
             )}

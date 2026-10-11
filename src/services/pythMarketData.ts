@@ -16,9 +16,11 @@
  */
 
 export interface PythMarketHours {
-  isOpen: boolean;
+  isOpen: boolean | null;
+  status: 'open' | 'closed' | 'unknown';
   nextOpen: number | null;
   nextClose: number | null;
+  note?: string;
 }
 
 export interface VerifiedPythFeedMetadata {
@@ -37,16 +39,19 @@ export interface PythRealPriceResult {
   confidence: number | null;
   feedUpdateTimestamp: number | null; // Unix timestamp in seconds
   change24hPct: number | null;
-  status: 'ok' | 'unsupported' | 'unavailable' | 'loading' | 'error';
+  status: 'ok' | 'stale' | 'unsupported' | 'unavailable' | 'loading' | 'error';
+  isStale?: boolean;
+  ageSeconds?: number;
+  maxAllowedAgeSeconds?: number;
   pythSymbol?: string;
   feedId?: string;
   marketSession: {
-    isOpen: boolean;
+    isOpen: boolean | null;
     statusText: string;
     isCarriedForward: boolean;
     nextOpenTimestamp?: number | null;
   };
-  source: 'Pyth Hermes API' | 'Pyth Oracle' | 'Pyth API Server' | 'Unavailable';
+  source: 'Pyth Hermes API' | 'Pyth Hermes API (Stale)' | 'Pyth Oracle' | 'Pyth API Server' | 'Unavailable';
   isAvailable: boolean;
   reason?: string;
 }
@@ -123,9 +128,13 @@ export async function resolveVerifiedPythFeed(
           assetType,
           minChannel: feed.minChannel,
           marketHours: {
-            isOpen: feed.marketHours?.is_open ?? true,
-            nextOpen: feed.marketHours?.next_open ?? null,
-            nextClose: feed.marketHours?.next_close ?? null,
+            isOpen: typeof feed.marketHours?.isOpen === 'boolean'
+              ? feed.marketHours.isOpen
+              : (typeof feed.marketHours?.is_open === 'boolean' ? feed.marketHours.is_open : null),
+            status: feed.marketHours?.status || (typeof feed.marketHours?.is_open === 'boolean' ? (feed.marketHours.is_open ? 'open' : 'closed') : 'unknown'),
+            nextOpen: feed.marketHours?.nextOpen ?? feed.marketHours?.next_open ?? null,
+            nextClose: feed.marketHours?.nextClose ?? feed.marketHours?.next_close ?? null,
+            note: feed.marketHours?.note,
           },
           schedule: feed.schedule,
         };
@@ -162,6 +171,7 @@ export async function resolveVerifiedPythFeed(
     else if (rawType.includes('fx')) assetType = 'FX';
     else if (rawType.includes('index')) assetType = 'Index';
 
+    const hasValidMarketHours = match.market_hours && typeof match.market_hours.is_open === 'boolean';
     const result: VerifiedPythFeedMetadata = {
       id: match.id,
       symbol: match.attributes?.symbol || query,
@@ -170,9 +180,11 @@ export async function resolveVerifiedPythFeed(
       assetType,
       minChannel: match.attributes?.min_channel,
       marketHours: {
-        isOpen: match.market_hours?.is_open ?? true,
+        isOpen: hasValidMarketHours ? match.market_hours.is_open : null,
+        status: hasValidMarketHours ? (match.market_hours.is_open ? 'open' : 'closed') : 'unknown',
         nextOpen: match.market_hours?.next_open ?? null,
         nextClose: match.market_hours?.next_close ?? null,
+        note: hasValidMarketHours ? undefined : 'Market hours not provided by oracle',
       },
       schedule: match.attributes?.schedule,
     };
@@ -206,7 +218,7 @@ export async function getRealPythMarketPrice(
 
   // 1. Resolve feed metadata first
   const feedMeta = await resolveVerifiedPythFeed(normalized);
-  const isOpen = feedMeta ? feedMeta.marketHours.isOpen : true;
+  const isOpen = feedMeta ? feedMeta.marketHours.isOpen : null;
   const nextOpen = feedMeta?.marketHours.nextOpen ?? null;
   const feedId = feedMeta?.id || (normalized.length === 64 ? normalized : null);
   const pythSymbol = feedMeta?.symbol || normalized;
@@ -221,7 +233,7 @@ export async function getRealPythMarketPrice(
 
       if (data.status === 'ok' && data.price !== null && data.price > 0) {
         const publishSec = data.publishTime || Math.floor(now / 1000);
-        const statusText = formatMarketSessionStatus(isOpen, publishSec, nextOpen);
+        const statusText = formatMarketSessionStatus(isOpen, publishSec, nextOpen, false);
 
         const result: PythRealPriceResult = {
           price: data.price,
@@ -229,16 +241,48 @@ export async function getRealPythMarketPrice(
           feedUpdateTimestamp: publishSec,
           change24hPct: data.change24hPct !== undefined ? data.change24hPct : null,
           status: 'ok',
+          isStale: false,
+          ageSeconds: data.ageSeconds,
+          maxAllowedAgeSeconds: data.maxAllowedAgeSeconds,
           pythSymbol,
           feedId: data.id || feedId || undefined,
           marketSession: {
             isOpen,
             statusText,
-            isCarriedForward: !isOpen,
+            isCarriedForward: isOpen === false,
             nextOpenTimestamp: nextOpen,
           },
-          source: (data.source as any) || 'Pyth API Server',
+          source: (data.source as any) || 'Pyth Hermes API',
           isAvailable: true,
+        };
+        priceResultCache.set(normalized, { data: result, timestamp: now });
+        return result;
+      }
+
+      if (data.status === 'stale') {
+        const publishSec = data.publishTime || Math.floor(now / 1000);
+        const statusText = formatMarketSessionStatus(isOpen, publishSec, nextOpen, true);
+
+        const result: PythRealPriceResult = {
+          price: data.price, // Preserved legitimate last-known value
+          confidence: data.confidence,
+          feedUpdateTimestamp: publishSec,
+          change24hPct: null,
+          status: 'stale',
+          isStale: true,
+          ageSeconds: data.ageSeconds,
+          maxAllowedAgeSeconds: data.maxAllowedAgeSeconds,
+          pythSymbol,
+          feedId: data.id || feedId || undefined,
+          reason: data.reason || 'Oracle price is stale; cannot be used as current price',
+          marketSession: {
+            isOpen,
+            statusText,
+            isCarriedForward: true,
+            nextOpenTimestamp: nextOpen,
+          },
+          source: 'Pyth Hermes API (Stale)',
+          isAvailable: false,
         };
         priceResultCache.set(normalized, { data: result, timestamp: now });
         return result;
@@ -304,7 +348,7 @@ export async function getRealPythMarketPrice(
     feedId: feedId || undefined,
     marketSession: {
       isOpen,
-      statusText: isOpen ? 'Pyth feed unavailable' : 'Market closed • Feed unavailable',
+      statusText: isOpen === false ? 'Market closed • Feed unavailable' : 'Pyth feed unavailable',
       isCarriedForward: false,
       nextOpenTimestamp: nextOpen,
     },
@@ -345,20 +389,36 @@ export async function batchFetchPythPrices(
  * Format market session & update freshness into concise user-facing label
  */
 export function formatMarketSessionStatus(
-  isOpen: boolean,
+  isOpen: boolean | null,
   publishTimeSec: number,
-  _nextOpenSec: number | null
+  _nextOpenSec: number | null,
+  isStale = false
 ): string {
   const nowSec = Math.floor(Date.now() / 1000);
   const diffSec = Math.max(0, nowSec - publishTimeSec);
 
-  if (!isOpen) {
+  if (isStale) {
+    const mins = Math.floor(diffSec / 60);
+    return `Stale oracle price (${mins}m old) • Live updates paused`;
+  }
+
+  if (isOpen === false) {
     if (publishTimeSec > 0) {
       const d = new Date(publishTimeSec * 1000);
       const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
       return `Market closed • Carried forward from ${dateStr}`;
     }
     return 'Market closed • Carried forward from previous close';
+  }
+
+  if (isOpen === null) {
+    if (diffSec < 120) {
+      return 'Live • Exchange hours unknown (On-chain pool 24/7)';
+    } else if (diffSec < 3600) {
+      const mins = Math.floor(diffSec / 60);
+      return `Updated ${mins}m ago • Exchange hours unknown (On-chain pool 24/7)`;
+    }
+    return 'Exchange hours unknown • On-chain token pool trades 24/7';
   }
 
   if (diffSec < 60) {

@@ -10,7 +10,9 @@ import {
   ChevronRight,
   ArrowUpDown,
   Coins,
-  Activity
+  Activity,
+  Plus,
+  Sparkles
 } from 'lucide-react';
 import { NavigationTab } from '../layout/Header';
 import { ValticsPredictionMarket, PantaMarketStatus, PantaSyncStatus } from '../../types/panta';
@@ -18,6 +20,7 @@ import { fetchPantaMarkets, fetchPantaSyncStatus } from '../../services/pantaSer
 import { PantaMarketCard } from '../markets/PantaMarketCard';
 import { PantaMarketDetailModal } from '../markets/PantaMarketDetailModal';
 import { PantaHealthModal } from '../panta/PantaHealthModal';
+import { PantaMarketCreationModal } from '../intelligence/PantaMarketCreationModal';
 import { evaluateTokenizedAssetRelevance } from '../../utils/pantaRelevance';
 import { formatCurrency } from '../../utils/format';
 
@@ -58,6 +61,12 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
   // Detail Modal State
   const [selectedMarketForModal, setSelectedMarketForModal] = useState<ValticsPredictionMarket | null>(null);
   const [healthModalOpen, setHealthModalOpen] = useState<boolean>(false);
+  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
+
+  const handlePredictionCreated = (signature: string, question: string) => {
+    setCreateModalOpen(false);
+    loadPredictions(true);
+  };
 
   const lastFetchRef = useRef<number>(0);
 
@@ -285,8 +294,8 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           </p>
         </div>
 
-        {/* Search & Refresh */}
-        <div className="flex items-center gap-2.5">
+        {/* Search, Create Prediction & Refresh */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <div className="relative w-full sm:w-64">
             <Search className="w-3.5 h-3.5 text-[#66667A] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -306,6 +315,16 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
               </button>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setCreateModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-gradient-to-r from-[#8A20FF] to-[#670CDC] hover:from-[#9D38FF] hover:to-[#7818EE] text-white text-xs font-mono font-medium shadow-md shadow-[#8A20FF]/25 border border-[#B368FF]/30 transition-all cursor-pointer shrink-0"
+            title="Create a new prediction market on Panta Protocol"
+          >
+            <Plus className="w-3.5 h-3.5 text-white" />
+            <span>Create Market</span>
+          </button>
 
           <button
             type="button"
@@ -481,18 +500,28 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           <p className="text-xs text-[#A7A7B8] max-w-md mx-auto">
             No active forecast benchmarks matched your search or filters.
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              setSearchInput('');
-              setCategoryFilter('all');
-              setStatusFilter('all');
-              setTokenizedOnly(false);
-            }}
-            className="valtics-button-secondary text-xs py-1.5 px-3.5 cursor-pointer"
-          >
-            Reset Filters
-          </button>
+          <div className="flex items-center justify-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                setSearchInput('');
+                setCategoryFilter('all');
+                setStatusFilter('all');
+                setTokenizedOnly(false);
+              }}
+              className="valtics-button-secondary text-xs py-1.5 px-3.5 cursor-pointer"
+            >
+              Reset Filters
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreateModalOpen(true)}
+              className="valtics-button text-xs py-1.5 px-3.5 flex items-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create Market</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -556,6 +585,18 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
         isOpen={healthModalOpen}
         onClose={() => setHealthModalOpen(false)}
       />
+
+      {/* Prediction Market Creation Modal */}
+      {createModalOpen && (
+        <PantaMarketCreationModal
+          assetSymbol="SOL"
+          assetName="Solana Ecosystem"
+          currentPrice={150}
+          category="crypto"
+          onClose={() => setCreateModalOpen(false)}
+          onMarketCreated={handlePredictionCreated}
+        />
+      )}
     </div>
   );
 };

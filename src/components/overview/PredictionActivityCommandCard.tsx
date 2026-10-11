@@ -36,10 +36,9 @@ export const PredictionActivityCommandCard: React.FC<PredictionActivityCommandCa
   }, []);
 
   const primaryMarket = markets.length > 0 ? markets[0] : null;
-  const yesProbPercent = primaryMarket?.probability !== null && primaryMarket?.probability !== undefined
-    ? Math.round(primaryMarket.probability * 100)
-    : 68;
-  const noProbPercent = 100 - yesProbPercent;
+  const hasProbability = primaryMarket?.probability !== null && primaryMarket?.probability !== undefined;
+  const yesProbPercent = hasProbability ? Math.round(primaryMarket!.probability! * 100) : null;
+  const noProbPercent = hasProbability ? 100 - yesProbPercent! : null;
 
   return (
     <div className="valtics-card p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden h-full space-y-4">
@@ -118,12 +117,12 @@ export const PredictionActivityCommandCard: React.FC<PredictionActivityCommandCa
           <div className="grid grid-cols-2 gap-2 pt-0.5">
             <div className="rounded-lg bg-[#6010F0] text-white py-1.5 px-3 flex items-center justify-between text-xs font-semibold shadow-xs">
               <span>Yes</span>
-              <span className="font-mono">{yesProbPercent}%</span>
+              <span className="font-mono">{yesProbPercent !== null ? `${yesProbPercent}%` : '—'}</span>
             </div>
 
             <div className="rounded-lg bg-[#080821] border border-white/10 text-[#A7A7B8] py-1.5 px-3 flex items-center justify-between text-xs font-medium">
               <span>No</span>
-              <span className="font-mono">{noProbPercent}%</span>
+              <span className="font-mono">{noProbPercent !== null ? `${noProbPercent}%` : '—'}</span>
             </div>
           </div>
         </div>
@@ -132,7 +131,7 @@ export const PredictionActivityCommandCard: React.FC<PredictionActivityCommandCa
         <div className="flex items-center justify-between text-[11px] font-mono text-[#A7A7B8]">
           <div className="flex items-center gap-1.5">
             <Activity className="w-3 h-3 text-[#FF8A20]" />
-            <span>Volume: {primaryMarket?.volume ? formatCurrency(primaryMarket.volume, 'USD', 0) : '$420,500'}</span>
+            <span>Volume: {primaryMarket?.volume ? formatCurrency(primaryMarket.volume, 'USD', 0) : primaryMarket ? '$0' : '—'}</span>
           </div>
           <span className="text-[#66667A]">Crowd Forecast</span>
         </div>

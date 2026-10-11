@@ -137,16 +137,25 @@ export const OverviewMarketActivityChart: React.FC<OverviewMarketActivityChartPr
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#1C0142] text-[#EDE4FA] border border-[#670CDC]/30">
               {activePool ? activePool.tokenName || activePool.tokenSymbol : 'Solana Benchmark (SOL/USD)'}
             </span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#080821] text-[#A7A7B8] border border-white/10">
+              Simulated Curve Model
+            </span>
           </div>
 
           <div className="flex items-baseline gap-3 mt-1.5">
             <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#F5F5F7] tracking-tight">
               {formatCurrency(activePt ? activePt.price : 185.4)}
             </span>
-            <span className="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-0.5">
-              <span>+{(activePool?.activity24h?.priceChange24hPct || 8.4).toFixed(1)}%</span>
-              <span className="text-[#A7A7B8] text-[10px] ml-1">24h</span>
-            </span>
+            {activePool?.activity24h?.priceChange24hPct !== undefined && activePool.activity24h.priceChange24hPct !== null ? (
+              <span className="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-0.5">
+                <span>+{activePool.activity24h.priceChange24hPct.toFixed(1)}%</span>
+                <span className="text-[#A7A7B8] text-[10px] ml-1">24h</span>
+              </span>
+            ) : (
+              <span className="text-xs font-mono text-[#A7A7B8] flex items-center gap-0.5">
+                <span>Curve Model Projection</span>
+              </span>
+            )}
             {activePt && (
               <span className="text-[11px] font-mono text-[#66667A]">
                 @ {activePt.time}
@@ -277,13 +286,13 @@ export const OverviewMarketActivityChart: React.FC<OverviewMarketActivityChartPr
           </div>
         </div>
 
-        {/* Oracle Latency */}
+        {/* Simulation Telemetry */}
         <div className="bg-[#080821] border border-[rgba(138,32,255,0.2)] rounded-lg p-2.5 flex items-center justify-between">
           <div>
-            <span className="text-[#A7A7B8] block text-[10px]">Pyth Oracle Confidence</span>
-            <span className="text-[#F5F5F7] font-bold text-xs mt-0.5 block">±0.04% Live Feed</span>
+            <span className="text-[#A7A7B8] block text-[10px]">Bonding Curve Simulator</span>
+            <span className="text-[#F5F5F7] font-bold text-xs mt-0.5 block">Synthetic Flow Model</span>
           </div>
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-violet-400" />
         </div>
 
         {/* Action: Open Explorer */}
